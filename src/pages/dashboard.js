@@ -1,0 +1,506 @@
+import i18n, { translateDOM } from '../i18n.js';
+import { sb } from '../supabase.js';
+import { formatTimeLeft } from '../utils.js';
+import { renderPageTopbar, bindPageNav } from '../nav.js';
+
+const t = (key, p) => i18n.t(key, p);
+
+export async function renderDashboard(user, profile) {
+  const app = document.getElementById('app');
+  app.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-size:13px;color:var(--text-muted);font-family:var(--font-body);font-weight:500;">Loading...</div>`;
+
+  const currentRound = 1;
+
+  const { data: nation } = await sb
+    .from('nations')
+    .select('*')
+    .eq('owner_id', user.id)
+    .eq('round', currentRound)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (!nation) { renderCreateNation(app, user, profile, currentRound); return; }
+  if (!nation.is_alive) { renderDestroyedNation(app, user, profile, nation, currentRound); return; }
+
+  // Parallel data fetch
+  const [
+    { data: facilities },
+    { data: facilityTypes },
+    { data: myUnits },
+    { data: topNations },
+    { data: roundConfig },
+    { data: recentAttacks },
+    { data: alMemberCount },
+    { data: alInfo },
+    { data: myMembership },
+    { data: intelData },
+  ] = await Promise.all([
+    sb.from('facilities').select('quantity, facility_type_id').eq('nation_id', nation.id),
+    sb.from('facility_types').select('id, income_per_hour, maintenance_per_hour'),
+    sb.from('military_units').select('quantity, equipment_types(attack_power, defense_power, maintenance_per_2h)').eq('nation_id', nation.id),
+    sb.from('rankings').select('nation_id, nation_name, username, score, overall_rank, is_bot, alliance_tag, alliance_name').eq('round', 1).order('overall_rank').limit(5),
+    sb.from('game_config').select('value').eq('key', 'round_restart_date').single(),
+    sb.from('attacks')
+      .select('*, attacker:attacker_nation_id(name), defender:defender_nation_id(name)')
+      .or(`attacker_nation_id.eq.${nation.id},defender_nation_id.eq.${nation.id}`)
+      .order('attacked_at', { ascending: false })
+      .limit(4),
+    nation.alliance_id
+      ? sb.from('alliance_members').select('count').eq('alliance_id', nation.alliance_id).single()
+      : Promise.resolve({ data: null }),
+    nation.alliance_id
+      ? sb.from('alliances').select('name, tag').eq('id', nation.alliance_id).single()
+      : Promise.resolve({ data: null }),
+    nation.alliance_id
+      ? sb.from('alliance_members').select('role').eq('nation_id', nation.id).maybeSingle()
+      : Promise.resolve({ data: null }),
+    sb.from('intelligence').select('spies, satellites, spy_level, sat_level, tech_level, anti_spy_level, anti_sat_level').eq('nation_id', nation.id).maybeSingle(),
+  ]);
+
+  // Economy calcs
+  const facMap = Object.fromEntries((facilities || []).map(f => [f.facility_type_id, f.quantity]));
+  const ftMap  = Object.fromEntries((facilityTypes || []).map(f => [f.id, f]));
+  let incomeHr = 0, upkeepHr = 0, totalFacilities = 0;
+  Object.entries(facMap).forEach(([id, qty]) => {
+    totalFacilities += qty;
+    if (ftMap[id]) { incomeHr += qty * ftMap[id].income_per_hour; upkeepHr += qty * ftMap[id].maintenance_per_hour; }
+  });
+  const netHr = incomeHr - upkeepHr;
+
+  // Military calcs
+  let myAtk = 0, myDef = 0, myMaint2h = 0;
+  (myUnits || []).forEach(u => {
+    myAtk    += u.quantity * (u.equipment_types?.attack_power      || 0);
+    myDef    += u.quantity * (u.equipment_types?.defense_power     || 0);
+    myMaint2h += u.quantity * (u.equipment_types?.maintenance_per_2h || 0);
+  });
+  myAtk    += Math.floor(nation.soldiers / 1000) * 50;
+  myDef    += Math.floor(nation.soldiers / 1000) * 50;
+
+  const roundEndMs = roundConfig?.value ? new Date(roundConfig.value).getTime() - Date.now() : 0;
+  const turnPct    = Math.round((nation.turns / 200) * 100);
+
+  app.innerHTML = `
+    ${renderPageTopbar(user, profile, nation, 'dashboard')}
+    <div class="shell">
+
+      <!-- NATION PILL ROW -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
+        <div class="nation-pill">
+          <div class="nation-icon" style="background:linear-gradient(135deg,var(--navy),var(--accent));font-size:16px;font-weight:800;color:#fff;letter-spacing:-1px;">
+            ${nation.name.charAt(0).toUpperCase()}
+          </div>
+          <div>
+            <div class="nation-pill-name">${nation.name}</div>
+            <div class="nation-pill-sub">${profile.username}${profile.is_admin ? ' · Admin' : ''} · Security ${nation.security_index}%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TURNS + SECURITY ROW -->
+      <div style="display:grid;grid-template-columns:1fr 240px;gap:10px;margin-bottom:16px;align-items:stretch;">
+
+        <!-- Turns strip -->
+        <div class="turns-strip" style="margin-bottom:0;">
+          <div class="turns-count-wrap">
+            <div class="turns-big">${nation.turns}</div>
+            <div class="turns-max">/ 200</div>
+          </div>
+          <div class="turns-bar-wrap">
+            <div class="turns-track">
+              <div class="turns-fill" style="width:${turnPct}%"></div>
+            </div>
+            <div class="turns-info">
+              <span>${turnPct}% capacity</span>
+            </div>
+          </div>
+          <div class="turns-timer">
+            <div class="turns-timer-val" id="turn-countdown-clock">--:--</div>
+            <div class="turns-timer-lbl">Next turn</div>
+          </div>
+        </div>
+
+        <!-- Security gauge -->
+        ${securityGauge(nation.security_index)}
+
+      </div>
+
+      <!-- STAT ROW -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;">
+        ${statCard('💰', '$'+fmt(nation.money),          'Treasury',   netHr>=0?`↑ +$${fmt(netHr)}/hr`:`↓ $${fmt(Math.abs(netHr))}/hr`, netHr>=0?'up':'down')}
+        ${statCard('👥', fmt(nation.population),          'Population', '↑ +10,000/day',     'up')}
+        ${statCard('🗺️', nation.land+' units',            'Land',       `${totalFacilities} built`, 'neutral')}
+        ${statCard('⚔️', myAtk.toLocaleString(),  'Attack Power', '🛡️ '+myDef.toLocaleString()+' DEF', 'neutral')}
+      </div>
+
+      <!-- SECTION GRID -->
+      <div class="section-grid">
+        ${sectionCard('⚔️','Military',
+          nation.soldiers.toLocaleString(), 'Soldiers',
+          myAtk.toLocaleString()+' pts', 'Attack Power',
+          myDef.toLocaleString()+' pts', 'Defense Power',
+          myMaint2h > 0 ? '-$'+fmt(myMaint2h)+'/2h' : '$0/2h', 'Maintenance',
+          'var(--accent)', Math.min(Math.round((myAtk / 5000) * 100), 100), 'military')}
+
+        ${sectionCard('🏭','Economy',
+          '+$'+fmt(incomeHr)+'/hr', 'Income',
+          '-$'+fmt(upkeepHr)+'/hr', 'Upkeep',
+          '+$'+fmt(netHr)+'/hr', 'Net',
+          totalFacilities+' built', 'Facilities',
+          '#16a34a', Math.min(Math.round((incomeHr / 10000) * 100), 100), 'economy')}
+
+        ${sectionCard('🤝','Alliances',
+          alInfo ? alInfo.name : 'No alliance', alInfo ? '['+alInfo.tag+']' : 'Status',
+          alInfo ? (alMemberCount?.count || 1)+' members' : '—', 'Members',
+          alInfo ? myMembership?.role || 'Member' : '—', 'Your Role',
+          alInfo ? 'Active' : 'Join or create', 'Alliance',
+          '#6366f1', alInfo ? 60 : 0, 'alliances')}
+
+        ${sectionCard('🔍','Intelligence',
+          (intelData?.spies||0)+' spies', 'Spies',
+          (intelData?.satellites||0)+' sats', 'Satellites',
+          'Tech Lv '+(intelData?.tech_level||0), 'Technology',
+          'Anti: '+(intelData?.anti_spy_level||0)+' / '+(intelData?.anti_sat_level||0), 'Spy / Sat Defense',
+          '#f59e0b', Math.min(((intelData?.tech_level||0)/5)*100, 100), 'intelligence')}
+      </div>
+
+      <!-- BOTTOM ROW -->
+      <div class="bottom-row">
+
+        <!-- Events -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📋 Recent Events</div>
+            <button class="card-link" data-page="attacks">View attacks →</button>
+          </div>
+          ${(recentAttacks||[]).length === 0
+            ? `<div style="padding:20px 18px;font-size:13px;color:var(--text-muted);font-weight:500;">No recent activity. Attack your first nation!</div>`
+            : (recentAttacks||[]).map(a => {
+                const isAtt = a.attacker_nation_id === nation.id;
+                const opp   = isAtt ? a.defender : a.attacker;
+                const win   = a.success ? isAtt : !isAtt;
+                return `
+                  <div class="event-item">
+                    <div class="event-dot" style="background:${win?'var(--success)':'var(--danger)'};"></div>
+                    <div class="event-body">
+                      <div class="event-title">${isAtt?'Attack on':'Attacked by'} <strong>${opp?.name||'Unknown'}</strong></div>
+                      <div class="event-desc">${a.result_summary || a.attack_type}</div>
+                    </div>
+                    <div class="event-time">${new Date(a.attacked_at).toLocaleTimeString()}</div>
+                  </div>
+                `;
+              }).join('')
+          }
+        </div>
+
+        <!-- Right column -->
+        <div style="display:flex;flex-direction:column;gap:10px;">
+
+          <!-- Top nations -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">🏆 Top Nations</div>
+              <button class="card-link" data-page="rankings">All →</button>
+            </div>
+            ${(topNations||[]).map((n, i) => `
+              <div class="rank-row ${n.nation_id===nation.id?'me':''}">
+                <div class="rank-pos">${n.overall_rank}</div>
+                <div class="rank-name">
+                  ${n.nation_name}
+                  ${n.nation_id===nation.id?'<span class="rank-you">YOU</span>':''}
+                  ${n.is_bot?'<span class="rank-bot">BOT</span>':''}
+                  ${n.alliance_tag?`<span style="font-size:9px;color:var(--accent-2);background:rgba(99,102,241,0.08);padding:1px 5px;border-radius:4px;border:1px solid rgba(99,102,241,0.2);font-family:var(--font-mono);font-weight:700;">[${n.alliance_tag}]</span>`:''}
+                </div>
+                <div class="rank-score">${fmtScore(n.score)}</div>
+              </div>
+            `).join('')}
+          </div>
+
+          <!-- Round countdown clock -->
+          <div class="card" style="padding:16px 18px;">
+            <div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;
+              letter-spacing:0.5px;margin-bottom:12px;">⏳ Round Ends In</div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;" id="round-clock">
+              ${roundEndMs > 0 ? clockBlocks(roundEndMs) : `<div style="font-size:13px;color:var(--danger);font-weight:700;grid-column:span 4;">Round ending soon!</div>`}
+            </div>
+            <div style="margin-top:12px;height:3px;background:var(--border);border-radius:2px;overflow:hidden;">
+              <div style="height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:2px;
+                width:${roundEndMs>0?Math.max(2,Math.round((1-roundEndMs/(4*30*24*3600*1000))*100)):100}%;"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  `;
+
+  startCountdown(nation.turns, user, profile);
+  startRoundClock(roundConfig?.value);
+  bindPageNav(user, profile, nation);
+}
+
+// ─── Create Nation ────────────────────────────────────────────────────────────
+
+function renderCreateNation(app, user, profile, round) {
+  app.innerHTML = `
+    <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;">
+      <div style="width:100%;max-width:500px;">
+        <div class="card" style="padding:28px;">
+          <div style="text-align:center;margin-bottom:22px;">
+            <div style="font-size:44px;margin-bottom:10px;">🌍</div>
+            <div style="font-size:20px;font-weight:800;margin-bottom:6px;" data-i18n="nation.foundTitle"></div>
+            <div style="font-size:13px;color:var(--text-muted);font-weight:500;" data-i18n="nation.foundSubtitle" data-i18n-params='{"round":${round}}'></div>
+          </div>
+          <div class="field">
+            <label data-i18n="nation.nameLabel"></label>
+            <input type="text" id="nation-name" data-i18n-placeholder="nation.namePlaceholder" maxlength="40"/>
+          </div>
+          <div style="background:var(--surface2);border-radius:var(--radius-md);padding:12px 14px;margin-bottom:16px;font-size:12px;color:var(--text-muted);font-weight:500;line-height:1.9;">
+            <strong style="color:var(--text);" data-i18n="nation.startingStats"></strong><br>
+            1,000,000 population &nbsp;·&nbsp; 100 land units<br>
+            $50,000 treasury &nbsp;·&nbsp; 100% security &nbsp;·&nbsp; 100 turns
+          </div>
+          <button class="btn-submit" id="btn-found" data-i18n="nation.deployBtn"></button>
+          <div class="msg" id="found-msg"></div>
+        </div>
+        <div style="text-align:center;margin-top:14px;">
+          <button class="btn btn-ghost" id="btn-signout" style="font-size:12px;">Sign out</button>
+        </div>
+      </div>
+    </div>
+  `;
+  translateDOM();
+  document.getElementById('btn-signout').addEventListener('click', () => sb.auth.signOut());
+  document.getElementById('btn-found').addEventListener('click', async () => {
+    const name = document.getElementById('nation-name').value.trim();
+    if (!name || name.length < 2) { showMsg('found-msg','error',t('nation.errNameShort')); return; }
+
+    // Block emoji in nation name
+    const emojiRegex = /[\u{1F000}-\u{1FFFF}\u{2600}-\u{27FF}\u{2702}-\u{27B0}\u{FE00}-\u{FE0F}\u{1F900}-\u{1F9FF}]/u;
+    if (emojiRegex.test(name)) {
+      showMsg('found-msg','error','Nation name cannot contain emoji.');
+      return;
+    }
+    const btn = document.getElementById('btn-found');
+    btn.disabled = true; btn.textContent = t('nation.deploying');
+    const { data: cfg } = await sb.from('game_config').select('key,value').in('key',['starting_population','starting_land','starting_money']);
+    const c = Object.fromEntries((cfg||[]).map(r=>[r.key,parseInt(r.value)]));
+    // Assign a random flag color automatically
+    const flags = ['🔴','🔵','🟢','🟡','🟠','🟣','⚫','🏴'];
+    const flag = flags[Math.floor(Math.random() * flags.length)];
+    const { error } = await sb.from('nations').insert({
+      owner_id: user.id, name, flag_emoji: flag, round,
+      population: c.starting_population||1000000,
+      land: c.starting_land||100,
+      money: c.starting_money||50000,
+    });
+    if (error) {
+      showMsg('found-msg','error', error.message.includes('unique') ? t('nation.errNameTaken') : error.message);
+      btn.disabled = false; btn.textContent = t('nation.deployBtn');
+    } else {
+      renderDashboard(user, profile);
+    }
+  });
+}
+
+// ─── Destroyed Nation ─────────────────────────────────────────────────────────
+
+function renderDestroyedNation(app, user, profile, nation, round) {
+  app.innerHTML = `
+    <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;">
+      <div style="width:100%;max-width:460px;">
+        <div class="card" style="padding:28px;text-align:center;border-top:3px solid var(--danger);">
+          <div style="font-size:44px;margin-bottom:10px;">💀</div>
+          <div style="font-size:20px;font-weight:800;color:var(--danger);margin-bottom:6px;" data-i18n="nation.fallenTitle"></div>
+          <div style="font-size:13px;color:var(--text-muted);font-weight:500;margin-bottom:16px;">
+            <strong>${nation.name}</strong> — <span data-i18n="nation.fallenSub"></span>
+          </div>
+          ${nation.destroy_reason ? `<div class="badge badge-red" style="margin-bottom:16px;">${nation.destroy_reason}</div>` : ''}
+          <div style="font-size:13px;color:var(--text-muted);font-weight:500;margin-bottom:20px;line-height:1.7;"
+            data-i18n="nation.stillActive" data-i18n-params='{"username":"${profile.username}","round":${round}}'></div>
+          <button class="btn-submit" id="btn-rise" data-i18n="nation.riseBtn"></button>
+        </div>
+        <div style="text-align:center;margin-top:14px;">
+          <button class="btn btn-ghost" id="btn-signout" style="font-size:12px;">Sign out</button>
+        </div>
+      </div>
+    </div>
+  `;
+  translateDOM();
+  document.getElementById('btn-rise').addEventListener('click', () => renderCreateNation(app, user, profile, round));
+  document.getElementById('btn-signout').addEventListener('click', () => sb.auth.signOut());
+}
+
+// ─── Countdown ────────────────────────────────────────────────────────────────
+
+function startCountdown(currentTurns, user, profile) {
+  const clock = document.getElementById('turn-countdown-clock');
+  if (!clock) return;
+
+  let pollTimer = null;
+
+  function nextCronMs() {
+    const now = new Date();
+    const m = now.getMinutes();
+    const nextQ = Math.ceil((m + 1) / 15) * 15;
+    const next = new Date(now);
+    next.setSeconds(0); next.setMilliseconds(0);
+    if (nextQ >= 60) { next.setMinutes(0); next.setHours(now.getHours() + 1); }
+    else { next.setMinutes(nextQ); }
+    return next.getTime();
+  }
+
+  function tick() {
+    if (!document.getElementById('turn-countdown-clock')) { clearTimeout(pollTimer); return; }
+    const diff = nextCronMs() - Date.now();
+    if (diff <= 0) {
+      clock.textContent = 'Ready!';
+      clock.style.fontSize = '13px';
+      pollTimer = setTimeout(() => poll(currentTurns, user, profile), 30000);
+      return;
+    }
+    const str = `${String(Math.floor(diff/60000)).padStart(2,'0')}:${String(Math.floor((diff%60000)/1000)).padStart(2,'0')}`;
+    clock.textContent = str;
+    clock.style.fontSize = '';
+    setTimeout(tick, 1000);
+  }
+  tick();
+}
+
+async function poll(prev, user, profile) {
+  if (!document.getElementById('turn-countdown-clock')) return;
+  const { data } = await sb.from('nations').select('turns').eq('owner_id', user.id).eq('is_alive', true).maybeSingle();
+  if (data && data.turns > prev) renderDashboard(user, profile);
+  else setTimeout(() => poll(prev, user, profile), 30000);
+}
+
+// ─── Nav ──────────────────────────────────────────────────────────────────────
+
+// ─── Components ───────────────────────────────────────────────────────────────
+
+function statCard(icon, val, lbl, delta, deltaType) {
+  return `
+    <div class="stat-card">
+      <span class="stat-icon">${icon}</span>
+      <div class="stat-val">${val}</div>
+      <div class="stat-lbl">${lbl}</div>
+      <div class="stat-delta ${deltaType}">${delta}</div>
+    </div>
+  `;
+}
+
+function sectionCard(icon, title, v1, l1, v2, l2, v3, l3, v4, l4, color, barPct, page) {
+  const clickable = !!page;
+  return `
+    <div class="section-card ${clickable ? '' : 'disabled'}" ${clickable ? `data-page="${page}"` : ''}>
+      <div class="section-head">
+        <div class="section-title"><span>${icon}</span>${title}</div>
+        ${clickable
+          ? `<span class="section-arrow">→</span>`
+          : `<span class="badge badge-gray" style="font-size:10px;">Soon</span>`}
+      </div>
+      <div class="section-bar"><div class="section-bar-fill" style="width:${barPct}%;background:${color};"></div></div>
+      <div class="section-data">
+        <div class="section-datum"><div class="section-datum-val">${v1}</div><div class="section-datum-lbl">${l1}</div></div>
+        <div class="section-datum"><div class="section-datum-val">${v2}</div><div class="section-datum-lbl">${l2}</div></div>
+        <div class="section-datum"><div class="section-datum-val">${v3}</div><div class="section-datum-lbl">${l3}</div></div>
+        <div class="section-datum"><div class="section-datum-val">${v4}</div><div class="section-datum-lbl">${l4}</div></div>
+      </div>
+    </div>
+  `;
+}
+
+function securityGauge(idx) {
+  const getColor = pct => {
+    if (pct <= 30) return { fill: '#ef4444', track: 'rgba(239,68,68,0.08)',  label: 'CRITICAL', textColor: '#ef4444' };
+    if (pct <= 50) return { fill: '#f97316', track: 'rgba(249,115,22,0.08)', label: 'LOW',      textColor: '#f97316' };
+    if (pct <= 70) return { fill: '#eab308', track: 'rgba(234,179,8,0.08)',  label: 'MODERATE', textColor: '#ca8a04' };
+    if (pct <= 85) return { fill: '#14b8a6', track: 'rgba(20,184,166,0.08)', label: 'GOOD',     textColor: '#0d9488' };
+    return               { fill: '#22c55e', track: 'rgba(34,197,94,0.08)',   label: 'SECURE',   textColor: '#16a34a' };
+  };
+  const c = getColor(idx);
+  const ticks = Array.from({length: 10}, (_, i) => {
+    const filled = idx >= (i + 1) * 10;
+    return `<div style="flex:1;height:100%;border-radius:2px;margin:0 1px;
+      background:${filled ? c.fill : 'var(--border)'};opacity:${filled ? 1 : 0.35};"></div>`;
+  }).join('');
+  const effects = idx <= 30 ? 'Income locked at 40%' : idx <= 50 ? `Income at ${idx}%` : idx > 80 ? 'Full income earned' : `Income at ${idx}%`;
+
+  return `
+    <div style="background:var(--surface);border:1px solid ${c.fill}35;border-radius:var(--radius-lg);
+      padding:14px 16px;box-shadow:var(--shadow-sm);height:100%;
+      background:linear-gradient(135deg,var(--surface) 0%,${c.track} 100%);
+      display:flex;flex-direction:column;justify-content:space-between;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <span style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">🛡️ Security</span>
+        <span style="font-size:10px;background:${c.fill}18;border:1px solid ${c.fill}45;border-radius:20px;
+          padding:2px 8px;font-weight:800;color:${c.textColor};">${c.label}</span>
+      </div>
+      <div style="font-size:32px;font-weight:800;color:${c.textColor};font-family:var(--font-mono);line-height:1;margin-bottom:8px;">
+        ${idx}<span style="font-size:18px;font-weight:600;">%</span>
+      </div>
+      <div style="display:flex;height:7px;align-items:stretch;margin-bottom:6px;">${ticks}</div>
+      <div style="font-size:11px;color:var(--text-muted);font-weight:500;">${effects}</div>
+    </div>
+  `;
+}
+
+function clockBlocks(ms) {
+  const totalSecs = Math.floor(ms / 1000);
+  const d = Math.floor(totalSecs / 86400);
+  const h = Math.floor((totalSecs % 86400) / 3600);
+  const m = Math.floor((totalSecs % 3600) / 60);
+  const s = totalSecs % 60;
+  return [
+    { val: d, lbl: 'DAYS' },
+    { val: h, lbl: 'HRS' },
+    { val: m, lbl: 'MIN' },
+    { val: s, lbl: 'SEC' },
+  ].map(({ val, lbl }) => `
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-md);
+      padding:10px 6px;text-align:center;">
+      <div style="font-size:22px;font-weight:800;font-family:var(--font-mono);color:var(--accent);line-height:1;">
+        ${String(val).padStart(2,'0')}
+      </div>
+      <div style="font-size:9px;font-weight:700;color:var(--text-dim);letter-spacing:0.5px;margin-top:4px;">${lbl}</div>
+    </div>
+  `).join('');
+}
+
+function startRoundClock(endDateStr) {
+  if (!endDateStr) return;
+  function tick() {
+    const el = document.getElementById('round-clock');
+    if (!el) return;
+    const diff = new Date(endDateStr).getTime() - Date.now();
+    if (diff <= 0) {
+      el.innerHTML = `<div style="font-size:13px;color:var(--danger);font-weight:700;grid-column:span 4;">Round ending soon!</div>`;
+      return;
+    }
+    el.innerHTML = clockBlocks(diff);
+    setTimeout(tick, 1000);
+  }
+  tick();
+}
+
+function showMsg(id, type, text) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = text;
+  el.className = 'msg ' + type + ' show';
+}
+
+function fmt(n) {
+  if (Math.abs(n) >= 1000000) return (n/1000000).toFixed(1)+'M';
+  if (Math.abs(n) >= 1000)    return (n/1000).toFixed(1)+'k';
+  return Math.round(n).toString();
+}
+
+function fmtScore(n) {
+  if (!n) return '0';
+  if (n >= 1000000) return (n/1000000).toFixed(1)+'M';
+  if (n >= 1000)    return (n/1000).toFixed(0)+'k';
+  return n.toString();
+}

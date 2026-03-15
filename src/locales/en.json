@@ -1,0 +1,112 @@
+{
+  "appName": "Nation Commander",
+  "loading": "Processing...",
+  "save": "Save",
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "close": "Close",
+  "yes": "Yes",
+  "no": "No",
+  "back": "Back",
+  "comingSoon": "Coming soon",
+
+  "auth": {
+    "badge": "Multiplayer Strategy",
+    "tagline": "Build your empire · Forge alliances · Conquer the world",
+    "loginTab": "Login",
+    "registerTab": "Register",
+    "emailLabel": "Email Address",
+    "emailPlaceholder": "commander@nation.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "••••••••",
+    "confirmLabel": "Confirm",
+    "usernameLabel": "Commander Name",
+    "usernamePlaceholder": "YourUsername",
+    "phoneLabel": "Phone",
+    "phonePlaceholder": "+1 555 000 0000",
+    "optional": "optional",
+    "loginBtn": "Enter Command Center",
+    "registerBtn": "Deploy Nation",
+    "logoutBtn": "Stand Down",
+    "loginSuccess": "Access granted. Loading command center...",
+    "registerSuccess": "Nation deployed. Check your email to verify, then login.",
+    "errFillAll": "All fields are required.",
+    "errPassMatch": "Passwords do not match.",
+    "errPassLen": "Password must be at least 8 characters.",
+    "errUsername": "Commander name must be 3+ characters.",
+    "errBanned": "Your nation has been suspended. Contact admin.",
+    "welcomeSub": "Your nation awaits your command.",
+    "adminBadge": "Administrator"
+  },
+
+  "ticker": {
+    "nationsActive": "Nations Active",
+    "timeToReset": "Round Ends In"
+  },
+
+  "nation": {
+    "foundTitle": "Found Your Nation",
+    "foundSubtitle": "Round {{round}} · Choose your nation's name and flag",
+    "nameLabel": "Nation Name",
+    "namePlaceholder": "e.g. Republic of Nordavia",
+    "flagLabel": "Flag Emoji",
+    "flagPlaceholder": "or type any emoji...",
+    "startingStats": "Starting stats",
+    "deployBtn": "Deploy Nation",
+    "deploying": "Deploying...",
+    "errNameShort": "Nation name must be at least 2 characters.",
+    "errNameTaken": "That nation name is already taken this round. Try another.",
+    "fallenTitle": "Nation Fallen",
+    "fallenSub": "has been destroyed",
+    "destroyedOn": "Destroyed",
+    "destroyedUnknown": "Unknown",
+    "riseBtn": "Rise from the Ashes",
+    "stillActive": "Your commander account is still active. Rise again — found a new nation in Round {{round}}."
+  },
+
+  "dashboard": {
+    "title": "Command Center",
+    "population": "Population",
+    "land": "Land",
+    "money": "Treasury",
+    "military": "Soldiers",
+    "security": "Security",
+    "turns": "Turns",
+    "round": "Round {{round}}",
+    "commander": "Commander"
+  },
+
+  "sections": {
+    "military": "Military",
+    "militarySub": "Build and manage your armed forces.",
+    "economy": "Economy",
+    "economySub": "Build facilities and grow your treasury.",
+    "alliances": "Alliances",
+    "alliancesSub": "Form alliances with other nations.",
+    "intelligence": "Intelligence",
+    "intelligenceSub": "Spy on your enemies."
+  },
+
+  "rankings": {
+    "title": "RANKINGS",
+    "sub": "Live standings",
+    "back": "Back",
+    "yourStandings": "YOUR STANDINGS"
+  },
+
+  "admin": {
+    "title": "Admin Panel",
+    "users": "Users",
+    "loginLogs": "Login Logs",
+    "gameConfig": "Game Config",
+    "banUser": "Ban User",
+    "unbanUser": "Unban User",
+    "banReason": "Ban Reason",
+    "ipAddress": "IP Address",
+    "userAgent": "Browser",
+    "success": "Success",
+    "failed": "Failed",
+    "timestamp": "Time",
+    "backToDashboard": "Back to Dashboard"
+  }
+}

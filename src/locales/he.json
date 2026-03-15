@@ -1,0 +1,112 @@
+{
+  "appName": "Nation Commander",
+  "loading": "מעבד...",
+  "save": "שמור",
+  "cancel": "ביטול",
+  "confirm": "אישור",
+  "close": "סגור",
+  "yes": "כן",
+  "no": "לא",
+  "back": "חזרה",
+  "comingSoon": "בקרוב",
+
+  "auth": {
+    "badge": "אסטרטגיה מרובת משתתפים",
+    "tagline": "בנה את האימפריה · קים בריתות · כבוש את העולם",
+    "loginTab": "כניסה",
+    "registerTab": "הרשמה",
+    "emailLabel": "כתובת אימייל",
+    "emailPlaceholder": "commander@nation.com",
+    "passwordLabel": "סיסמה",
+    "passwordPlaceholder": "••••••••",
+    "confirmLabel": "אימות סיסמה",
+    "usernameLabel": "שם מפקד",
+    "usernamePlaceholder": "שםמשתמש",
+    "phoneLabel": "טלפון",
+    "phonePlaceholder": "050 000 0000",
+    "optional": "אופציונלי",
+    "loginBtn": "כניסה למרכז פיקוד",
+    "registerBtn": "פרוס מדינה",
+    "logoutBtn": "התנתקות",
+    "loginSuccess": "גישה אושרה. טוען מרכז פיקוד...",
+    "registerSuccess": "מדינה נפרסה. בדוק אימייל לאימות, ואז התחבר.",
+    "errFillAll": "נא למלא את כל השדות.",
+    "errPassMatch": "הסיסמאות אינן תואמות.",
+    "errPassLen": "הסיסמה חייבת להכיל לפחות 8 תווים.",
+    "errUsername": "שם מפקד חייב להכיל לפחות 3 תווים.",
+    "errBanned": "מדינתך הושעתה. צור קשר עם המנהל.",
+    "welcomeSub": "מדינתך ממתינה לפקודתך.",
+    "adminBadge": "מנהל מערכת"
+  },
+
+  "ticker": {
+    "nationsActive": "מדינות פעילות",
+    "timeToReset": "הסבב מסתיים בעוד"
+  },
+
+  "nation": {
+    "foundTitle": "הקם מדינה",
+    "foundSubtitle": "סבב {{round}} · בחר שם ודגל למדינתך",
+    "nameLabel": "שם המדינה",
+    "namePlaceholder": "לדוגמה: רפובליקת הצפון",
+    "flagLabel": "אמוג'י דגל",
+    "flagPlaceholder": "או הקלד אמוג'י...",
+    "startingStats": "נתוני פתיחה",
+    "deployBtn": "פרוס מדינה",
+    "deploying": "פורס...",
+    "errNameShort": "שם המדינה חייב להכיל לפחות 2 תווים.",
+    "errNameTaken": "שם המדינה כבר תפוס בסבב זה. נסה שם אחר.",
+    "fallenTitle": "המדינה נפלה",
+    "fallenSub": "נהרסה",
+    "destroyedOn": "נהרסה בתאריך",
+    "destroyedUnknown": "לא ידוע",
+    "riseBtn": "קום מהאפר",
+    "stillActive": "חשבון המפקד שלך ({{username}}) עדיין פעיל. קום שוב — הקם מדינה חדשה בסבב {{round}}."
+  },
+
+  "dashboard": {
+    "title": "מרכז פיקוד",
+    "population": "אוכלוסייה",
+    "land": "שטח",
+    "money": "אוצר",
+    "military": "חיילים",
+    "security": "ביטחון",
+    "turns": "תורים",
+    "round": "סבב {{round}}",
+    "commander": "מפקד"
+  },
+
+  "sections": {
+    "military": "צבא",
+    "militarySub": "בנה ונהל את הכוחות המזוינים שלך.",
+    "economy": "כלכלה",
+    "economySub": "בנה מתקנים והגדל את האוצר.",
+    "alliances": "בריתות",
+    "alliancesSub": "כרות בריתות עם מדינות אחרות.",
+    "intelligence": "מודיעין",
+    "intelligenceSub": "רגל אחרי אויביך."
+  },
+
+  "rankings": {
+    "title": "דירוגים",
+    "sub": "טבלת דירוג חיה",
+    "back": "חזרה",
+    "yourStandings": "הדירוג שלך"
+  },
+
+  "admin": {
+    "title": "פאנל ניהול",
+    "users": "משתמשים",
+    "loginLogs": "יומן כניסות",
+    "gameConfig": "הגדרות משחק",
+    "banUser": "חסום משתמש",
+    "unbanUser": "בטל חסימה",
+    "banReason": "סיבת חסימה",
+    "ipAddress": "כתובת IP",
+    "userAgent": "דפדפן",
+    "success": "הצלחה",
+    "failed": "כישלון",
+    "timestamp": "זמן",
+    "backToDashboard": "חזרה ללוח הבקרה"
+  }
+}
