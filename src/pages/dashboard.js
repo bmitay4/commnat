@@ -2,6 +2,7 @@ import i18n, { translateDOM } from '../i18n.js';
 import { sb } from '../supabase.js';
 import { formatTimeLeft } from '../utils.js';
 import { renderPageTopbar, bindPageNav } from '../nav.js';
+import { openBattleReport } from '../battleReport.js';
 
 const t = (key, p) => i18n.t(key, p);
 
@@ -117,7 +118,7 @@ export async function renderDashboard(user, profile) {
           </div>
           <div class="turns-timer">
             <div class="turns-timer-val" id="turn-countdown-clock">--:--</div>
-            <div class="turns-timer-lbl">Next turn</div>
+            <div class="turns-timer-lbl">${t('dashboard.nextTurn')}</div>
           </div>
         </div>
 
@@ -128,40 +129,40 @@ export async function renderDashboard(user, profile) {
 
       <!-- STAT ROW -->
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;">
-        ${statCard('💰', '$'+fmt(nation.money),          'Treasury',   netHr>=0?`↑ +$${fmt(netHr)}/hr`:`↓ $${fmt(Math.abs(netHr))}/hr`, netHr>=0?'up':'down')}
-        ${statCard('👥', fmt(nation.population),          'Population', '↑ +10,000/day',     'up')}
-        ${statCard('🗺️', nation.land+' units',            'Land',       `${totalFacilities} built`, 'neutral')}
-        ${statCard('⚔️', myAtk.toLocaleString(),  'Attack Power', '🛡️ '+myDef.toLocaleString()+' DEF', 'neutral')}
+        ${statCard('💰', '$'+fmt(nation.money),          i18n.t('dashboard.money'),   netHr>=0?`↑ +$${fmt(netHr)}/hr`:`↓ $${fmt(Math.abs(netHr))}/hr`, netHr>=0?'up':'down')}
+        ${statCard('👥', fmt(nation.population),          i18n.t('dashboard.population'), `↑ +10,000/${i18n.t('dashboard.perDay')}`,     'up')}
+        ${statCard('🗺️', nation.land+' units',            i18n.t('dashboard.land'),       `${totalFacilities} built`, 'neutral')}
+        ${statCard('⚔️', myAtk.toLocaleString(),  i18n.t('dashboard.attackPower'), '🛡️ '+myDef.toLocaleString()+' DEF', 'neutral')}
       </div>
 
       <!-- SECTION GRID -->
       <div class="section-grid">
         ${sectionCard('⚔️','Military',
-          nation.soldiers.toLocaleString(), 'Soldiers',
-          myAtk.toLocaleString()+' pts', 'Attack Power',
-          myDef.toLocaleString()+' pts', 'Defense Power',
-          myMaint2h > 0 ? '-$'+fmt(myMaint2h)+'/2h' : '$0/2h', 'Maintenance',
-          'var(--accent)', Math.min(Math.round((myAtk / 5000) * 100), 100), 'military')}
+          nation.soldiers.toLocaleString(), i18n.t('dashboard.soldiers'),
+          myAtk.toLocaleString()+' pts', i18n.t('dashboard.attackPower'),
+          myDef.toLocaleString()+' pts', i18n.t('dashboard.defensePower'),
+          myMaint2h > 0 ? '-$'+fmt(myMaint2h)+'/2h' : '$0/2h', i18n.t('dashboard.maintenance'),
+          '#e05252', Math.min(Math.round((myAtk / 5000) * 100), 100), 'military')}
 
         ${sectionCard('🏭','Economy',
-          '+$'+fmt(incomeHr)+'/hr', 'Income',
-          '-$'+fmt(upkeepHr)+'/hr', 'Upkeep',
-          '+$'+fmt(netHr)+'/hr', 'Net',
-          totalFacilities+' built', 'Facilities',
+          '+$'+fmt(incomeHr)+'/hr', i18n.t('dashboard.income'),
+          '-$'+fmt(upkeepHr)+'/hr', i18n.t('dashboard.upkeep'),
+          '+$'+fmt(netHr)+'/hr', i18n.t('dashboard.net'),
+          totalFacilities+' built', i18n.t('dashboard.facilities'),
           '#16a34a', Math.min(Math.round((incomeHr / 10000) * 100), 100), 'economy')}
 
         ${sectionCard('🤝','Alliances',
-          alInfo ? alInfo.name : 'No alliance', alInfo ? '['+alInfo.tag+']' : 'Status',
-          alInfo ? (alMemberCount?.count || 1)+' members' : '—', 'Members',
-          alInfo ? myMembership?.role || 'Member' : '—', 'Your Role',
-          alInfo ? 'Active' : 'Join or create', 'Alliance',
+          alInfo ? alInfo.name : i18n.t('dashboard.noAlliance'), alInfo ? '['+alInfo.tag+']' : 'Status',
+          alInfo ? (alMemberCount?.count || 1)+' members' : '—', i18n.t('dashboard.members'),
+          alInfo ? myMembership?.role || 'Member' : '—', i18n.t('dashboard.yourRole'),
+          alInfo ? i18n.t('dashboard.active') : i18n.t('dashboard.joinOrCreate'), i18n.t('dashboard.alliance'),
           '#6366f1', alInfo ? 60 : 0, 'alliances')}
 
         ${sectionCard('🔍','Intelligence',
-          (intelData?.spies||0)+' spies', 'Spies',
-          (intelData?.satellites||0)+' sats', 'Satellites',
-          'Tech Lv '+(intelData?.tech_level||0), 'Technology',
-          'Anti: '+(intelData?.anti_spy_level||0)+' / '+(intelData?.anti_sat_level||0), 'Spy / Sat Defense',
+          (intelData?.spies||0)+' spies', i18n.t('dashboard.spies'),
+          (intelData?.satellites||0)+' sats', i18n.t('dashboard.satellites'),
+          'Tech Lv '+(intelData?.tech_level||0), i18n.t('dashboard.technology'),
+          'Anti: '+(intelData?.anti_spy_level||0)+' / '+(intelData?.anti_sat_level||0), i18n.t('dashboard.antiSpySat'),
           '#f59e0b', Math.min(((intelData?.tech_level||0)/5)*100, 100), 'intelligence')}
       </div>
 
@@ -171,23 +172,46 @@ export async function renderDashboard(user, profile) {
         <!-- Events -->
         <div class="card">
           <div class="card-header">
-            <div class="card-title">📋 Recent Events</div>
-            <button class="card-link" data-page="attacks">View attacks →</button>
+            <div class="card-title">${t('dashboard.recentEvents')}</div>
+            <button class="card-link" data-page="attacks">${t('dashboard.viewAttacks')}</button>
           </div>
           ${(recentAttacks||[]).length === 0
-            ? `<div style="padding:20px 18px;font-size:13px;color:var(--text-muted);font-weight:500;">No recent activity. Attack your first nation!</div>`
+            ? `<div style="padding:20px 18px;font-size:13px;color:var(--text-muted);font-weight:500;">${t('dashboard.noActivity')}</div>`
             : (recentAttacks||[]).map(a => {
                 const isAtt = a.attacker_nation_id === nation.id;
                 const opp   = isAtt ? a.defender : a.attacker;
                 const win   = a.success ? isAtt : !isAtt;
+                const attLost = a.att_soldiers_lost || 0;
+                const defLost = a.def_soldiers_lost || 0;
+                const mySol   = isAtt ? attLost : defLost;
+                const oppSol  = isAtt ? defLost : attLost;
+                const land    = a.land_loss || 0;
+                const money   = a.money_loss ? Math.floor(a.money_loss / 2) : 0;
+                const chips   = [];
+                if (mySol > 0)                        chips.push(`<span style="color:#f59e0b;font-size:10px;">💀 ${mySol.toLocaleString()}</span>`);
+                if (oppSol > 0)                       chips.push(`<span style="color:#e05252;font-size:10px;">⚔️ ${oppSol.toLocaleString()} enemy</span>`);
+                if (land > 0 && isAtt && a.success)   chips.push(`<span style="color:var(--accent);font-size:10px;">🗺️ +${land}</span>`);
+                if (land > 0 && !isAtt && a.success)  chips.push(`<span style="color:#e05252;font-size:10px;">🗺️ -${land}</span>`);
+                if (money > 0 && isAtt && a.success)  chips.push(`<span style="color:#16a34a;font-size:10px;">💰 +$${money.toLocaleString()}</span>`);
                 return `
-                  <div class="event-item">
+                  <div class="event-item dash-battle-row" data-attack-id="${a.id}"
+                    style="cursor:pointer;transition:background 0.15s;"
+                    onmouseenter="this.style.background='var(--surface2)'"
+                    onmouseleave="this.style.background=''">
                     <div class="event-dot" style="background:${win?'var(--success)':'var(--danger)'};"></div>
                     <div class="event-body">
-                      <div class="event-title">${isAtt?'Attack on':'Attacked by'} <strong>${opp?.name||'Unknown'}</strong></div>
-                      <div class="event-desc">${a.result_summary || a.attack_type}</div>
+                      <div class="event-title">${isAtt?i18n.t('dashboard.attackOn'):i18n.t('dashboard.attackedBy')} <strong>${opp?.name||'Unknown'}</strong>
+                        <span style="font-size:9px;color:var(--text-muted);background:var(--surface2);border:1px solid var(--border);
+                          padding:1px 5px;border-radius:4px;margin-inline-start:4px;text-transform:uppercase;">${a.attack_type}</span>
+                      </div>
+                      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:3px;">
+                        ${chips.length ? chips.join('') : `<span class="event-desc">${a.result_summary || a.attack_type}</span>`}
+                      </div>
                     </div>
-                    <div class="event-time">${new Date(a.attacked_at).toLocaleTimeString()}</div>
+                    <div style="text-align:end;flex-shrink:0;">
+                      <div class="event-time">${new Date(a.attacked_at).toLocaleTimeString()}</div>
+                      <div style="font-size:9px;color:var(--accent);margin-top:2px;text-decoration:underline;">Details →</div>
+                    </div>
                   </div>
                 `;
               }).join('')
@@ -200,8 +224,8 @@ export async function renderDashboard(user, profile) {
           <!-- Top nations -->
           <div class="card">
             <div class="card-header">
-              <div class="card-title">🏆 Top Nations</div>
-              <button class="card-link" data-page="rankings">All →</button>
+              <div class="card-title">${t('dashboard.topNations')}</div>
+              <button class="card-link" data-page="rankings">${t('dashboard.viewAll')}</button>
             </div>
             ${(topNations||[]).map((n, i) => `
               <div class="rank-row ${n.nation_id===nation.id?'me':''}">
@@ -220,7 +244,7 @@ export async function renderDashboard(user, profile) {
           <!-- Round countdown clock -->
           <div class="card" style="padding:16px 18px;">
             <div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;
-              letter-spacing:0.5px;margin-bottom:12px;">⏳ Round Ends In</div>
+              letter-spacing:0.5px;margin-bottom:12px;">${t('dashboard.roundEnds')}</div>
             <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;" id="round-clock">
               ${roundEndMs > 0 ? clockBlocks(roundEndMs) : `<div style="font-size:13px;color:var(--danger);font-weight:700;grid-column:span 4;">Round ending soon!</div>`}
             </div>
@@ -239,6 +263,15 @@ export async function renderDashboard(user, profile) {
   startCountdown(nation.turns, user, profile);
   startRoundClock(roundConfig?.value);
   bindPageNav(user, profile, nation);
+
+  // Battle row click → full report popup
+  document.querySelectorAll('.dash-battle-row').forEach(row => {
+    row.addEventListener('click', () => {
+      const attackId = row.getAttribute('data-attack-id');
+      const attack = (recentAttacks || []).find(a => a.id === attackId);
+      if (attack) openBattleReport(attack, nation.id);
+    });
+  });
 }
 
 // ─── Create Nation ────────────────────────────────────────────────────────────

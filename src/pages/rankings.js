@@ -16,17 +16,17 @@ export async function renderRankings(user, profile, nation) {
       <!-- Page title -->
       <div style="width:100%;max-width:900px;margin-bottom:1.5rem;">
         <div style="font-size:22px;font-weight:800;color:var(--text);">📊 Rankings</div>
-        <div style="font-size:12px;color:var(--text-muted);font-weight:500;margin-top:2px;" data-i18n="rankings.sub">Live standings</div>
+        <div style="font-size:12px;color:var(--text-muted);font-weight:500;margin-top:2px;" data-i18n="rankings.sub">${t('rankings.sub')}</div>
       </div>
 
       <!-- Category tabs -->
       <div style="width:100%;max-width:900px;display:flex;gap:6px;margin-bottom:1.2rem;flex-wrap:wrap;">
-        ${categoryTab('overall',    '🏆', 'Overall')}
-        ${categoryTab('military',   '⚔️', 'Military')}
-        ${categoryTab('economy',    '💰', 'Economy')}
-        ${categoryTab('land',       '🗺️', 'Land')}
-        ${categoryTab('population', '👥', 'Population')}
-        ${categoryTab('alliances',  '🤝', 'Alliances')}
+        ${categoryTab('overall',    '🏆', i18n.t('rankings.overall'))}
+        ${categoryTab('military',   '⚔️', i18n.t('rankings.military'))}
+        ${categoryTab('economy',    '💰', i18n.t('rankings.economy'))}
+        ${categoryTab('land',       '🗺️', i18n.t('rankings.land'))}
+        ${categoryTab('population', '👥', i18n.t('rankings.population'))}
+        ${categoryTab('alliances',  '🤝', i18n.t('rankings.alliances'))}
       </div>
 
       <!-- My rank banner -->
@@ -95,7 +95,7 @@ async function loadRankings(myNation) {
   }
 
   if (!nations.length) {
-    content.innerHTML = `<div style="font-family:var(--font-mono);font-size:13px;color:var(--text-muted);padding:2rem 0;text-align:center;">No nations yet this round.</div>`;
+    content.innerHTML = `<div style="font-family:var(--font-mono);font-size:13px;color:var(--text-muted);padding:2rem 0;text-align:center;">${t('rankings.noNations')}</div>`;
     return;
   }
 
@@ -132,11 +132,11 @@ function rankRow(n, i, myNation) {
   const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
 
   const mainValue = {
-    overall:    { label: 'Score',      value: n.score.toLocaleString() },
-    military:   { label: 'Soldiers',   value: n.soldiers.toLocaleString() },
-    economy:    { label: 'Treasury',   value: '$' + n.money.toLocaleString() },
-    land:       { label: 'Land',       value: n.land + ' u' },
-    population: { label: 'Population', value: n.population.toLocaleString() },
+    overall:    { label: i18n.t('rankings.score'),      value: n.score.toLocaleString() },
+    military:   { label: i18n.t('rankings.soldiers'),   value: n.soldiers.toLocaleString() },
+    economy:    { label: i18n.t('rankings.treasury'),   value: '$' + n.money.toLocaleString() },
+    land:       { label: i18n.t('rankings.land'),       value: n.land + ' u' },
+    population: { label: i18n.t('rankings.population'), value: n.population.toLocaleString() },
   }[currentCategory];
 
   return `
@@ -202,12 +202,12 @@ function renderMyBanner(mine) {
       border-inline-start:3px solid var(--accent);
     ">
       <div style="font-family:var(--font-mono);font-size:10px;color:var(--accent);letter-spacing:2px;
-        grid-column:1/-1;margin-bottom:4px;">YOUR STANDINGS</div>
-      ${miniRank('🏆', 'Overall',    '#' + mine.overall_rank)}
-      ${miniRank('⚔️', 'Military',   '#' + mine.military_rank)}
-      ${miniRank('💰', 'Economy',    '#' + mine.economy_rank)}
-      ${miniRank('🗺️', 'Land',       '#' + mine.land_rank)}
-      ${miniRank('👥', 'Population', '#' + mine.population_rank)}
+        grid-column:1/-1;margin-bottom:4px;">${t('rankings.yourStandings')}</div>
+      ${miniRank('🏆', i18n.t('rankings.overall'),    '#' + mine.overall_rank)}
+      ${miniRank('⚔️', i18n.t('rankings.military'),   '#' + mine.military_rank)}
+      ${miniRank('💰', i18n.t('rankings.economy'),    '#' + mine.economy_rank)}
+      ${miniRank('🗺️', i18n.t('rankings.land'),       '#' + mine.land_rank)}
+      ${miniRank('👥', i18n.t('rankings.population'), '#' + mine.population_rank)}
     </div>
   `;
 }
@@ -235,7 +235,7 @@ async function loadAllianceRankings(content, myNation) {
     .not('alliance_id', 'is', null);
 
   if (!data || data.length === 0) {
-    content.innerHTML = `<div style="padding:2rem;text-align:center;font-size:13px;color:var(--text-muted);">No alliances with members yet.</div>`;
+    content.innerHTML = `<div style="padding:2rem;text-align:center;font-size:13px;color:var(--text-muted);">${t('rankings.noAlliances')}</div>`;
     return;
   }
 
@@ -290,7 +290,7 @@ async function loadAllianceRankings(content, myNation) {
             </div>
             <div style="text-align:end;flex-shrink:0;">
               <div style="font-size:17px;font-weight:800;color:var(--accent);">${fmtScore(al.score)}</div>
-              <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">Combined Score</div>
+              <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">${t('rankings.combinedScore')}</div>
             </div>
           </div>
         `;

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800&family=DM+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800&family=DM+Mono:wght@400;500&family=Heebo:wght@400;500;600;700;800&display=swap');
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -44,6 +44,12 @@ html, body {
   font-size: 15px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Hebrew RTL — use Heebo which has excellent Hebrew + Latin support */
+html[dir="rtl"], html[lang="he"] {
+  --font-body: 'Heebo', sans-serif;
+  --font-title: 'Heebo', sans-serif;
 }
 
 #app { min-height: 100vh; }
@@ -571,116 +577,177 @@ html, body {
 .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
 
 /* ══════════════════════════════════
-   AUTH PAGE
+   AUTH PAGE — DARK MILITARY THEME
 ══════════════════════════════════ */
 
 .auth-wrap {
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 1fr 440px;
+  grid-template-columns: 1fr 420px;
   overflow: hidden;
+  background: #0a0c10;
 }
 
+/* Full-bleed background image */
 .hero-bg {
   position: fixed; inset: 0;
   background-size: cover;
-  background-position: center;
-  opacity: 1;
-  transition: opacity 0.4s ease;
+  background-position: center center;
+  background-repeat: no-repeat;
+  transition: opacity 0.5s ease;
   z-index: 0;
 }
 
+/* Dark cinematic overlay — image stays vivid, left side fades for text */
 .hero-overlay {
   position: fixed; inset: 0;
   z-index: 1;
+  background:
+    linear-gradient(to right,
+      rgba(8,10,14,0.88) 0%,
+      rgba(8,10,14,0.60) 40%,
+      rgba(8,10,14,0.25) 70%,
+      rgba(8,10,14,0.50) 100%
+    ),
+    linear-gradient(to bottom,
+      rgba(0,0,0,0.4) 0%,
+      transparent 30%,
+      transparent 70%,
+      rgba(0,0,0,0.5) 100%
+    );
 }
 
+/* Subtle scanline texture for gritty military feel */
 .hero-overlay::after {
   content: '';
   position: absolute; inset: 0;
-  background:
-    linear-gradient(to right, rgba(238,240,247,0.82) 0%, rgba(238,240,247,0.35) 60%, rgba(238,240,247,0.1) 100%),
-    repeating-linear-gradient(0deg, transparent, transparent 49px, rgba(79,70,229,0.03) 49px, rgba(79,70,229,0.03) 50px),
-    repeating-linear-gradient(90deg, transparent, transparent 49px, rgba(79,70,229,0.03) 49px, rgba(79,70,229,0.03) 50px);
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.06) 2px,
+    rgba(0,0,0,0.06) 4px
+  );
+  pointer-events: none;
 }
 
 .auth-left {
   position: relative; z-index: 2;
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 3rem 3rem 3rem 3.5rem;
+  justify-content: flex-start;
+  padding: 3rem 3rem 3rem 4rem;
   overflow: hidden;
 }
 
 .auth-content {
-  max-width: 460px;
+  max-width: 520px;
   width: 100%;
 }
 
 .auth-badge {
   display: inline-flex;
   align-items: center;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
-  color: var(--accent);
-  letter-spacing: 1.5px;
+  color: #f59e0b;
+  letter-spacing: 3px;
   text-transform: uppercase;
-  border: 1px solid var(--accent-border);
-  background: var(--accent-bg);
-  padding: 5px 14px;
-  border-radius: 20px;
-  margin-bottom: 18px;
+  border: 1px solid rgba(245,158,11,0.4);
+  background: rgba(245,158,11,0.08);
+  padding: 5px 16px;
+  border-radius: 2px;
+  margin-bottom: 20px;
   animation: fadeDown 0.7s ease both;
+  font-family: var(--font-mono);
 }
 
 .auth-title {
-  font-size: clamp(36px, 4.5vw, 58px);
+  font-size: clamp(42px, 5.5vw, 72px);
   font-weight: 800;
-  line-height: 1.05;
-  color: var(--text);
-  letter-spacing: -1.5px;
+  line-height: 1.0;
+  color: #ffffff;
+  letter-spacing: -2px;
   animation: fadeDown 0.7s ease 0.08s both;
   word-break: break-word;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.5);
 }
-.auth-title span { color: var(--accent); }
+.auth-title span {
+  color: #f59e0b;
+  display: block;
+}
 
 .auth-sub {
   font-size: 15px;
-  color: var(--text-muted);
-  margin-top: 14px;
+  color: rgba(255,255,255,0.65);
+  margin-top: 16px;
   line-height: 1.7;
   font-weight: 500;
   animation: fadeDown 0.7s ease 0.16s both;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+}
+
+/* Divider line accent */
+.auth-content::before {
+  display: none;
 }
 
 .auth-stats {
   display: flex;
   align-items: center;
-  margin-top: 2.2rem;
-  padding: 14px 18px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-inline-start: 3px solid var(--accent);
-  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
-  box-shadow: var(--shadow-md);
+  margin-top: 2.5rem;
+  padding: 16px 20px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(245,158,11,0.25);
+  border-inline-start: 3px solid #f59e0b;
+  border-radius: 0 4px 4px 0;
+  backdrop-filter: blur(8px);
   animation: fadeUp 0.7s ease 0.24s both;
+  max-width: 340px;
 }
 
 .auth-stat { text-align: center; flex: 1; }
-.auth-stat-val { font-size: 22px; font-weight: 800; color: var(--accent); line-height: 1; }
-.auth-stat-lbl { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 4px; font-weight: 700; }
-.auth-stat-divider { width: 1px; height: 30px; background: var(--border); }
+.auth-stat-val {
+  font-size: 26px;
+  font-weight: 800;
+  color: #f59e0b;
+  line-height: 1;
+  font-family: var(--font-mono);
+}
+.auth-stat-lbl {
+  font-size: 9px;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-top: 5px;
+  font-weight: 700;
+}
+.auth-stat-divider { width: 1px; height: 32px; background: rgba(255,255,255,0.15); }
 
-.img-nav { display: flex; gap: 8px; margin-top: 1.8rem; animation: fadeUp 0.7s ease 0.32s both; }
-.img-dot { width: 28px; height: 4px; background: var(--border); border: none; cursor: pointer; transition: all 0.3s; border-radius: 2px; padding: 0; }
-.img-dot.active { width: 44px; background: var(--accent); }
+.img-nav {
+  display: flex;
+  gap: 8px;
+  margin-top: 2rem;
+  animation: fadeUp 0.7s ease 0.32s both;
+}
+.img-dot {
+  width: 24px;
+  height: 3px;
+  background: rgba(255,255,255,0.25);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s;
+  border-radius: 2px;
+  padding: 0;
+}
+.img-dot.active { width: 40px; background: #f59e0b; }
 
+/* ── Right panel — dark glass card ── */
 .auth-right {
   position: relative; z-index: 2;
-  background: var(--surface);
-  border-inline-start: 1px solid var(--border);
-  box-shadow: -4px 0 32px rgba(17,24,39,0.06);
+  background: rgba(10,12,16,0.92);
+  border-inline-start: 1px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(20px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -689,7 +756,7 @@ html, body {
 
 .auth-panel {
   width: 100%;
-  max-width: 370px;
+  max-width: 360px;
   animation: fadeUp 0.6s ease 0.1s both;
 }
 
@@ -697,33 +764,113 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.8rem;
 }
 
 .auth-panel-brand {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
-  color: var(--text-muted);
-  letter-spacing: 0.5px;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 1px;
   font-family: var(--font-mono);
 }
 
-/* Lang switcher (light mode — on auth right panel) */
+/* Tabs — dark style */
+.auth-right .tabs {
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  margin-bottom: 24px;
+}
+.auth-right .tab-btn {
+  color: rgba(255,255,255,0.4);
+  font-size: 13px;
+  font-weight: 600;
+}
+.auth-right .tab-btn.active {
+  color: #f59e0b;
+  border-bottom-color: #f59e0b;
+}
+.auth-right .tab-btn:hover:not(.active) { color: rgba(255,255,255,0.7); }
+
+/* Fields — dark style */
+.auth-right .field label {
+  color: rgba(255,255,255,0.5);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+}
+.auth-right .field input {
+  background: rgba(255,255,255,0.06);
+  border: 1.5px solid rgba(255,255,255,0.12);
+  color: #ffffff;
+  font-size: 14px;
+}
+.auth-right .field input:focus {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245,158,11,0.15);
+  background: rgba(255,255,255,0.08);
+}
+.auth-right .field input::placeholder { color: rgba(255,255,255,0.25); }
+
+/* Submit button — military amber */
+.auth-right .btn-submit {
+  background: #f59e0b;
+  color: #0a0c10;
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  box-shadow: 0 4px 20px rgba(245,158,11,0.35);
+}
+.auth-right .btn-submit:hover {
+  background: #fbbf24;
+  box-shadow: 0 6px 24px rgba(245,158,11,0.5);
+}
+
+/* Messages — dark style */
+.auth-right .msg.error {
+  background: rgba(220,38,38,0.12);
+  border: 1px solid rgba(220,38,38,0.3);
+  color: #fca5a5;
+}
+.auth-right .msg.success {
+  background: rgba(22,163,74,0.12);
+  border: 1px solid rgba(22,163,74,0.3);
+  color: #86efac;
+}
+
+/* Lang switcher — dark */
+/* Lang switcher — dark version (used on auth page) */
 .lang-switcher-light { display: flex; gap: 4px; }
 .lang-btn-light {
-  background: var(--surface2);
-  border: 1.5px solid var(--border);
-  color: var(--text-muted);
+  background: rgba(255,255,255,0.06);
+  border: 1.5px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.4);
   font-family: var(--font-mono);
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 600;
   padding: 4px 10px;
   cursor: pointer;
   border-radius: var(--radius-sm);
   transition: all 0.15s;
 }
-.lang-btn-light.active { color: var(--accent); border-color: var(--accent-border); background: var(--accent-bg); }
-.lang-btn-light:hover:not(.active) { color: var(--text); }
+.lang-btn-light.active {
+  color: #f59e0b;
+  border-color: rgba(245,158,11,0.5);
+  background: rgba(245,158,11,0.1);
+}
+.lang-btn-light:hover:not(.active) { color: rgba(255,255,255,0.7); }
+
+/* Lang switcher — light version (used inside the app topbar nav) */
+.nav-topbar .lang-btn-light {
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  color: var(--text-muted);
+}
+.nav-topbar .lang-btn-light.active {
+  color: var(--accent);
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+}
+.nav-topbar .lang-btn-light:hover:not(.active) { color: var(--text); }
 
 /* ══════════════════════════════════
    ADMIN PANEL

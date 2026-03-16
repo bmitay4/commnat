@@ -1,3 +1,6 @@
+import i18n from '../i18n.js';
+const t = (k, p) => i18n.t(k, p);
+const localName = (item) => i18n.language === 'he' && item.name_he ? item.name_he : item.name;
 import { renderPageTopbar, bindPageNav } from '../nav.js';
 import { sb } from '../supabase.js';
 import { formatTimeLeft } from '../utils.js';
@@ -188,11 +191,11 @@ export async function renderEconomy(user, profile, nation) {
 
       <!-- Stats bar -->
       <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:1.2rem;">
-        ${eStat('💰', 'Treasury',    '$' + nation.money.toLocaleString(),   'var(--accent)')}
-        ${eStat('📈', 'Income/hr',   '+$' + totalIncome.toLocaleString(),   '#16a34a')}
-        ${eStat('🔧', 'Upkeep/hr',   '-$' + totalUpkeep.toLocaleString(),  '#e05252')}
-        ${eStat('💵', 'Net/hr',      (netIncome >= 0 ? '+' : '') + '$' + netIncome.toLocaleString(), netIncome >= 0 ? '#16a34a' : '#e05252')}
-        ${eStat('🗺️', 'Land',        `${landUsed}/${nation.land} used`,    landFree <= 5 ? '#e05252' : 'var(--text-muted)')}
+        ${eStat('💰', t('economy.treasury'),    '$' + nation.money.toLocaleString(),   'var(--accent)')}
+        ${eStat('📈', t('economy.incomeHr'),   '+$' + totalIncome.toLocaleString(),   '#16a34a')}
+        ${eStat('🔧', t('economy.upkeepHr'),   '-$' + totalUpkeep.toLocaleString(),  '#e05252')}
+        ${eStat('💵', t('economy.netHr'),      (netIncome >= 0 ? '+' : '') + '$' + netIncome.toLocaleString(), netIncome >= 0 ? '#16a34a' : '#e05252')}
+        ${eStat('🗺️', t('economy.land'),        `${landUsed}/${nation.land} used`,    landFree <= 5 ? '#e05252' : 'var(--text-muted)')}
       </div>
 
       <!-- Income countdown -->
@@ -200,12 +203,12 @@ export async function renderEconomy(user, profile, nation) {
         border-inline-start:3px solid #16a34a;border-radius:0 8px 8px 0;padding:10px 1.5rem;
         margin-bottom:1.2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
         <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);">
-          Next income collection in: <strong id="income-countdown" style="color:#16a34a;font-size:15px;">--:--</strong>
+          ${t('economy.nextIncome')} <strong id="income-countdown" style="color:#16a34a;font-size:15px;">--:--</strong>
         </div>
         <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">
-          Projected: <strong style="color:#16a34a;">+$${netIncome.toLocaleString()}</strong> net
+          ${t('economy.projected')} <strong style="color:#16a34a;">+$${netIncome.toLocaleString()}</strong> net
           &nbsp;·&nbsp;
-          Security bonus: <strong style="color:var(--accent);">${getSecurityLabel(nation.security_index)}</strong>
+          ${t('economy.securityBonus')} <strong style="color:var(--accent);">${getSecurityLabel(nation.security_index)}</strong>
         </div>
       </div>
 
@@ -214,11 +217,11 @@ export async function renderEconomy(user, profile, nation) {
         border:1.5px solid rgba(22,163,74,0.3);border-radius:8px;padding:10px 1.5rem;
         margin-bottom:1rem;display:none;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
         <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);">
-          BUILD COST: <strong id="order-total" style="color:#16a34a;font-size:15px;">$0</strong>
-          &nbsp;·&nbsp; LAND NEEDED: <strong id="order-land" style="color:var(--accent);">0</strong>
+          ${t('economy.buildCost')}: <strong id="order-total" style="color:#16a34a;font-size:15px;">$0</strong>
+          &nbsp;·&nbsp; ${t('economy.orderLand')}: <strong id="order-land" style="color:var(--accent);">0</strong>
         </div>
         <div style="display:flex;gap:8px;">
-          <button class="btn-logout" id="btn-clear-order" style="font-size:11px;padding:6px 12px;">Clear</button>
+          <button class="btn-logout" id="btn-clear-order" style="font-size:11px;padding:6px 12px;">${t('economy.clearBtn')}</button>
           <button class="btn-submit" id="btn-build-all"
             style="width:auto;padding:8px 20px;font-size:14px;letter-spacing:1px;border-radius:6px;background:#16a34a;">
             Build All
@@ -243,13 +246,13 @@ export async function renderEconomy(user, profile, nation) {
           <thead>
             <tr style="background:var(--surface2);border-bottom:1.5px solid var(--border);">
               <th style="${thStyle()}"></th>
-              <th style="${thStyle()}text-align:start;">FACILITY</th>
-              <th style="${thStyle()}">INCOME/hr</th>
-              <th style="${thStyle()}">UPKEEP/hr</th>
-              <th style="${thStyle()}">BUILD COST</th>
-              <th style="${thStyle()}">LAND</th>
-              <th style="${thStyle()}">OWNED</th>
-              <th style="${thStyle()}">BUILD QTY</th>
+              <th style="${thStyle()}text-align:start;">${t('economy.facility')}</th>
+              <th style="${thStyle()}">${t('economy.incomeCol')}</th>
+              <th style="${thStyle()}">${t('economy.upkeepCol')}</th>
+              <th style="${thStyle()}">${t('economy.buildCostCol')}</th>
+              <th style="${thStyle()}">${t('economy.landCol')}</th>
+              <th style="${thStyle()}">${t('economy.ownedCol')}</th>
+              <th style="${thStyle()}">${t('economy.buildQtyCol')}</th>
               <th style="${thStyle()}"></th>
             </tr>
           </thead>
@@ -264,19 +267,19 @@ export async function renderEconomy(user, profile, nation) {
 
       <!-- Demolish section -->
       <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:1.2rem 1.5rem;margin-bottom:1rem;">
-        <div style="font-family:var(--font-title);font-size:16px;letter-spacing:2px;color:var(--text-muted);margin-bottom:0.8rem;">🏚️ DEMOLISH (30% refund)</div>
+        <div style="font-family:var(--font-title);font-size:16px;letter-spacing:2px;color:var(--text-muted);margin-bottom:0.8rem;">${t('economy.demolishTitle')}</div>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
           <select id="demo-type" style="background:var(--surface2);border:1.5px solid var(--border);border-radius:6px;
             color:var(--text);font-family:var(--font-mono);font-size:13px;padding:8px 10px;outline:none;flex:1;min-width:160px;">
             <option value="">Select facility...</option>
             ${(facilityTypes||[]).filter(ft=>(facMap[ft.id]||0)>0).map(ft=>
-              `<option value="${ft.id}">${ft.name} (owned: ${facMap[ft.id]||0})</option>`
+              `<option value="${ft.id}">${localName(ft)} (owned: ${facMap[ft.id]||0})</option>`
             ).join('')}
           </select>
           <input type="number" id="demo-amount" placeholder="Qty" min="1"
             style="width:90px;background:var(--surface2);border:1.5px solid var(--border);border-radius:6px;
             color:var(--text);font-family:var(--font-mono);font-size:13px;padding:8px 10px;outline:none;"/>
-          <button class="btn-logout" id="btn-demolish" style="padding:8px 16px;font-size:12px;">Demolish</button>
+          <button class="btn-logout" id="btn-demolish" style="padding:8px 16px;font-size:12px;">${t('economy.demolishBtn')}</button>
         </div>
         <div class="msg" id="demo-msg" style="margin-top:8px;"></div>
       </div>
@@ -285,7 +288,7 @@ export async function renderEconomy(user, profile, nation) {
       ${incomeLogs?.length ? `
         <div style="background:var(--surface);border:1.5px solid var(--border);
           border-radius:8px;padding:1.2rem 1.5rem;margin-bottom:1rem;">
-          <div style="font-family:var(--font-title);font-size:15px;letter-spacing:2px;color:var(--text-muted);margin-bottom:0.8rem;">📊 RECENT INCOME</div>
+          <div style="font-family:var(--font-title);font-size:15px;letter-spacing:2px;color:var(--text-muted);margin-bottom:0.8rem;">${t('economy.recentIncome')}</div>
           <table style="width:100%;border-collapse:collapse;font-family:var(--font-mono);font-size:11px;">
             <thead><tr style="border-bottom:1px solid var(--border);">
               <th style="padding:5px 8px;color:var(--text-muted);text-align:start;font-weight:400;">Time</th>
@@ -333,7 +336,7 @@ function facilityRow(ft, owned) {
           overflow:hidden;padding:4px;border:1px solid var(--border);">${svg}</div>
       </td>
       <td style="padding:8px;">
-        <div style="font-family:var(--font-title);font-size:14px;letter-spacing:1px;color:var(--text);">${ft.name.toUpperCase()}</div>
+        <div style="font-family:var(--font-title);font-size:14px;letter-spacing:1px;color:var(--text);">${localName(ft).toUpperCase()}</div>
         <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);margin-top:1px;">${ft.description || ''}</div>
       </td>
       <td style="padding:8px;text-align:center;font-family:var(--font-mono);font-size:12px;color:#16a34a;font-weight:700;">
@@ -402,7 +405,7 @@ function startIncomeCountdown(lastIncomeAt) {
   function update() {
     if (!document.getElementById('income-countdown')) return;
     const diff = new Date(lastIncomeAt).getTime() + 3600000 - Date.now();
-    if (diff <= 0) { el.textContent = 'Collecting...'; el.style.color = '#16a34a'; return; }
+    if (diff <= 0) { el.textContent = t('economy.collecting'); el.style.color = '#16a34a'; return; }
     const m = Math.floor(diff / 60000);
     const s = Math.floor((diff % 60000) / 1000);
     el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
@@ -506,15 +509,15 @@ function bindEconomyEvents(user, profile, nation, facMap, facilityTypes, landFre
       setTimeout(() => renderEconomy(user, profile, { ...nation }), 1500);
     }
 
-    btn.disabled = false; btn.textContent = 'Build All';
+    btn.disabled = false; btn.textContent = t('economy.buildAllBtn');
   });
 
   // Demolish
   document.getElementById('btn-demolish')?.addEventListener('click', async () => {
     const typeId = document.getElementById('demo-type').value;
     const qty    = parseInt(document.getElementById('demo-amount').value);
-    if (!typeId) { showMsg('demo-msg', 'error', 'Select a facility.'); return; }
-    if (!qty || qty < 1) { showMsg('demo-msg', 'error', 'Enter quantity.'); return; }
+    if (!typeId) { showMsg('demo-msg', 'error', t('economy.demolishBtn')); return; }
+    if (!qty || qty < 1) { showMsg('demo-msg', 'error', t('military.errEnterQty')); return; }
     const owned = facMap[typeId] || 0;
     if (qty > owned) { showMsg('demo-msg', 'error', `Only ${owned} owned.`); return; }
     const ft = facilityTypes.find(f => f.id === typeId);

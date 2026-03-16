@@ -1,3 +1,4 @@
+import i18n from '../i18n.js';
 import { renderPageTopbar, bindPageNav } from '../nav.js';
 import { sb } from '../supabase.js';
 
@@ -27,17 +28,17 @@ export async function renderHallOfFame(user, profile) {
 
       <!-- Page title -->
       <div style="width:100%;max-width:800px;margin-bottom:1.5rem;">
-        <div style="font-size:22px;font-weight:800;color:var(--text);">🏆 Hall of Fame</div>
-        <div style="font-size:12px;color:var(--text-muted);font-weight:500;margin-top:2px;">Legends of Nation Commander</div>
+        <div style="font-size:22px;font-weight:800;color:var(--text);">🏆 ${t('hof.title')}</div>
+        <div style="font-size:12px;color:var(--text-muted);font-weight:500;margin-top:2px;">${t('hof.subtitle')}</div>
       </div>
 
       ${isEmpty ? `
         <div style="width:100%;max-width:800px;background:var(--surface);border:1px solid var(--border);
           border-radius:var(--radius-lg);padding:3rem;text-align:center;">
           <div style="font-size:48px;margin-bottom:1rem;">🏛️</div>
-          <div style="font-size:18px;font-weight:800;color:var(--text-muted);">No legends yet</div>
+          <div style="font-size:18px;font-weight:800;color:var(--text-muted);">${t('hof.empty')}</div>
           <div style="font-size:13px;color:var(--text-dim);margin-top:8px;font-weight:500;">
-            Be the first to finish a round and claim your place in history.
+            ${t('hof.emptyDesc')}
           </div>
         </div>
       ` : roundNums.map(round => `
@@ -98,7 +99,7 @@ function hofCard(e) {
         <div style="font-family:var(--font-title);font-size:26px;letter-spacing:2px;color:${m.color};">
           ${e.score.toLocaleString()}
         </div>
-        <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);letter-spacing:1px;">SCORE</div>
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);letter-spacing:1px;">${t('hof.score')}</div>
       </div>
     </div>
   `;

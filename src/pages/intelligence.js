@@ -1,4 +1,6 @@
 import { sb } from '../supabase.js';
+import i18n from '../i18n.js';
+const t = (k, p) => i18n.t(k, p);
 import { renderPageTopbar, bindPageNav } from '../nav.js';
 
 // Default prices (overridden by game_config at render time)
@@ -86,36 +88,36 @@ export async function renderIntelligence(user, profile, nation) {
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
 
         <!-- OFFENSIVE: Spies -->
-        ${assetCard('spy', '🕵️ Spies', intel.spies, intel.spy_level, nation.money,
-          'Infiltrate enemy nations, gather reports, sabotage facilities and steal money.',
+        ${assetCard('spy', t('intelligence.spiesTitle'), intel.spies, intel.spy_level, nation.money,
+          t('intelligence.spyDesc'),
           [
-            { label: 'Recruit Spy', action: 'buy_spy', cost: CFG.intel_spy_base_cost, desc: `+1 spy · $${CFG.intel_spy_maint_2h}/2h maintenance` },
+            { label: t('intelligence.recruitSpy'), action: 'buy_spy', cost: CFG.intel_spy_base_cost, desc: `+1 spy · $${CFG.intel_spy_maint_2h}/2h maintenance` },
             { label: upgradeLabel(intel.spy_level), action: 'upgrade_spy',
               cost: upgradeCost('intel_spy_level_cost', 'intel_spy_cap_price', intel.spy_level),
-              desc: intel.spy_level >= CFG.intel_cap_level ? '⚡ Cap price active — unlimited upgrades' : '+10% mission success per level' },
+              desc: intel.spy_level >= CFG.intel_cap_level ? t('intelligence.capPrice') : '+10% mission success per level' },
           ]
         )}
 
         <!-- OFFENSIVE: Satellites -->
-        ${assetCard('satellite', '🛰️ Satellites', intel.satellites, intel.sat_level, nation.money,
-          'Aerial reconnaissance — scan enemy land, troop movements and facility counts.',
+        ${assetCard('satellite', t('intelligence.satellitesTitle'), intel.satellites, intel.sat_level, nation.money,
+          t('intelligence.satDesc'),
           [
-            { label: 'Launch Satellite', action: 'buy_sat', cost: CFG.intel_sat_base_cost, desc: `+1 satellite · $${CFG.intel_sat_maint_2h}/2h maintenance` },
+            { label: t('intelligence.launchSat'), action: 'buy_sat', cost: CFG.intel_sat_base_cost, desc: `+1 satellite · $${CFG.intel_sat_maint_2h}/2h maintenance` },
             { label: upgradeLabel(intel.sat_level), action: 'upgrade_sat',
               cost: upgradeCost('intel_sat_level_cost', 'intel_sat_cap_price', intel.sat_level),
-              desc: intel.sat_level >= CFG.intel_cap_level ? '⚡ Cap price active — unlimited upgrades' : '+10% scan success per level' },
+              desc: intel.sat_level >= CFG.intel_cap_level ? t('intelligence.capPrice') : '+10% scan success per level' },
           ]
         )}
 
         <!-- DEFENSIVE: Anti-Spy -->
-        ${defCard('🛡️ Counter-Intelligence', 'anti_spy', intel.anti_spy_level, nation.money,
-          'Reduces enemy spy mission success. Each level adds -12% to enemy spy chance.',
+        ${defCard(t('intelligence.counterIntelTitle'), 'anti_spy', intel.anti_spy_level, nation.money,
+          t('intelligence.counterDesc'),
           upgradeCost('intel_anti_spy_cost', 'intel_anti_spy_cap_price', intel.anti_spy_level)
         )}
 
         <!-- DEFENSIVE: Anti-Satellite -->
-        ${defCard('📡 Anti-Satellite Defense', 'anti_sat', intel.anti_sat_level, nation.money,
-          'Reduces enemy satellite success and has a chance to shoot down enemy satellites.',
+        ${defCard(t('intelligence.antiSatTitle'), 'anti_sat', intel.anti_sat_level, nation.money,
+          t('intelligence.antiSatDesc'),
           upgradeCost('intel_anti_sat_cost', 'intel_anti_sat_cap_price', intel.anti_sat_level)
         )}
 
@@ -126,9 +128,9 @@ export async function renderIntelligence(user, profile, nation) {
         padding:18px 20px;margin-bottom:16px;box-shadow:var(--shadow-sm);">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;">
           <div style="flex:1;">
-            <div style="font-size:15px;font-weight:700;margin-bottom:4px;">🔬 Technology Level</div>
+            <div style="font-size:15px;font-weight:700;margin-bottom:4px;">${t('intelligence.techTitle')}</div>
             <div style="font-size:12px;color:var(--text-muted);font-weight:500;margin-bottom:12px;">
-              Boosts ALL mission success rates by +5% per level. Unlimited — cap price kicks in at level ${CFG.intel_cap_level}.
+              ${t('intelligence.techDesc')} Unlimited — cap price kicks in at level ${CFG.intel_cap_level}.
             </div>
             <div style="display:flex;gap:4px;margin-bottom:10px;">
               ${Array.from({length: Math.max(10, intel.tech_level + 2)}, (_, i) => `
@@ -164,7 +166,7 @@ export async function renderIntelligence(user, profile, nation) {
       ${(missions||[]).length > 0 ? `
         <div class="card">
           <div class="card-header">
-            <div class="card-title">📋 Mission Log</div>
+            <div class="card-title">${t('intelligence.missionLog')}</div>
           </div>
           ${(missions||[]).map(m => missionRow(m, nation.id)).join('')}
         </div>
@@ -190,19 +192,19 @@ function assetCard(type, title, count, level, money, desc, actions) {
       <div style="display:flex;gap:10px;margin-bottom:14px;">
         <div style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-md);padding:10px;text-align:center;">
           <div style="font-size:24px;font-weight:800;color:var(--accent);">${count}</div>
-          <div style="font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;">Units</div>
+          <div style="font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;">${t('intelligence.units')}</div>
         </div>
         <div style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-md);padding:10px;text-align:center;">
           <div style="font-size:24px;font-weight:800;color:var(--accent-2);">
             ${level > 0 ? level : '—'}
           </div>
-          <div style="font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;">Level</div>
+          <div style="font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;">${t('intelligence.levelLabel')}</div>
         </div>
         <div style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-md);padding:10px;text-align:center;">
           <div style="font-size:18px;font-weight:800;color:var(--success);">
             ${Math.round(successChance(type, level, 0) * 100)}%
           </div>
-          <div style="font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;">Base %</div>
+          <div style="font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;">${t('intelligence.baseChance')}</div>
         </div>
       </div>
 

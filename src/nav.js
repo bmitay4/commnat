@@ -1,20 +1,33 @@
 import i18n from './i18n.js';
 import { sb } from './supabase.js';
 
-const NAV_PAGES = [
-  { id: 'dashboard', label: '🏛️ Dashboard' },
-  { id: 'military',  label: '⚔️ Military' },
-  { id: 'economy',   label: '🏭 Economy' },
-  { id: 'attacks',   label: '💥 Attack' },
-  { id: 'alliances',    label: '🤝 Alliances' },
-  { id: 'intelligence', label: '🔍 Intel' },
-  { id: 'rankings',     label: '📊 Rankings' },
-  { id: 'hof',       label: '🏆 Hall of Fame' },
-];
+const NAV_ICONS = {
+  dashboard:    '🏛️',
+  military:     '⚔️',
+  economy:      '🏭',
+  attacks:      '💥',
+  alliances:    '🤝',
+  intelligence: '🔍',
+  rankings:     '📊',
+  hof:          '🏆',
+};
+
+function navPages() {
+  return [
+    { id: 'dashboard',    label: NAV_ICONS.dashboard    + ' ' + i18n.t('nav.dashboard') },
+    { id: 'military',     label: NAV_ICONS.military     + ' ' + i18n.t('nav.military') },
+    { id: 'economy',      label: NAV_ICONS.economy      + ' ' + i18n.t('nav.economy') },
+    { id: 'attacks',      label: NAV_ICONS.attacks      + ' ' + i18n.t('nav.attacks') },
+    { id: 'alliances',    label: NAV_ICONS.alliances    + ' ' + i18n.t('nav.alliances') },
+    { id: 'intelligence', label: NAV_ICONS.intelligence + ' ' + i18n.t('nav.intelligence') },
+    { id: 'rankings',     label: NAV_ICONS.rankings     + ' ' + i18n.t('nav.rankings') },
+    { id: 'hof',          label: NAV_ICONS.hof          + ' ' + i18n.t('nav.hof') },
+  ];
+}
 
 export function renderPageTopbar(user, profile, nation, activePage) {
   return `
-    <div style="
+    <div class="nav-topbar" style="
       background:var(--surface);
       border-bottom:1px solid var(--border);
       padding:0 20px;
@@ -46,7 +59,7 @@ export function renderPageTopbar(user, profile, nation, activePage) {
 
       <!-- Nav tabs -->
       <div style="display:flex;align-items:stretch;flex:1;overflow-x:auto;scrollbar-width:none;height:100%;">
-        ${NAV_PAGES.map(p => `
+        ${navPages().map(p => `
           <button data-page="${p.id}" style="
             display:flex;align-items:center;gap:5px;
             padding:0 12px;height:100%;
@@ -63,7 +76,7 @@ export function renderPageTopbar(user, profile, nation, activePage) {
         `).join('')}
       </div>
 
-      <!-- Right: utility only (lang, admin, sign out) -->
+      <!-- Right: lang switcher, admin, sign out -->
       <div style="
         display:flex;align-items:center;gap:6px;flex-shrink:0;
         padding-inline-start:14px;
@@ -79,13 +92,13 @@ export function renderPageTopbar(user, profile, nation, activePage) {
             background:none;border:1.5px solid var(--border);border-radius:var(--radius-sm);
             color:var(--text-muted);font-family:var(--font-body);font-size:12px;font-weight:600;
             padding:5px 10px;cursor:pointer;transition:all 0.15s;white-space:nowrap;
-          ">⚙️ Admin</button>
+          ">⚙️ ${i18n.t('nav.admin')}</button>
         ` : ''}
         <button id="btn-signout" style="
           background:none;border:1.5px solid var(--border);border-radius:var(--radius-sm);
           color:var(--text-muted);font-family:var(--font-body);font-size:12px;font-weight:600;
           padding:5px 10px;cursor:pointer;transition:all 0.15s;white-space:nowrap;
-        ">Sign out</button>
+        ">${i18n.t('nav.signOut')}</button>
       </div>
     </div>
   `;
@@ -99,10 +112,13 @@ export function bindPageNav(user, profile, nation) {
   document.getElementById('btn-signout')?.addEventListener('click', () => sb.auth.signOut());
 
   document.querySelectorAll('[data-lang]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      i18n.changeLanguage(btn.getAttribute('data-lang'));
+    btn.addEventListener('click', async () => {
+      const lang = btn.getAttribute('data-lang');
+      await i18n.changeLanguage(lang);
+      // i18n 'languageChanged' event in main.js handles full re-render
+      // Just update button states immediately
       document.querySelectorAll('.lang-btn-light').forEach(b => {
-        b.classList.toggle('active', b.getAttribute('data-lang') === btn.getAttribute('data-lang'));
+        b.classList.toggle('active', b.getAttribute('data-lang') === lang);
       });
     });
   });
@@ -117,15 +133,18 @@ async function _navigate(page, user, profile, nation) {
     .maybeSingle();
   const n = fresh || nation;
 
+  // Track current page for lang-change re-rendering
+  if (window.__setCurrentPage) window.__setCurrentPage(page, user, profile, n);
+
   switch (page) {
-    case 'intelligence':{ const { renderIntelligence } = await import('./pages/intelligence.js'); renderIntelligence(user, profile, n); break; }
-    case 'alliances': { const { renderAlliances }  = await import('./pages/alliances.js'); renderAlliances(user, profile, n);    break; }
-    case 'dashboard': { const { renderDashboard }  = await import('./pages/dashboard.js');  renderDashboard(user, profile);       break; }
-    case 'military':  { const { renderMilitary }   = await import('./pages/military.js');   renderMilitary(user, profile, n);     break; }
-    case 'economy':   { const { renderEconomy }    = await import('./pages/economy.js');    renderEconomy(user, profile, n);      break; }
-    case 'attacks':   { const { renderAttacks }    = await import('./pages/attacks.js');    renderAttacks(user, profile, n);      break; }
-    case 'rankings':  { const { renderRankings }   = await import('./pages/rankings.js');   renderRankings(user, profile, n);     break; }
-    case 'hof':       { const { renderHallOfFame } = await import('./pages/hall-of-fame.js'); renderHallOfFame(user, profile);    break; }
-    case 'admin':     { const { renderAdmin }      = await import('./pages/admin.js');      renderAdmin(user, profile);           break; }
+    case 'intelligence': { const { renderIntelligence } = await import('./pages/intelligence.js'); renderIntelligence(user, profile, n); break; }
+    case 'alliances':    { const { renderAlliances }    = await import('./pages/alliances.js');    renderAlliances(user, profile, n);    break; }
+    case 'dashboard':    { const { renderDashboard }    = await import('./pages/dashboard.js');    renderDashboard(user, profile);       break; }
+    case 'military':     { const { renderMilitary }     = await import('./pages/military.js');     renderMilitary(user, profile, n);     break; }
+    case 'economy':      { const { renderEconomy }      = await import('./pages/economy.js');      renderEconomy(user, profile, n);      break; }
+    case 'attacks':      { const { renderAttacks }      = await import('./pages/attacks.js');      renderAttacks(user, profile, n);      break; }
+    case 'rankings':     { const { renderRankings }     = await import('./pages/rankings.js');     renderRankings(user, profile, n);     break; }
+    case 'hof':          { const { renderHallOfFame }   = await import('./pages/hall-of-fame.js'); renderHallOfFame(user, profile);      break; }
+    case 'admin':        { const { renderAdmin }        = await import('./pages/admin.js');        renderAdmin(user, profile);           break; }
   }
 }

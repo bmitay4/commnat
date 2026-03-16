@@ -9,11 +9,6 @@ const HERO_IMAGES = [
   '/images/bg-diplomacy.png',
 ];
 
-const THEMES = {
-  chrome: { label: '✨ Chrome', '--bg':'#f0f2f7','--surface':'#ffffff','--surface2':'#f4f6fb','--border':'#d0d6e8','--text':'#111828','--text-muted':'#5a6890','--accent':'#2858d0','--accent-dim':'#4070e8','--btn-text':'#ffffff','--overlay':'rgba(240,242,247,0.78)','--grid':'rgba(40,88,208,0.04)' },
-};
-
-let currentTheme = 'chrome';
 let heroIndex = 0;
 let carouselTimer = null;
 
@@ -113,22 +108,10 @@ export function renderAuth() {
     </div>
   `;
 
-  applyTheme(currentTheme);
   translateDOM();
   bindEvents();
   loadTicker();
   startCarousel();
-}
-
-function applyTheme(key) {
-  currentTheme = key;
-  const vars = THEMES[key] || THEMES['chrome'];
-  const root = document.documentElement;
-  Object.entries(vars).forEach(([k, v]) => {
-    if (k.startsWith('--')) root.style.setProperty(k, v);
-  });
-  const overlay = document.getElementById('hero-overlay');
-  if (overlay) overlay.style.background = vars['--overlay'];
 }
 
 function setHeroImage(idx) {
@@ -138,6 +121,8 @@ function setHeroImage(idx) {
   bg.style.opacity = '0';
   setTimeout(() => {
     bg.style.backgroundImage = `url(${HERO_IMAGES[idx]})`;
+    bg.style.backgroundSize = 'cover';
+    bg.style.backgroundPosition = 'center center';
     bg.style.opacity = '1';
   }, 300);
   document.querySelectorAll('.img-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
