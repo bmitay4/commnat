@@ -145,7 +145,7 @@ const FACILITY_SVGS = {
 
 export async function renderEconomy(user, profile, nation) {
   const app = document.getElementById('app');
-  app.innerHTML = `<div class="page"><div style="font-family:var(--font-mono);font-size:13px;color:var(--text-muted);letter-spacing:2px;">LOADING ECONOMY...</div></div>`;
+  app.innerHTML = `<div class="page"><div style="font-family:var(--font-mono);font-size:13px;color:var(--text-muted);letter-spacing:2px;">${t('economy.loading')}</div></div>`;
 
   const [
     { data: facilityTypes },
@@ -183,7 +183,7 @@ export async function renderEconomy(user, profile, nation) {
         <div class="inner-title-wrap">
           <span style="font-size:24px;">🏭</span>
           <div>
-            <div class="inner-title">Economy</div>
+            <div class="inner-title">${t('economy.title')}</div>
             <div class="inner-sub">${nation.name}</div>
           </div>
         </div>
@@ -291,11 +291,11 @@ export async function renderEconomy(user, profile, nation) {
           <div style="font-family:var(--font-title);font-size:15px;letter-spacing:2px;color:var(--text-muted);margin-bottom:0.8rem;">${t('economy.recentIncome')}</div>
           <table style="width:100%;border-collapse:collapse;font-family:var(--font-mono);font-size:11px;">
             <thead><tr style="border-bottom:1px solid var(--border);">
-              <th style="padding:5px 8px;color:var(--text-muted);text-align:start;font-weight:400;">Time</th>
-              <th style="padding:5px 8px;color:#16a34a;text-align:center;">Income</th>
-              <th style="padding:5px 8px;color:#e05252;text-align:center;">Upkeep</th>
-              <th style="padding:5px 8px;color:var(--accent);text-align:center;">Net</th>
-              <th style="padding:5px 8px;color:var(--text-muted);text-align:end;">Balance</th>
+              <th style="padding:5px 8px;color:var(--text-muted);text-align:start;font-weight:400;">${t('economy.time')}</th>
+              <th style="padding:5px 8px;color:#16a34a;text-align:center;">${t('economy.income')}</th>
+              <th style="padding:5px 8px;color:#e05252;text-align:center;">${t('economy.upkeep')}</th>
+              <th style="padding:5px 8px;color:var(--accent);text-align:center;">${t('economy.net')}</th>
+              <th style="padding:5px 8px;color:var(--text-muted);text-align:end;">${t('economy.balance')}</th>
             </tr></thead>
             <tbody>
               ${incomeLogs.map(l=>`
@@ -472,16 +472,16 @@ function bindEconomyEvents(user, profile, nation, facMap, facilityTypes, landFre
     if (!orders.length) return;
 
     if (grandCost > nation.money) {
-      showMsg('build-msg', 'error', `Total $${grandCost.toLocaleString()} exceeds treasury $${nation.money.toLocaleString()}.`);
+      showMsg('build-msg', 'error', `${t('economy.errExceedsTreasury',{total:grandCost.toLocaleString(),balance:nation.money.toLocaleString()})}`);
       return;
     }
     if (grandLand > landFree) {
-      showMsg('build-msg', 'error', `Need ${grandLand} land units, only ${landFree} available.`);
+      showMsg('build-msg', 'error', t('economy.errNotEnoughLand',{need:grandLand,have:landFree}));
       return;
     }
 
     const btn = document.getElementById('btn-build-all');
-    btn.disabled = true; btn.textContent = 'Building...';
+    btn.disabled = true; btn.textContent = t('economy.building');
 
     let failed = false;
     for (const order of orders) {
@@ -504,7 +504,7 @@ function bindEconomyEvents(user, profile, nation, facMap, facilityTypes, landFre
         });
       } catch (_) {}
       const summary = orders.map(o => `${o.qty}× ${o.name}`).join(', ');
-      showMsg('build-msg', 'success', `Built: ${summary} — Cost: $${grandCost.toLocaleString()}`);
+      showMsg('build-msg', 'success', t('economy.buildSuccess',{summary,cost:grandCost.toLocaleString()}));
       nation.money -= grandCost;
       setTimeout(() => renderEconomy(user, profile, { ...nation }), 1500);
     }
@@ -516,10 +516,10 @@ function bindEconomyEvents(user, profile, nation, facMap, facilityTypes, landFre
   document.getElementById('btn-demolish')?.addEventListener('click', async () => {
     const typeId = document.getElementById('demo-type').value;
     const qty    = parseInt(document.getElementById('demo-amount').value);
-    if (!typeId) { showMsg('demo-msg', 'error', t('economy.demolishBtn')); return; }
+    if (!typeId) { showMsg('demo-msg', 'error', t('economy.selectFacility')); return; }
     if (!qty || qty < 1) { showMsg('demo-msg', 'error', t('military.errEnterQty')); return; }
     const owned = facMap[typeId] || 0;
-    if (qty > owned) { showMsg('demo-msg', 'error', `Only ${owned} owned.`); return; }
+    if (qty > owned) { showMsg('demo-msg', 'error', t('economy.errOnlyOwned',{count:owned})); return; }
     const ft = facilityTypes.find(f => f.id === typeId);
     const refund = Math.floor(qty * ft.build_cost * 0.3);
     if (!confirm(`Demolish ${qty}× ${ft.name}? You'll receive $${refund.toLocaleString()} (30% refund).`)) return;
@@ -533,7 +533,7 @@ function bindEconomyEvents(user, profile, nation, facMap, facilityTypes, landFre
 
     if (!error) {
       await sb.from('nations').update({ money: nation.money + refund }).eq('id', nation.id);
-      showMsg('demo-msg', 'success', `Demolished ${qty}× ${ft.name}, received $${refund.toLocaleString()}.`);
+      showMsg('demo-msg', 'success', t('economy.demolishSuccess',{qty,name:localName(ft),refund:refund.toLocaleString()}));
       setTimeout(() => renderEconomy(user, profile, { ...nation, money: nation.money + refund }), 1500);
     } else {
       showMsg('demo-msg', 'error', error.message);

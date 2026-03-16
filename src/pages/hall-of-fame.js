@@ -4,7 +4,7 @@ import { sb } from '../supabase.js';
 
 export async function renderHallOfFame(user, profile) {
   const app = document.getElementById('app');
-  app.innerHTML = `<div class="page"><div style="font-family:var(--font-mono);font-size:13px;color:var(--text-muted);letter-spacing:2px;">LOADING...</div></div>`;
+  app.innerHTML = `<div class="page"><div style="font-family:var(--font-mono);font-size:13px;color:var(--text-muted);letter-spacing:2px;">${t('hof.loading')}</div></div>`;
 
   const { data: entries } = await sb
     .from('hall_of_fame')
@@ -28,7 +28,7 @@ export async function renderHallOfFame(user, profile) {
 
       <!-- Page title -->
       <div style="width:100%;max-width:800px;margin-bottom:1.5rem;">
-        <div style="font-size:22px;font-weight:800;color:var(--text);">🏆 ${t('hof.title')}</div>
+        <div style="font-size:22px;font-weight:800;color:var(--text);">${t('hof.title')}</div>
         <div style="font-size:12px;color:var(--text-muted);font-weight:500;margin-top:2px;">${t('hof.subtitle')}</div>
       </div>
 
@@ -82,14 +82,14 @@ function hofCard(e) {
               ${e.nation_name.toUpperCase()}
             </div>
             <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">
-              Commander: ${e.username} · ${date}
+              ${t('hof.commander',{name:e.username})} · ${date}
             </div>
           </div>
         </div>
         <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:6px;">
           ${hofStat('⚔️', e.soldiers.toLocaleString())}
           ${hofStat('💰', '$' + e.money.toLocaleString())}
-          ${hofStat('🗺️', e.land + ' land')}
+          ${hofStat('🗺️', e.land + ' ' + t('hof.landSuffix'))}
           ${hofStat('👥', e.population.toLocaleString())}
         </div>
       </div>

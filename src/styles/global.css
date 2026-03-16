@@ -1,7 +1,24 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800&family=DM+Mono:wght@400;500&family=Heebo:wght@400;500;600;700;800&display=swap');
+/* Rubik loaded via <link> in index.html for faster rendering */
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; } */
+/* 1. Reset everything - the nuclear option */
+*, *::before, *::after { 
+  box-sizing: border-box; 
+  margin: 0; 
+  padding: 0; 
+  /* This ensures EVERY piece of text in the game uses Rubik */
+  font-family: 'Rubik', sans-serif !important;
+}
 
+/* 2. Force stubborn form elements to inherit the font */
+button, input, select, textarea {
+  font-family: inherit !important;
+}
+
+/* 3. Keep your specific button classes if you have them */
+.lang-btn-light {
+  font-family: inherit !important;
+}
 :root {
   --bg:          #eef0f7;
   --surface:     #ffffff;
@@ -26,7 +43,8 @@
   --warning:     #d97706;
   --warning-bg:  #fffbeb;
   --warning-border: #fde68a;
-  --font-body:   'DM Sans', sans-serif;
+  --font-body:   'Rubik', sans-serif;
+  --font-title:  'Rubik', sans-serif;
   --font-mono:   'DM Mono', monospace;
   --radius-sm:   6px;
   --radius-md:   10px;
@@ -46,11 +64,7 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Hebrew RTL — use Heebo which has excellent Hebrew + Latin support */
-html[dir="rtl"], html[lang="he"] {
-  --font-body: 'Heebo', sans-serif;
-  --font-title: 'Heebo', sans-serif;
-}
+/* Rubik supports Hebrew + Latin natively — no RTL font override needed */
 
 #app { min-height: 100vh; }
 

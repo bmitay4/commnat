@@ -147,7 +147,7 @@ function bindEvents() {
   document.querySelectorAll('.lang-btn-light[data-lang]').forEach(btn => {
     btn.addEventListener('click', () => {
       i18n.changeLanguage(btn.getAttribute('data-lang'));
-      document.querySelectorAll('.lang-btn[data-lang]').forEach(b => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('.lang-btn-light[data-lang]').forEach(b => b.classList.toggle('active', b.getAttribute('data-lang') === btn.getAttribute('data-lang')));
       translateDOM();
     });
   });
@@ -267,8 +267,8 @@ async function loadTicker() {
   const { count } = await sb
     .from('nations')
     .select('id', { count: 'exact', head: true })
-    .eq('is_alive', true)
-    .eq('is_bot', false);
+    .eq('is_alive', true);
+    // .eq('is_bot', false);
 
   const nationsEl = document.getElementById('ticker-nations');
   if (nationsEl && count !== null) nationsEl.textContent = count;

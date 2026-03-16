@@ -31,8 +31,8 @@ function upgradeCost(baseKey, capKey, currentLevel) {
 
 function upgradeLabel(currentLevel) {
   const capLevel = CFG.intel_cap_level;
-  if (currentLevel >= capLevel) return `Level ${currentLevel + 1} (cap price)`;
-  return `Upgrade to Level ${currentLevel + 1}`;
+  if (currentLevel >= capLevel) return t('intelligence.upgradeLevelCapLabel',{level:currentLevel+1});
+  return t('intelligence.upgradeLevelLabel',{level:currentLevel+1});
 }
 
 export async function renderIntelligence(user, profile, nation) {
@@ -75,7 +75,7 @@ export async function renderIntelligence(user, profile, nation) {
         <div class="inner-title-wrap">
           <span style="font-size:24px;">🔍</span>
           <div>
-            <div class="inner-title">Intelligence</div>
+            <div class="inner-title">${t('intelligence.title')}</div>
             <div class="inner-sub">${nation.name} · Tech Level ${intel.tech_level} · $${totalMaint2h.toLocaleString()} maintenance/2h</div>
           </div>
         </div>
@@ -91,10 +91,10 @@ export async function renderIntelligence(user, profile, nation) {
         ${assetCard('spy', t('intelligence.spiesTitle'), intel.spies, intel.spy_level, nation.money,
           t('intelligence.spyDesc'),
           [
-            { label: t('intelligence.recruitSpy'), action: 'buy_spy', cost: CFG.intel_spy_base_cost, desc: `+1 spy · $${CFG.intel_spy_maint_2h}/2h maintenance` },
+            { label: t('intelligence.recruitSpy'), action: 'buy_spy', cost: CFG.intel_spy_base_cost, desc: t('intelligence.spyMaintDesc',{maint:CFG.intel_spy_maint_2h}) },
             { label: upgradeLabel(intel.spy_level), action: 'upgrade_spy',
               cost: upgradeCost('intel_spy_level_cost', 'intel_spy_cap_price', intel.spy_level),
-              desc: intel.spy_level >= CFG.intel_cap_level ? t('intelligence.capPrice') : '+10% mission success per level' },
+              desc: intel.spy_level >= CFG.intel_cap_level ? t('intelligence.capPrice') : t('intelligence.successPerLevel') },
           ]
         )}
 
@@ -102,10 +102,10 @@ export async function renderIntelligence(user, profile, nation) {
         ${assetCard('satellite', t('intelligence.satellitesTitle'), intel.satellites, intel.sat_level, nation.money,
           t('intelligence.satDesc'),
           [
-            { label: t('intelligence.launchSat'), action: 'buy_sat', cost: CFG.intel_sat_base_cost, desc: `+1 satellite · $${CFG.intel_sat_maint_2h}/2h maintenance` },
+            { label: t('intelligence.launchSat'), action: 'buy_sat', cost: CFG.intel_sat_base_cost, desc: t('intelligence.satMaintDesc',{maint:CFG.intel_sat_maint_2h}) },
             { label: upgradeLabel(intel.sat_level), action: 'upgrade_sat',
               cost: upgradeCost('intel_sat_level_cost', 'intel_sat_cap_price', intel.sat_level),
-              desc: intel.sat_level >= CFG.intel_cap_level ? t('intelligence.capPrice') : '+10% scan success per level' },
+              desc: intel.sat_level >= CFG.intel_cap_level ? t('intelligence.capPrice') : t('intelligence.scanSuccessPerLevel') },
           ]
         )}
 
@@ -130,7 +130,7 @@ export async function renderIntelligence(user, profile, nation) {
           <div style="flex:1;">
             <div style="font-size:15px;font-weight:700;margin-bottom:4px;">${t('intelligence.techTitle')}</div>
             <div style="font-size:12px;color:var(--text-muted);font-weight:500;margin-bottom:12px;">
-              ${t('intelligence.techDesc')} Unlimited — cap price kicks in at level ${CFG.intel_cap_level}.
+              ${t('intelligence.techDesc')} ${t('intelligence.unlimitedCapNote',{level:CFG.intel_cap_level})}
             </div>
             <div style="display:flex;gap:4px;margin-bottom:10px;">
               ${Array.from({length: Math.max(10, intel.tech_level + 2)}, (_, i) => `
@@ -143,8 +143,8 @@ export async function renderIntelligence(user, profile, nation) {
             </div>
             <div style="font-size:12px;color:var(--text-muted);">
               Current: <strong>Level ${intel.tech_level}</strong>
-              · Mission bonus: <strong style="color:var(--accent);">+${intel.tech_level * 5}%</strong>
-              ${intel.tech_level >= CFG.intel_cap_level ? `· <span style="color:var(--warning);font-weight:600;">⚡ Cap price active</span>` : ''}
+              · ${t('intelligence.techBonus',{pct:intel.tech_level*5})}
+              ${intel.tech_level >= CFG.intel_cap_level ? `· <span style="color:var(--warning);font-weight:600;">${t('intelligence.capActive')}</span>` : ''}
             </div>
           </div>
           <div style="flex-shrink:0;">
@@ -245,9 +245,9 @@ function defCard(title, action, currentLevel, money, desc, cost) {
       </div>
 
       <div style="font-size:13px;color:var(--text-muted);font-weight:500;margin-bottom:12px;">
-        Level <strong>${currentLevel}</strong>
+        ${t('intelligence.currentLevel',{level:currentLevel})}
         · Enemy penalty: <strong style="color:var(--success);">-${currentLevel * 12}%</strong>
-        ${currentLevel >= CFG.intel_cap_level ? `· <span style="color:var(--warning);font-weight:600;">⚡ Cap price</span>` : ''}
+        ${currentLevel >= CFG.intel_cap_level ? `· <span style="color:var(--warning);font-weight:600;">${t('intelligence.capLabel')}</span>` : ''}
       </div>
 
       ${upgradeBtn('upgrade_' + action, upgradeLabel(currentLevel), cost, money)}
@@ -289,10 +289,10 @@ function missionRow(m, myNationId) {
   const opponent = isAttacker ? m.defender : m.attacker;
   const win = m.success ? isAttacker : !isAttacker;
   const typeLabels = {
-    spy_report: '🕵️ Spy Report',
-    satellite_scan: '🛰️ Satellite Scan',
-    sabotage: '💣 Sabotage',
-    steal: '💰 Steal',
+    spy_report: t('intelligence.missionSpy'),
+    satellite_scan: t('intelligence.missionSat'),
+    sabotage: t('intelligence.missionSabotage'),
+    steal: t('intelligence.missionSteal'),
   };
   return `
     <div style="display:flex;align-items:flex-start;gap:10px;padding:11px 18px;
@@ -301,8 +301,8 @@ function missionRow(m, myNationId) {
         background:${win ? 'var(--success)' : 'var(--danger)'};"></div>
       <div style="flex:1;">
         <div style="font-size:13px;font-weight:600;">
-          ${isAttacker ? typeLabels[m.mission_type] || m.mission_type : '🛡️ Defended against ' + (typeLabels[m.mission_type] || m.mission_type)}
-          ${isAttacker ? `on <strong>${opponent?.name||'Unknown'}</strong>` : `by <strong>${opponent?.name||'Unknown'}</strong>`}
+          ${isAttacker ? typeLabels[m.mission_type] || m.mission_type : t('intelligence.defendedAgainst') + ' ' + (typeLabels[m.mission_type] || m.mission_type)}
+          ${isAttacker ? `${t('intelligence.missionOn')} <strong>${opponent?.name||'Unknown'}</strong>` : `${t('intelligence.missionBy')} <strong>${opponent?.name||'Unknown'}</strong>`}
         </div>
         <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${m.result_summary || ''}</div>
       </div>
@@ -370,7 +370,7 @@ async function handleIntelAction(action, user, profile, nation, intel) {
   }
 
   if (nation.money < cost) {
-    showMsg('error', `Not enough money. Need $${cost.toLocaleString()}, have $${nation.money.toLocaleString()}.`);
+    showMsg('error', t('intelligence.errNotEnough',{need:cost.toLocaleString(),have:nation.money.toLocaleString()}));
     return;
   }
 
@@ -394,7 +394,7 @@ async function handleIntelAction(action, user, profile, nation, intel) {
     });
   } catch (_) {}
 
-  showMsg('success', `Done! -$${cost.toLocaleString()}`);
+  showMsg('success', t('intelligence.doneSuccess',{cost:cost.toLocaleString()}));
   setTimeout(() => renderIntelligence(user, profile, { ...nation, money: nation.money - cost }), 800);
 }
 

@@ -7,18 +7,27 @@ import { renderPageTopbar, bindPageNav } from '../nav.js';
 const MAX_LEVEL = 50;
 const localName = (item) => i18n.language === 'he' && item.name_he ? item.name_he : item.name;
 
-
 function upgradeCost(eq, currentLevel) {
   return Math.floor(eq.cost_each * currentLevel * (eq.upgrade_cost_multiplier ?? 0.5));
 }
-
 function effectivePower(base, level) {
   return Math.round(base * (1 + (level - 1) * 0.06));
 }
 
+function categoryLabel(catId) {
+  const map = {
+    ground:  t('military.groundForces'),
+    air:     t('military.airForce'),
+    naval:   t('military.naval'),
+    missile: t('military.missiles'),
+    defense: t('military.defenseSystems'),
+  };
+  return map[catId] || catId;
+}
+
 export async function renderMilitary(user, profile, nation) {
   const app = document.getElementById('app');
-  app.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-size:13px;color:var(--text-muted);font-family:var(--font-body);">Loading Military...</div>`;
+  app.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-size:13px;color:var(--text-muted);font-family:var(--font-body);">${t('military.loading')}</div>`;
 
   const [
     { data: equipTypes },
@@ -44,13 +53,7 @@ export async function renderMilitary(user, profile, nation) {
     totalMaint   += inv.quantity * et.maintenance_per_2h;
   });
 
-  const categories = [
-    { id: 'ground',  label: '🪖 Ground Forces' },
-    { id: 'air',     label: '✈️ Air Force' },
-    { id: 'naval',   label: '🚢 Naval' },
-    { id: 'missile', label: '🚀 Missiles' },
-    { id: 'defense', label: '🛡️ Defense Systems' },
-  ];
+  const categories = ['ground','air','naval','missile','defense'];
 
   app.innerHTML = `
     ${renderPageTopbar(user, profile, nation, 'military')}
@@ -60,22 +63,22 @@ export async function renderMilitary(user, profile, nation) {
         <div class="inner-title-wrap">
           <span style="font-size:24px;">⚔️</span>
           <div>
-            <div class="inner-title">Military</div>
+            <div class="inner-title">${t('military.title')}</div>
             <div class="inner-sub">${nation.name}</div>
           </div>
         </div>
       </div>
 
       <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:1.2rem;">
-        ${mStat('👥', t('military.soldiers'),   nation.soldiers.toLocaleString(),  'var(--accent)')}
-        ${mStat('⚔️', t('military.attack'),     totalAttack.toLocaleString(),      '#e05252')}
-        ${mStat('🛡️', t('military.defense'),    totalDefense.toLocaleString(),     '#3b82f6')}
-        ${mStat('💰', t('military.treasury'),   '$'+nation.money.toLocaleString(), 'var(--accent)')}
-        ${mStat('🔧', t('military.maintenance'),   '-$'+totalMaint.toLocaleString(), totalMaint > nation.money ? '#e05252' : 'var(--text-muted)')}
+        ${mStat('👥', t('military.soldiers'),    nation.soldiers.toLocaleString(),   'var(--accent)')}
+        ${mStat('⚔️', t('military.attack'),      totalAttack.toLocaleString(),       '#e05252')}
+        ${mStat('🛡️', t('military.defense'),     totalDefense.toLocaleString(),      '#3b82f6')}
+        ${mStat('💰', t('military.treasury'),    '$'+nation.money.toLocaleString(),  'var(--accent)')}
+        ${mStat('🔧', t('military.maintenance'), '-$'+totalMaint.toLocaleString(),   totalMaint > nation.money ? '#e05252' : 'var(--text-muted)')}
       </div>
 
       <div style="background:var(--surface);border:1.5px solid var(--border);border-top:3px solid var(--accent);border-radius:8px;padding:1.2rem 1.5rem;margin-bottom:1rem;">
-        <div style="font-family:var(--font-title);font-size:17px;letter-spacing:2px;color:var(--text);margin-bottom:1rem;">${t('military.draftTitle')}</div>
+        <div style="font-family:var(--font-title);font-size:17px;letter-spacing:2px;color:var(--text);margin-bottom:1rem;">👥 ${t('military.draftTitle')}</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:center;">
           <div>
             <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);letter-spacing:1px;margin-bottom:5px;">
@@ -86,7 +89,7 @@ export async function renderMilitary(user, profile, nation) {
             <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-top:3px;">${t('military.draftCost')}</div>
           </div>
           <div style="display:flex;gap:8px;align-items:center;">
-            <input type="number" id="draft-amount" placeholder="Amount" min="1"
+            <input type="number" id="draft-amount" placeholder="${t('military.soldiers')}" min="1"
               style="flex:1;background:var(--surface2);border:1.5px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-mono);font-size:13px;padding:8px 10px;outline:none;"/>
             <button class="btn-submit" id="btn-draft" style="width:auto;padding:8px 14px;font-size:13px;letter-spacing:1px;border-radius:6px;">${t('military.draftBtn')}</button>
             <button class="btn-logout" id="btn-demob" style="font-size:11px;padding:8px 12px;white-space:nowrap;">${t('military.demobBtn')}</button>
@@ -99,7 +102,7 @@ export async function renderMilitary(user, profile, nation) {
         <div id="order-bar" style="display:none;background:var(--accent-bg);border-bottom:1.5px solid var(--border);padding:10px 1.5rem;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
           <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);">
             ${t('military.orderTotal')}: <strong id="order-total" style="color:var(--accent);font-size:15px;">$0</strong>
-            &nbsp;·&nbsp; Items: <strong id="order-count" style="color:var(--accent);">0</strong>
+            &nbsp;·&nbsp; ${t('military.items')}: <strong id="order-count" style="color:var(--accent);">0</strong>
           </div>
           <div style="display:flex;gap:8px;">
             <button class="btn-logout" id="btn-clear-order" style="font-size:11px;padding:6px 12px;">${t('military.clearBtn')}</button>
@@ -107,12 +110,12 @@ export async function renderMilitary(user, profile, nation) {
           </div>
         </div>
 
-        ${categories.map(cat => {
-          const items = (equipTypes||[]).filter(e => e.category === cat.id);
+        ${categories.map(catId => {
+          const items = (equipTypes||[]).filter(e => e.category === catId);
           if (!items.length) return '';
           return `
             <div>
-              <div style="font-family:var(--font-title);font-size:14px;letter-spacing:2px;color:var(--text-muted);padding:8px 1.5rem;background:var(--surface2);border-bottom:1px solid var(--border);">${cat.label}</div>
+              <div style="font-family:var(--font-title);font-size:14px;letter-spacing:2px;color:var(--text-muted);padding:8px 1.5rem;background:var(--surface2);border-bottom:1px solid var(--border);">${categoryLabel(catId)}</div>
               <table style="width:100%;border-collapse:collapse;">
                 <colgroup>
                   <col style="width:52px"><col style="min-width:130px"><col style="width:90px"><col style="width:90px">
@@ -125,7 +128,7 @@ export async function renderMilitary(user, profile, nation) {
                     <th style="${th()}text-align:start;">${t('military.unit')}</th>
                     <th style="${th()}">⚔️ ${t('military.atk')}</th>
                     <th style="${th()}">🛡️ ${t('military.def')}</th>
-                    <th style="${th()}">🔧/2h</th>
+                    <th style="${th()}">${t('military.maint2h')}</th>
                     <th style="${th()}">${t('military.costEach')}</th>
                     <th style="${th()}">${t('military.owned')}</th>
                     <th style="${th()}">${t('military.level')}</th>
@@ -146,24 +149,24 @@ export async function renderMilitary(user, profile, nation) {
       <div class="msg" id="purchase-msg" style="margin-bottom:1rem;"></div>
 
       <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:1.2rem 1.5rem;margin-bottom:1rem;">
-        <div style="font-family:var(--font-title);font-size:16px;letter-spacing:2px;color:var(--text-muted);margin-bottom:0.8rem;">${t('military.sellTitle')}</div>
+        <div style="font-family:var(--font-title);font-size:16px;letter-spacing:2px;color:var(--text-muted);margin-bottom:0.8rem;">💸 ${t('military.sellTitle')}</div>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
           <select id="sell-type" style="background:var(--surface2);border:1.5px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-mono);font-size:13px;padding:8px 10px;outline:none;flex:1;min-width:160px;">
-            <option value="">Select equipment...</option>
+            <option value="">${t('military.selectEquipment')}</option>
             ${(equipTypes||[]).filter(e=>(invMap[e.id]?.quantity||0)>0).map(e=>
-              `<option value="${e.id}">${e.name} (owned: ${(invMap[e.id]?.quantity||0).toLocaleString()}, lv ${invMap[e.id]?.level||1})</option>`
+              `<option value="${e.id}">${localName(e)} (${t('military.owned').toLowerCase()}: ${(invMap[e.id]?.quantity||0).toLocaleString()}, lv ${invMap[e.id]?.level||1})</option>`
             ).join('')}
           </select>
-          <input type="number" id="sell-amount" placeholder="Qty" min="1"
+          <input type="number" id="sell-amount" placeholder="${t('military.buyQty')}" min="1"
             style="width:100px;background:var(--surface2);border:1.5px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-mono);font-size:13px;padding:8px 10px;outline:none;"/>
-          <button class="btn-logout" id="btn-sell" style="padding:8px 16px;font-size:12px;">Sell</button>
+          <button class="btn-logout" id="btn-sell" style="padding:8px 16px;font-size:12px;">${t('military.sellBtn')}</button>
         </div>
         <div class="msg" id="sell-msg" style="margin-top:8px;"></div>
       </div>
 
       ${maintenanceLogs?.length ? `
         <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:1rem 1.5rem;margin-bottom:1rem;">
-          <div style="font-family:var(--font-title);font-size:15px;letter-spacing:2px;color:var(--text-muted);margin-bottom:0.8rem;">${t('military.maintenanceTitle')}</div>
+          <div style="font-family:var(--font-title);font-size:15px;letter-spacing:2px;color:var(--text-muted);margin-bottom:0.8rem;">🔧 ${t('military.maintenanceTitle')}</div>
           ${maintenanceLogs.map(l=>`
             <div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:11px;color:var(--text-muted);padding:5px 0;border-bottom:1px solid var(--border-dim);">
               <span>${new Date(l.logged_at).toLocaleString()}</span>
@@ -191,8 +194,6 @@ function equipRow(eq, inv, money) {
   const upCost   = upgradeCost(eq, level);
   const atMax    = level >= MAX_LEVEL;
   const canAfford = money >= upCost;
-
-  // 10-pip bar scaled to MAX_LEVEL (50)
   const pipsTotal = 10;
   const pipsFilled = Math.round((level / MAX_LEVEL) * pipsTotal);
   const levelBar = Array.from({ length: pipsTotal }, (_, i) => `
@@ -212,11 +213,11 @@ function equipRow(eq, inv, money) {
       </td>
       <td style="padding:8px;text-align:center;font-family:var(--font-mono);font-size:12px;font-weight:700;">
         <span style="color:#e05252;">${effAtk}</span>
-        ${level > 1 ? `<div style="font-size:9px;color:var(--text-dim);">base ${eq.attack_power}</div>` : ''}
+        ${level > 1 ? `<div style="font-size:9px;color:var(--text-dim);">${t('military.basePower',{val:eq.attack_power})}</div>` : ''}
       </td>
       <td style="padding:8px;text-align:center;font-family:var(--font-mono);font-size:12px;font-weight:700;">
         <span style="color:#3b82f6;">${effDef}</span>
-        ${level > 1 ? `<div style="font-size:9px;color:var(--text-dim);">base ${eq.defense_power}</div>` : ''}
+        ${level > 1 ? `<div style="font-size:9px;color:var(--text-dim);">${t('military.basePower',{val:eq.defense_power})}</div>` : ''}
       </td>
       <td style="padding:8px;text-align:center;font-family:var(--font-mono);font-size:12px;color:var(--text-muted);">${eq.maintenance_per_2h}</td>
       <td style="padding:8px;text-align:center;font-family:var(--font-mono);font-size:12px;color:var(--accent);">$${eq.cost_each.toLocaleString()}</td>
@@ -224,7 +225,7 @@ function equipRow(eq, inv, money) {
       <td style="padding:8px;text-align:center;">
         ${hasUnits ? `
           <div style="font-family:var(--font-mono);font-size:13px;font-weight:800;color:${level >= MAX_LEVEL ? '#f59e0b' : 'var(--accent)'};margin-bottom:4px;">
-            ${level >= MAX_LEVEL ? t('military.maxLevel') : `Lv ${level}`}
+            ${level >= MAX_LEVEL ? t('military.maxLevel') : t('military.levelLabel',{level})}
           </div>
           <div style="display:flex;gap:2px;justify-content:center;">${levelBar}</div>
           <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-dim);margin-top:3px;">+${(level-1)*10}% power</div>
@@ -237,10 +238,10 @@ function equipRow(eq, inv, money) {
             border:1.5px solid ${canAfford ? 'var(--accent)' : 'var(--border)'};
             background:${canAfford ? 'var(--accent-bg)' : 'var(--surface2)'};
             color:${canAfford ? 'var(--accent)' : 'var(--text-muted)'};opacity:${canAfford ? 1 : 0.6};">
-            ↑ Lv ${level+1}<br><span style="font-size:9px;">$${upCost.toLocaleString()}</span>
+            ${t('military.upgradeToLv',{level:level+1})}<br><span style="font-size:9px;">$${upCost.toLocaleString()}</span>
           </button>
         ` : hasUnits && atMax ? `
-          <span style="font-family:var(--font-mono);font-size:10px;color:#f59e0b;font-weight:700;">MAX</span>
+          <span style="font-family:var(--font-mono);font-size:10px;color:#f59e0b;font-weight:700;">${t('military.maxLevel')}</span>
         ` : `<span style="color:var(--text-dim);font-size:11px;">—</span>`}
       </td>
       <td style="padding:8px;text-align:center;">
@@ -312,12 +313,12 @@ function bindEvents(user, profile, nation, invMap, equipTypes) {
     const amount = parseInt(document.getElementById('draft-amount').value);
     if (!amount || amount < 1) { showMsg('draft-msg', 'error', t('military.errEnterAmount')); return; }
     const cost = amount * 10;
-    if (cost > nation.money) { showMsg('draft-msg', 'error', `Need $${cost.toLocaleString()}, you have $${nation.money.toLocaleString()}.`); return; }
+    if (cost > nation.money) { showMsg('draft-msg', 'error', t('military.errNotEnoughMoney', { cost: cost.toLocaleString(), balance: nation.money.toLocaleString() })); return; }
     const pct = parseInt(document.getElementById('draft-slider').value);
     const maxDraft = Math.floor(nation.population * pct / 100);
-    if (nation.soldiers + amount > maxDraft) { showMsg('draft-msg', 'error', `Max soldiers at ${pct}% draft: ${maxDraft.toLocaleString()}.`); return; }
+    if (nation.soldiers + amount > maxDraft) { showMsg('draft-msg', 'error', t('military.errMaxDraft', { pct, max: maxDraft.toLocaleString() })); return; }
     const btn = document.getElementById('btn-draft');
-    btn.disabled = true; btn.textContent = '...';
+    btn.disabled = true; btn.textContent = t('military.processing');
     const { error } = await sb.from('nations').update({ soldiers: nation.soldiers + amount, money: nation.money - cost, draft_percent: pct }).eq('id', nation.id);
     if (error) { showMsg('draft-msg', 'error', error.message); btn.disabled = false; btn.textContent = t('military.draftBtn'); }
     else { await logActivity(user.id, nation.id, 'draft_soldiers', { amount, cost }); renderMilitary(user, profile, { ...nation, soldiers: nation.soldiers + amount, money: nation.money - cost, draft_percent: pct }); }
@@ -326,9 +327,9 @@ function bindEvents(user, profile, nation, invMap, equipTypes) {
   document.getElementById('btn-demob').addEventListener('click', async () => {
     const amount = parseInt(document.getElementById('draft-amount').value);
     if (!amount || amount < 1) { showMsg('draft-msg', 'error', t('military.errEnterAmount')); return; }
-    if (amount > nation.soldiers) { showMsg('draft-msg', 'error', `Only ${nation.soldiers.toLocaleString()} soldiers available.`); return; }
+    if (amount > nation.soldiers) { showMsg('draft-msg', 'error', t('military.errOnlySoldiers', { count: nation.soldiers.toLocaleString() })); return; }
     const refund = Math.floor(amount * 10 * 0.5);
-    if (!confirm(`Demobilize ${amount.toLocaleString()} soldiers? Receive $${refund.toLocaleString()}.`)) return;
+    if (!confirm(t('military.demobConfirm', { count: amount.toLocaleString(), refund: refund.toLocaleString() }))) return;
     const { error } = await sb.from('nations').update({ soldiers: nation.soldiers - amount, money: nation.money + refund }).eq('id', nation.id);
     if (!error) { await logActivity(user.id, nation.id, 'demobilize', { amount, refund }); renderMilitary(user, profile, { ...nation, soldiers: nation.soldiers - amount, money: nation.money + refund }); }
   });
@@ -350,9 +351,9 @@ function bindEvents(user, profile, nation, invMap, equipTypes) {
       grandTotal += qty * cost;
     });
     if (!orders.length) return;
-    if (grandTotal > nation.money) { showMsg('purchase-msg', 'error', `Total $${grandTotal.toLocaleString()} exceeds treasury $${nation.money.toLocaleString()}.`); return; }
+    if (grandTotal > nation.money) { showMsg('purchase-msg', 'error', t('military.errNotEnoughMoney', { cost: grandTotal.toLocaleString(), balance: nation.money.toLocaleString() })); return; }
     const btn = document.getElementById('btn-purchase-all');
-    btn.disabled = true; btn.textContent = 'Processing...';
+    btn.disabled = true; btn.textContent = t('military.processing');
     let failed = false;
     for (const order of orders) {
       const cur = invMap[order.id] || { quantity: 0, level: 1 };
@@ -365,7 +366,7 @@ function bindEvents(user, profile, nation, invMap, equipTypes) {
       if (error) { showMsg('purchase-msg', 'error', error.message); }
       else {
         await logActivity(user.id, nation.id, 'purchase_equipment', { orders: orders.map(o=>({id:o.id,qty:o.qty})), total: grandTotal });
-        showMsg('purchase-msg', 'success', `Purchased: ${orders.map(o=>`${o.qty}× ${o.name}`).join(', ')} — $${grandTotal.toLocaleString()}`);
+        showMsg('purchase-msg', 'success', t('military.purchaseSuccess', { summary: orders.map(o=>`${o.qty}× ${o.name}`).join(', '), total: grandTotal.toLocaleString() }));
         nation.money -= grandTotal;
         setTimeout(() => renderMilitary(user, profile, { ...nation }), 1500);
       }
@@ -373,7 +374,6 @@ function bindEvents(user, profile, nation, invMap, equipTypes) {
     btn.disabled = false; btn.textContent = t('military.purchaseAllBtn');
   });
 
-  // Upgrade unit level
   document.querySelectorAll('.btn-upgrade').forEach(btn => {
     btn.addEventListener('click', async () => {
       const eqId  = btn.getAttribute('data-id');
@@ -381,14 +381,14 @@ function bindEvents(user, profile, nation, invMap, equipTypes) {
       const eq    = equipTypes.find(e => e.id === eqId);
       const inv   = invMap[eqId];
       if (!eq || !inv) return;
-      if (nation.money < cost) { showMsg('purchase-msg', 'error', `Not enough money. Need $${cost.toLocaleString()}.`); return; }
-      btn.disabled = true; btn.innerHTML = '...';
+      if (nation.money < cost) { showMsg('purchase-msg', 'error', t('military.errNotEnoughMoney', { cost: cost.toLocaleString(), balance: nation.money.toLocaleString() })); return; }
+      btn.disabled = true; btn.innerHTML = t('military.processing');
       const newLevel = inv.level + 1;
       const { error: lvlErr } = await sb.from('military_units').update({ level: newLevel }).eq('nation_id', nation.id).eq('equipment_id', eqId);
       if (lvlErr) { showMsg('purchase-msg', 'error', lvlErr.message); btn.disabled = false; return; }
       await sb.from('nations').update({ money: nation.money - cost }).eq('id', nation.id);
       await logActivity(user.id, nation.id, 'upgrade_unit', { equipment: eqId, level: newLevel, cost });
-      showMsg('purchase-msg', 'success', `${localName(eq)} upgraded to Level ${newLevel}! -$${cost.toLocaleString()}`);
+      showMsg('purchase-msg', 'success', t('military.upgradeSuccess', { name: localName(eq), level: newLevel, cost: cost.toLocaleString() }));
       nation.money -= cost;
       setTimeout(() => renderMilitary(user, profile, { ...nation }), 800);
     });
@@ -400,10 +400,10 @@ function bindEvents(user, profile, nation, invMap, equipTypes) {
     if (!typeId) { showMsg('sell-msg', 'error', t('military.errSelectEquip')); return; }
     if (!qty || qty < 1) { showMsg('sell-msg', 'error', t('military.errEnterQty')); return; }
     const inv = invMap[typeId] || { quantity: 0 };
-    if (qty > inv.quantity) { showMsg('sell-msg', 'error', `You only own ${inv.quantity}.`); return; }
+    if (qty > inv.quantity) { showMsg('sell-msg', 'error', t('military.errNotEnough', { count: inv.quantity })); return; }
     const eq = equipTypes.find(e => e.id === typeId);
     const refund = Math.floor(qty * eq.cost_each * 0.5);
-    if (!confirm(`Sell ${qty}× ${eq.name} for $${refund.toLocaleString()}?`)) return;
+    if (!confirm(t('military.sellConfirm', { qty, name: localName(eq), refund: refund.toLocaleString() }))) return;
     const newQty = inv.quantity - qty;
     const { error } = newQty > 0
       ? await sb.from('military_units').update({ quantity: newQty }).eq('nation_id', nation.id).eq('equipment_id', typeId)
@@ -411,7 +411,7 @@ function bindEvents(user, profile, nation, invMap, equipTypes) {
     if (!error) {
       await sb.from('nations').update({ money: nation.money + refund }).eq('id', nation.id);
       await logActivity(user.id, nation.id, 'sell_equipment', { equipment: typeId, qty, refund });
-      showMsg('sell-msg', 'success', `Sold ${qty}× ${eq.name} for $${refund.toLocaleString()}`);
+      showMsg('sell-msg', 'success', t('military.soldSuccess', { qty, name: localName(eq), refund: refund.toLocaleString() }));
       setTimeout(() => renderMilitary(user, profile, { ...nation, money: nation.money + refund }), 1500);
     } else {
       showMsg('sell-msg', 'error', error.message);

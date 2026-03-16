@@ -169,7 +169,7 @@ const RISK_COLORS = {
 
 export async function renderAttacks(user, profile, nation) {
   const app = document.getElementById('app');
-  app.innerHTML = loadingHTML('LOADING ATTACK CENTER...');
+  app.innerHTML = loadingHTML(loadingHTML(t('attacks.loading')));
 
   const [
     { data: targets },
@@ -220,17 +220,17 @@ export async function renderAttacks(user, profile, nation) {
           <span style="font-size:24px;">💥</span>
           <div>
             <div class="inner-title">${t('attacks.title')}</div>
-            <div class="inner-sub">${nation.name} · ${nation.turns} turns available</div>
+            <div class="inner-sub">${nation.name} · ${nation.turns} ${t('attacks.turns')}</div>
           </div>
         </div>
       </div>
 
       <!-- My power stats -->
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1.2rem;">
-        ${aStat('⚔️', 'Your Attack',  Math.round(myAttack).toLocaleString(),  '#e05252')}
-        ${aStat('🛡️', 'Your Defense', Math.round(myDefense).toLocaleString(), '#3b82f6')}
-        ${aStat('👥', 'Soldiers',     nation.soldiers.toLocaleString(),        'var(--accent)')}
-        ${aStat('⏱️', 'Turns',        nation.turns + ' / 200',                nation.turns > 0 ? 'var(--accent)' : '#e05252')}
+        ${aStat('⚔️', t('attacks.yourAttack'),  Math.round(myAttack).toLocaleString(),  '#e05252')}
+        ${aStat('🛡️', t('attacks.yourDefense'), Math.round(myDefense).toLocaleString(), '#3b82f6')}
+        ${aStat('👥', t('attacks.soldiers'),     nation.soldiers.toLocaleString(),        'var(--accent)')}
+        ${aStat('⏱️', t('attacks.turns'),        nation.turns + ' / 200',                nation.turns > 0 ? 'var(--accent)' : '#e05252')}
       </div>
 
       <!-- Active debuffs / blockade warnings -->
@@ -258,7 +258,7 @@ export async function renderAttacks(user, profile, nation) {
                   ⚠️ ${debuffLabel(d.debuff_type)}
                 </span>
                 <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);">
-                  expires in ${timeUntil(d.expires_at)}
+                  ${t('attacks.expiresIn')} ${timeUntil(d.expires_at)}
                 </span>
               </div>
             `).join('');
@@ -284,14 +284,14 @@ export async function renderAttacks(user, profile, nation) {
           <select id="target-select"
             style="flex:1;min-width:220px;background:var(--surface2);border:1.5px solid var(--border);border-radius:6px;
             color:var(--text);font-family:var(--font-body);font-size:13px;padding:9px 12px;outline:none;">
-            <option value="">— Choose a nation to attack —</option>
-            ${(targets||[]).map(t => `
-              <option value="${t.id}" data-soldiers="${t.soldiers}" data-security="${t.security_index}" data-land="${t.land}">
-                ${t.name} · ${(t.population/1000).toFixed(0)}k pop · ${t.land} land · ${t.soldiers.toLocaleString()} soldiers${t.is_bot ? ' [BOT]' : ''}
+            <option value="">${t('attacks.chooseNation')}</option>
+            ${(targets||[]).map(nation => `
+              <option value="${nation.id}" data-soldiers="${nation.soldiers}" data-security="${nation.security_index}" data-land="${nation.land}">
+                ${nation.name} · ${(nation.population/1000).toFixed(0)}k pop · ${nation.land} land · ${nation.soldiers.toLocaleString()} soldiers${nation.is_bot ? ' ' + t('attacks.botLabel') : ''}
               </option>
             `).join('')}
           </select>
-          <input type="text" id="target-search" placeholder=t('attacks.searchNations')
+          <input type="text" id="target-search" placeholder="${t('attacks.searchNations')}"
             style="width:180px;background:var(--surface2);border:1.5px solid var(--border);border-radius:6px;
             color:var(--text);font-family:var(--font-body);font-size:13px;padding:9px 12px;outline:none;"/>
         </div>
@@ -411,7 +411,7 @@ function battleLogRow(a, myNationId) {
   const opponent    = isAttacker ? a.defender : a.attacker;
   const isWin       = a.success ? isAttacker : !isAttacker;
   const resultColor = isWin ? '#16a34a' : '#e05252';
-  const resultLabel = isWin ? (isAttacker ? 'WIN' : 'DEFENDED') : (isAttacker ? 'LOST' : 'DEFEAT');
+  const resultLabel = isWin ? (isAttacker ? t('attacks.win') : t('attacks.defended')) : (isAttacker ? t('attacks.lost') : t('attacks.defeat'));
 
   const attLost = a.att_soldiers_lost || 0;
   const defLost = a.def_soldiers_lost || 0;
@@ -421,13 +421,13 @@ function battleLogRow(a, myNationId) {
   const money   = a.money_loss ? Math.floor(a.money_loss / 2) : 0;
 
   const chips = [];
-  if (mySol > 0)                        chips.push(`<span style="color:#f59e0b;">💀 ${mySol.toLocaleString()} yours</span>`);
-  if (oppSol > 0)                       chips.push(`<span style="color:#e05252;">⚔️ ${oppSol.toLocaleString()} enemy</span>`);
+  if (mySol > 0)                        chips.push(`<span style="color:#f59e0b;">💀 ${mySol.toLocaleString()} ${t('attacks.yours')}</span>`);
+  if (oppSol > 0)                       chips.push(`<span style="color:#e05252;">⚔️ ${oppSol.toLocaleString()} ${t('attacks.enemy')}</span>`);
   if (land > 0 && isAttacker && a.success)  chips.push(`<span style="color:var(--accent);">🗺️ +${land} land</span>`);
   if (land > 0 && !isAttacker && a.success) chips.push(`<span style="color:#e05252;">🗺️ -${land} land</span>`);
   if (money > 0 && isAttacker && a.success) chips.push(`<span style="color:#16a34a;">💰 +$${money.toLocaleString()}</span>`);
   if (a.defender_facilities_destroyed > 0 && isAttacker)
-    chips.push(`<span style="color:#8b5cf6;">🏭 ${a.defender_facilities_destroyed} fac destroyed</span>`);
+    chips.push(`<span style="color:#8b5cf6;">🏭 ${a.defender_facilities_destroyed} ${t('attacks.facDestroyed')}</span>`);
   if (a.special_effect) chips.push(`<span style="color:var(--accent);">✨ ${a.special_effect}</span>`);
 
   const scenarioDisplay = a.scenario_type
@@ -444,7 +444,7 @@ function battleLogRow(a, myNationId) {
       <span style="font-size:16px;">${isAttacker ? '⚔️' : '🛡️'}</span>
       <div style="flex:1;min-width:0;">
         <div style="color:var(--text);display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-          <span>${isAttacker ? 'Attack on' : 'Attacked by'} <strong>${opponent?.name || 'Unknown'}</strong></span>
+          <span>${isAttacker ? t('attacks.attackOn') : t('attacks.attackedBy')} <strong>${opponent?.name || 'Unknown'}</strong></span>
           <span style="color:var(--text-muted);font-size:9px;background:var(--surface2);border:1px solid var(--border);
             padding:1px 5px;border-radius:4px;">${scenarioDisplay}</span>
         </div>
@@ -509,15 +509,15 @@ function bindAttackEvents(user, profile, nation, recentAttacks, unitMap, targets
     btn.addEventListener('click', async () => {
       const scenario  = btn.getAttribute('data-scenario');
       const targetId  = document.getElementById('target-select').value;
-      if (!targetId) { showResult('error', 'Select a target nation first.'); return; }
-      if (nation.turns < 1) { showResult('error', 'Not enough turns!'); return; }
+      if (!targetId) { showResult('error', t('attacks.errSelectTarget')); return; }
+      if (nation.turns < 1) { showResult('error', t('attacks.errNotEnoughTurns')); return; }
 
       // Missile qty
       let missileQty = 0;
       const mqInput = document.querySelector(`.missile-qty[data-scenario="${scenario}"]`);
       if (mqInput) {
         missileQty = parseInt(mqInput.value) || 0;
-        if (missileQty < 1) { showResult('error', 'Enter how many missiles to launch.'); return; }
+        if (missileQty < 1) { showResult('error', t('attacks.errEnterMissiles')); return; }
         const inv = unitMap[mqInput.closest('.scenario-card')?.getAttribute('data-scenario') === 'sead' ? 'cruise' : 'ballistic'];
         if (inv && missileQty > inv.qty) {
           showResult('error', `You only have ${inv.qty} missiles.`); return;
@@ -668,10 +668,10 @@ function loadingHTML(msg) {
 
 function debuffLabel(type) {
   const labels = {
-    pop_growth_halted:   'Population growth halted',
-    income_penalty_5pct: '5% income penalty active',
-    sam_disabled:        'Your SAMs are suppressed',
-    air_superiority_lost:'Enemy has air superiority over you',
+    pop_growth_halted: t('attacks.debuffPopGrowth'),
+    income_penalty_5pct: t('attacks.debuffIncomePenalty'),
+    sam_disabled: t('attacks.debuffSamDisabled'),
+    air_superiority_lost: t('attacks.debuffAirSup'),
   };
   return labels[type] || type;
 }
@@ -686,24 +686,24 @@ function timeUntil(ts) {
 
 function errorMessage(code) {
   const msgs = {
-    not_enough_missiles:       'Not enough missiles in inventory.',
-    no_missiles_selected:      'Enter how many missiles to launch.',
-    no_fighter_jets:           'You have no Fighter Jets.',
-    no_bombers:                'You have no Bombers.',
-    no_helicopters:            'You have no Attack Helicopters.',
-    no_tanks:                  'You have no Tanks.',
-    no_artillery:              'You have no Artillery.',
-    no_naval_units:            'You need Destroyers or Submarines.',
-    no_destroyers:             'You need Destroyers for this mission.',
+    not_enough_missiles: t('attacks.errNotEnoughMissiles'),
+    no_missiles_selected:      t('attacks.errEnterMissiles'),
+    no_fighter_jets: t('attacks.errNoFighters'),
+    no_bombers: t('attacks.errNoBombers'),
+    no_helicopters: t('attacks.errNoHelis'),
+    no_tanks: t('attacks.errNoTanks'),
+    no_artillery: t('attacks.errNoArtillery'),
+    no_naval_units: t('attacks.errNoNaval'),
+    no_destroyers: t('attacks.errNoDestroyers'),
     no_enemy_submarines:       'Enemy has no submarines to hunt.',
-    requires_tanks_and_artillery: 'Industrial Occupation requires Tanks AND Artillery.',
-    blockade_already_active:   'You already have an active blockade on this nation.',
-    not_under_blockade:        'You are not currently under a blockade.',
-    need_bombers_or_destroyers:'Need Bombers or Destroyers to break a blockade.',
-    not_enough_turns:          'Not enough turns.',
-    cannot_attack_self:        'Cannot attack yourself.',
-    attacker_not_found:        'Your nation was not found.',
-    defender_not_found:        'Target nation not found.',
+    requires_tanks_and_artillery: t('attacks.errRequiresTanksArtillery'),
+    blockade_already_active: t('attacks.errBlockadeActive'),
+    not_under_blockade: t('attacks.errNotBlockaded'),
+    need_bombers_or_destroyers: t('attacks.errNeedBombersDestroyers'),
+    not_enough_turns: t('attacks.errNotEnoughTurnsCode'),
+    cannot_attack_self: t('attacks.errCannotAttackSelf'),
+    attacker_not_found: t('attacks.errAttackerNotFound'),
+    defender_not_found: t('attacks.errDefenderNotFound'),
   };
   return msgs[code] || code || 'Attack failed.';
 }

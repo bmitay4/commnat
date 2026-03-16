@@ -38,8 +38,8 @@ async function renderAllianceLobby(app, user, profile, nation) {
         <div class="inner-title-wrap">
           <span style="font-size:24px;">🤝</span>
           <div>
-            <div class="inner-title">Alliances</div>
-            <div class="inner-sub">${nation.name} · No alliance</div>
+            <div class="inner-title">${t('alliances.title')}</div>
+            <div class="inner-sub">${nation.name} · ${t('alliances.noAllianceStatus')}</div>
           </div>
         </div>
         <button class="btn btn-primary" id="btn-show-create">${t('alliances.createBtn')}</button>
@@ -51,16 +51,16 @@ async function renderAllianceLobby(app, user, profile, nation) {
         <div style="font-size:14px;font-weight:700;margin-bottom:14px;">${t('alliances.foundTitle')}</div>
         <div style="display:grid;grid-template-columns:1fr 120px;gap:10px;">
           <div class="field" style="margin:0;">
-            <label>Alliance Name</label>
+            <label>${t('alliances.nameLabel')}</label>
             <input type="text" id="al-name" placeholder="e.g. Northern Pact" maxlength="40"/>
           </div>
           <div class="field" style="margin:0;">
-            <label>Tag [3–5 chars]</label>
+            <label>${t('alliances.tagLabel')}</label>
             <input type="text" id="al-tag" placeholder="NATO" maxlength="5"/>
           </div>
         </div>
         <div class="field" style="margin-top:10px;">
-          <label>Description <span class="optional-label">optional</span></label>
+          <label>${t('alliances.descLabel')} <span class="optional-label">${t('alliances.optional')}</span></label>
           <input type="text" id="al-desc" placeholder="What does your alliance stand for?" maxlength="120"/>
         </div>
         <div style="display:flex;align-items:center;gap:10px;margin-top:10px;">
@@ -89,7 +89,7 @@ async function renderAllianceLobby(app, user, profile, nation) {
 
       <!-- Alliance list -->
       <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">
-        ${(alliances||[]).length} alliance${(alliances||[]).length !== 1 ? 's' : ''} this round
+        ${(alliances||[]).length !== 1 ? t('alliances.thisRoundPlural',{count:(alliances||[]).length}) : t('alliances.thisRound',{count:(alliances||[]).length})}
       </div>
 
       ${(alliances||[]).length === 0 ? `
@@ -127,8 +127,8 @@ function allianceCard(al, nation) {
       <div style="flex:1;min-width:0;">
         <div style="font-size:15px;font-weight:700;">${al.name}</div>
         <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">
-          ${al.description || 'No description'} · ${memberCount} / ${al.max_members} members
-          · ${al.is_open ? '<span style="color:var(--success);">Open</span>' : '<span style="color:var(--warning);">Closed</span>'}
+          ${al.description ? al.description : t('alliances.noDescription')} · ${memberCount} / ${al.max_members} ${t('alliances.membersTitle').replace('👥 ','')}
+          · ${al.is_open ? `<span style="color:var(--success);">${t('alliances.open')}</span>` : `<span style="color:var(--warning);">${t('alliances.closed')}</span>`}
         </div>
       </div>
       ${al.is_open && !isFull ? `
@@ -137,7 +137,7 @@ function allianceCard(al, nation) {
       ` : isFull ? `
         <span class="badge badge-gray">${t('alliances.full')}</span>
       ` : `
-        <span class="badge badge-yellow">Closed</span>
+        <span class="badge badge-yellow">${t('alliances.closed')}</span>
       `}
     </div>
   `;
@@ -171,8 +171,8 @@ function bindLobbyEvents(user, profile, nation, alliances) {
     const desc = document.getElementById('al-desc').value.trim();
     const open = document.getElementById('al-open').checked;
 
-    if (!name || name.length < 3) { showMsg('create-msg','error','Alliance name must be at least 3 characters.'); return; }
-    if (!tag || tag.length < 2)   { showMsg('create-msg','error','Tag must be 2–5 characters.'); return; }
+    if (!name || name.length < 3) { showMsg('create-msg','error',t('alliances.errNameLength')); return; }
+    if (!tag || tag.length < 2)   { showMsg('create-msg','error',t('alliances.errTagLength')); return; }
 
     const btn = document.getElementById('btn-create-al');
     btn.disabled = true; btn.textContent = t('alliances.creating');
@@ -183,7 +183,7 @@ function bindLobbyEvents(user, profile, nation, alliances) {
     }).select().single();
 
     if (alErr) {
-      showMsg('create-msg','error', alErr.message.includes('unique') ? 'Name or tag already taken.' : alErr.message);
+      showMsg('create-msg','error', alErr.message.includes('unique') ? t('alliances.errNameTaken') : alErr.message);
       btn.disabled = false; btn.textContent = t('alliances.createAllianceBtn'); return;
     }
 
@@ -263,13 +263,13 @@ async function renderAllianceHub(app, user, profile, nation, membership) {
         <div style="flex:1;">
           <div style="font-size:18px;font-weight:800;">${al.name}</div>
           <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">
-            ${al.description || 'No description'} · ${aliveMembers.length} / ${al.max_members} members
-            · ${al.is_open ? '<span style="color:var(--success);">Open</span>' : '<span style="color:var(--warning);">Closed</span>'}
-            · Your role: <strong style="text-transform:capitalize;">${membership.role}</strong>
+            ${al.description ? al.description : t('alliances.noDescription')} · ${aliveMembers.length} / ${al.max_members} ${t('alliances.membersTitle').replace('👥 ','')}
+            · ${al.is_open ? `<span style="color:var(--success);">${t('alliances.open')}</span>` : `<span style="color:var(--warning);">${t('alliances.closed')}</span>`}
+            · ${t('alliances.yourRole')} <strong style="text-transform:capitalize;">${membership.role}</strong>
           </div>
         </div>
         ${isLeader || isOfficer ? `
-          <button class="btn btn-ghost" id="btn-al-settings" style="font-size:12px;">⚙️ Settings</button>
+          <button class="btn btn-ghost" id="btn-al-settings" style="font-size:12px;">${t('alliances.settingsBtn')}</button>
         ` : ''}
         <button class="btn btn-ghost" id="btn-leave" style="font-size:12px;color:var(--danger);border-color:var(--danger-border);">
           Leave
@@ -296,7 +296,7 @@ async function renderAllianceHub(app, user, profile, nation, membership) {
           <div class="card" style="display:flex;flex-direction:column;">
             <div class="card-header">
               <div class="card-title">${t('alliances.chatTitle')}</div>
-              <span style="font-size:11px;color:var(--text-dim);">${aliveMembers.length} members online</span>
+              <span style="font-size:11px;color:var(--text-dim);">${t('alliances.membersOnline',{count:aliveMembers.length})}</span>
             </div>
 
             <!-- Messages -->
@@ -309,7 +309,7 @@ async function renderAllianceHub(app, user, profile, nation, membership) {
 
             <!-- Input -->
             <div style="padding:12px;border-top:1px solid var(--border);display:flex;gap:8px;">
-              <input type="text" id="chat-input" placeholder="Message the alliance..."
+              <input type="text" id="chat-input" placeholder="${t('alliances.messagePlaceholder')}"
                 maxlength="500"
                 style="flex:1;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-md);
                   color:var(--text);font-family:var(--font-body);font-size:13px;font-weight:500;
@@ -391,7 +391,7 @@ function chatMsg(m, myNationId) {
         color:var(--accent);flex-shrink:0;">${m.nation_name.charAt(0).toUpperCase()}</div>
       <div style="max-width:75%;${isMe ? 'align-items:flex-end;' : ''}display:flex;flex-direction:column;gap:2px;">
         <div style="font-size:10px;color:var(--text-dim);font-weight:600;
-          ${isMe ? 'text-align:end;' : ''}">${isMe ? 'You' : m.nation_name}</div>
+          ${isMe ? 'text-align:end;' : ''}">${isMe ? t('alliances.you') : m.nation_name}</div>
         <div style="background:${isMe ? 'var(--accent)' : 'var(--surface2)'};
           color:${isMe ? '#fff' : 'var(--text)'};
           border:1px solid ${isMe ? 'transparent' : 'var(--border)'};
@@ -409,8 +409,8 @@ function memberRow(m, myNationId, canKick) {
   if (!n) return '';
   const isMe = n.id === myNationId;
   const roleBadge = {
-    leader:  '<span class="badge badge-blue" style="font-size:9px;">Leader</span>',
-    officer: '<span class="badge badge-yellow" style="font-size:9px;">Officer</span>',
+    leader:  `<span class="badge badge-blue" style="font-size:9px;">${t('alliances.leaderBadge')}</span>`,
+    officer: `<span class="badge badge-yellow" style="font-size:9px;">${t('alliances.officerBadge')}</span>`,
     member:  '',
   }[m.role] || '';
   return `
@@ -424,7 +424,7 @@ function memberRow(m, myNationId, canKick) {
       <div style="flex:1;min-width:0;">
         <div style="font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;">
           ${n.name}
-          ${isMe ? '<span style="font-size:9px;color:var(--accent);font-weight:700;">YOU</span>' : ''}
+          ${isMe ? `<span style="font-size:9px;color:var(--accent);font-weight:700;">${t('alliances.youBadge')}</span>` : ''}
           ${roleBadge}
         </div>
         <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">
@@ -446,7 +446,7 @@ function bindHubEvents(user, profile, nation, membership, al, members) {
 
   // Leave
   document.getElementById('btn-leave').addEventListener('click', async () => {
-    if (!confirm(`Leave ${al.name}? You will lose all alliance benefits.`)) return;
+    if (!confirm(t('alliances.leaveConfirm',{name:al.name}))) return;
     await sb.from('alliance_members').delete().eq('nation_id', nation.id).eq('alliance_id', alId);
     await sb.from('nations').update({ alliance_id: null }).eq('id', nation.id);
     await sb.from('alliance_alerts').insert({
@@ -469,12 +469,12 @@ function bindHubEvents(user, profile, nation, membership, al, members) {
     const open = document.getElementById('settings-open').checked;
     const { error } = await sb.from('alliances').update({ description: desc, is_open: open }).eq('id', alId);
     if (error) showMsg('settings-msg','error', error.message);
-    else showMsg('settings-msg','success','Settings saved.');
+    else showMsg('settings-msg','success',t('alliances.settingsSaved'));
   });
 
   // Disband
   document.getElementById('btn-disband')?.addEventListener('click', async () => {
-    if (!confirm(`Disband ${al.name}? This will remove all members and cannot be undone.`)) return;
+    if (!confirm(t('alliances.disbandConfirm',{name:al.name}))) return;
     await sb.from('alliances').delete().eq('id', alId);
     await sb.from('nations').update({ alliance_id: null }).eq('alliance_id', alId);
     renderAlliances(user, profile, { ...nation, alliance_id: null });
@@ -512,7 +512,7 @@ function bindHubEvents(user, profile, nation, membership, al, members) {
     btn.addEventListener('click', async () => {
       const nId   = btn.getAttribute('data-nation-id');
       const nName = btn.getAttribute('data-nation-name');
-      if (!confirm(`Kick ${nName} from the alliance?`)) return;
+      if (!confirm(t('alliances.kickConfirm',{name:nName}))) return;
       await sb.from('alliance_members').delete().eq('nation_id', nId).eq('alliance_id', alId);
       await sb.from('nations').update({ alliance_id: null }).eq('id', nId);
       await sb.from('alliance_alerts').insert({
@@ -537,9 +537,9 @@ function showMsg(id, type, text) {
 function timeAgo(ts) {
   const diff = Date.now() - new Date(ts).getTime();
   const m = Math.floor(diff / 60000);
-  if (m < 1) return 'just now';
-  if (m < 60) return m + 'm ago';
+  if (m < 1) return t('alliances.justNow');
+  if (m < 60) return t('alliances.mAgo',{m});
   const h = Math.floor(m / 60);
-  if (h < 24) return h + 'h ago';
-  return Math.floor(h / 24) + 'd ago';
+  if (h < 24) return t('alliances.hAgo',{h});
+  return t('alliances.dAgo',{d:Math.floor(h/24)});
 }
