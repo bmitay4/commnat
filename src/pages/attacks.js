@@ -6,158 +6,160 @@ import { openBattleReport } from '../battleReport.js';
 
 // ─── Scenario definitions ─────────────────────────────────────────────────────
 
-const SCENARIOS = {
-  missile: [
-    {
-      id: 'missile_strike',
-      name: 'Strategic Surprise Strike',
-      icon: '💥',
-      unit: 'ballistic',
-      unitLabel: 'Ballistic Missiles',
-      desc: 'Destroy enemy oil rigs, factories and power plants. Each missile that gets through eliminates one facility.',
-      cost: 'Missiles consumed on launch',
-      requiresMissileQty: true,
-      color: '#e05252',
-      risk: 'HIGH',
-    },
-    {
-      id: 'sead',
-      name: 'Suppress Air Defenses',
-      icon: '🎯',
-      unit: 'cruise',
-      unitLabel: 'Cruise Missiles',
-      desc: 'Target enemy SAM Batteries. Success disables their air defenses for 15 minutes — clearing the path for your planes.',
-      cost: 'Missiles consumed on launch',
-      requiresMissileQty: true,
-      color: '#f59e0b',
-      risk: 'MEDIUM',
-    },
-    {
-      id: 'demoralization',
-      name: 'Demoralization Strike',
-      icon: '☢️',
-      unit: 'ballistic',
-      unitLabel: 'Ballistic Missiles',
-      desc: 'Strike civilian infrastructure. Drops enemy security and halts their population growth + 5% income penalty for 24 hours.',
-      cost: 'Missiles consumed on launch',
-      requiresMissileQty: true,
-      color: '#8b5cf6',
-      risk: 'HIGH',
-    },
-  ],
-  air: [
-    {
-      id: 'air_superiority',
-      name: 'Air Superiority',
-      icon: '✈️',
-      unit: 'fighter_jet',
-      unitLabel: 'Fighter Jets',
-      desc: 'Destroy the enemy air force. Victory grants a 1-hour window where your bombers operate without any air resistance.',
-      cost: 'Risk of jet losses',
-      color: '#3b82f6',
-      risk: 'HIGH',
-    },
-    {
-      id: 'carpet_bombing',
-      name: 'Carpet Bombing',
-      icon: '💣',
-      unit: 'bomber',
-      unitLabel: 'Bombers',
-      desc: 'Devastate enemy ground forces (Tanks & APCs). WARNING: Enemy SAMs shred bombers — use SEAD first.',
-      cost: 'Heavy bomber losses if SAMs active',
-      color: '#e05252',
-      risk: 'VERY HIGH',
-    },
-    {
-      id: 'tank_hunter',
-      name: 'Tank Hunter',
-      icon: '🚁',
-      unit: 'helicopter',
-      unitLabel: 'Attack Helicopters',
-      desc: 'Surgical strikes on enemy tanks. Extremely effective without enemy air cover — but Fighter Jets will decimate your helicopters.',
-      cost: 'Risk of helicopter losses',
-      color: '#16a34a',
-      risk: 'MEDIUM',
-    },
-  ],
-  ground: [
-    {
-      id: 'blitz_raid',
-      name: 'Blitz Raid',
-      icon: '💰',
-      unit: 'tank',
-      unitLabel: 'Tanks + APCs',
-      desc: 'Storm the enemy treasury. APCs boost success rate significantly. High risk of losing hardware.',
-      cost: 'Risk of tank and APC losses',
-      color: '#f59e0b',
-      risk: 'HIGH',
-    },
-    {
-      id: 'attrition',
-      name: 'War of Attrition',
-      icon: '🔥',
-      unit: 'artillery',
-      unitLabel: 'Artillery',
-      desc: 'Long-range bombardment of enemy APCs and Tanks. Very low risk to your artillery — the safe grind.',
-      cost: 'Minimal losses',
-      color: '#16a34a',
-      risk: 'LOW',
-    },
-    {
-      id: 'industrial_occupation',
-      name: 'Industrial Occupation',
-      icon: '🏭',
-      unit: 'tank',
-      unitLabel: 'Tanks + Artillery',
-      desc: 'Full assault to seize an enemy oil rig and transfer it to your nation. Your security drops due to occupation strain.',
-      cost: 'Major tank/artillery losses + security penalty',
-      color: '#8b5cf6',
-      risk: 'VERY HIGH',
-    },
-  ],
-  naval: [
-    {
-      id: 'naval_blockade',
-      name: 'Naval Blockade',
-      icon: '⚓',
-      unit: 'destroyer',
-      unitLabel: 'Destroyers + Submarines',
-      desc: 'Blockade enemy ports. As long as blockade holds, all enemy oil rig and port income drops to 0.',
-      cost: 'Ongoing — enemy can break blockade',
-      color: '#3b82f6',
-      risk: 'MEDIUM',
-    },
-    {
-      id: 'submarine_hunt',
-      name: 'Submarine Hunt',
-      icon: '🔱',
-      unit: 'destroyer',
-      unitLabel: 'Destroyers',
-      desc: 'Hunt and sink enemy submarines. Only destroyers can effectively eliminate subs.',
-      cost: 'Risk of destroyer losses',
-      color: '#f59e0b',
-      risk: 'MEDIUM',
-    },
-    {
-      id: 'break_blockade',
-      name: 'Break Blockade',
-      icon: '⛵',
-      unit: 'bomber',
-      unitLabel: 'Bombers or Destroyers',
-      desc: 'Break an active blockade on YOUR nation. Only available when you are currently blockaded.',
-      cost: 'Risk of losses',
-      color: '#16a34a',
-      risk: 'MEDIUM',
-    },
-  ],
-};
+function getScenarios() {
+  return {
+    missile: [
+      {
+        id: 'missile_strike',
+        name: t('attacks.scenarioMissileStrike'),
+        icon: '💥',
+        unit: 'ballistic',
+        unitLabel: t('attacks.unitBallisticMissiles'),
+        desc: t('attacks.descMissileStrike'),
+        cost: t('attacks.costMissilesConsumed'),
+        requiresMissileQty: true,
+        color: '#e05252',
+        risk: 'HIGH',
+      },
+      {
+        id: 'sead',
+        name: t('attacks.scenarioSead'),
+        icon: '🎯',
+        unit: 'cruise',
+        unitLabel: t('attacks.unitCruiseMissiles'),
+        desc: t('attacks.descSead'),
+        cost: t('attacks.costMissilesConsumed'),
+        requiresMissileQty: true,
+        color: '#f59e0b',
+        risk: 'MEDIUM',
+      },
+      {
+        id: 'demoralization',
+        name: t('attacks.scenarioDemoralization'),
+        icon: '☢️',
+        unit: 'ballistic',
+        unitLabel: t('attacks.unitBallisticMissiles'),
+        desc: t('attacks.descDemoralization'),
+        cost: t('attacks.costMissilesConsumed'),
+        requiresMissileQty: true,
+        color: '#8b5cf6',
+        risk: 'HIGH',
+      },
+    ],
+    air: [
+      {
+        id: 'air_superiority',
+        name: t('attacks.scenarioAirSuperiority'),
+        icon: '✈️',
+        unit: 'fighter_jet',
+        unitLabel: t('attacks.unitFighterJets'),
+        desc: t('attacks.descAirSuperiority'),
+        cost: t('attacks.costRiskJetLosses'),
+        color: '#3b82f6',
+        risk: 'HIGH',
+      },
+      {
+        id: 'carpet_bombing',
+        name: t('attacks.scenarioCarpetBombing'),
+        icon: '💣',
+        unit: 'bomber',
+        unitLabel: t('attacks.unitBombers'),
+        desc: t('attacks.descCarpetBombing'),
+        cost: t('attacks.costHeavyBomberLosses'),
+        color: '#e05252',
+        risk: 'VERY HIGH',
+      },
+      {
+        id: 'tank_hunter',
+        name: t('attacks.scenarioTankHunter'),
+        icon: '🚁',
+        unit: 'helicopter',
+        unitLabel: t('attacks.unitHelicopters'),
+        desc: t('attacks.descTankHunter'),
+        cost: t('attacks.costRiskHeliLosses'),
+        color: '#16a34a',
+        risk: 'MEDIUM',
+      },
+    ],
+    ground: [
+      {
+        id: 'blitz_raid',
+        name: t('attacks.scenarioBlitzRaid'),
+        icon: '💰',
+        unit: 'tank',
+        unitLabel: t('attacks.unitTanksApcs'),
+        desc: t('attacks.descBlitzRaid'),
+        cost: t('attacks.costRiskTankApcLosses'),
+        color: '#f59e0b',
+        risk: 'HIGH',
+      },
+      {
+        id: 'attrition',
+        name: t('attacks.scenarioAttrition'),
+        icon: '🔥',
+        unit: 'artillery',
+        unitLabel: t('attacks.unitArtillery'),
+        desc: t('attacks.descAttrition'),
+        cost: t('attacks.costMinimalLosses'),
+        color: '#16a34a',
+        risk: 'LOW',
+      },
+      {
+        id: 'industrial_occupation',
+        name: t('attacks.scenarioIndustrialOccupation'),
+        icon: '🏭',
+        unit: 'tank',
+        unitLabel: t('attacks.unitTanksArtillery'),
+        desc: t('attacks.descIndustrialOccupation'),
+        cost: t('attacks.costMajorLosses'),
+        color: '#8b5cf6',
+        risk: 'VERY HIGH',
+      },
+    ],
+    naval: [
+      {
+        id: 'naval_blockade',
+        name: t('attacks.scenarioNavalBlockade'),
+        icon: '⚓',
+        unit: 'destroyer',
+        unitLabel: t('attacks.unitDestroyersSubs'),
+        desc: t('attacks.descNavalBlockade'),
+        cost: t('attacks.costOngoing'),
+        color: '#3b82f6',
+        risk: 'MEDIUM',
+      },
+      {
+        id: 'submarine_hunt',
+        name: t('attacks.scenarioSubmarineHunt'),
+        icon: '🔱',
+        unit: 'destroyer',
+        unitLabel: t('attacks.unitDestroyers'),
+        desc: t('attacks.descSubmarineHunt'),
+        cost: t('attacks.costRiskDestroyerLosses'),
+        color: '#f59e0b',
+        risk: 'MEDIUM',
+      },
+      {
+        id: 'break_blockade',
+        name: t('attacks.scenarioBreakBlockade'),
+        icon: '⛵',
+        unit: 'bomber',
+        unitLabel: t('attacks.unitBombersDestroyers'),
+        desc: t('attacks.descBreakBlockade'),
+        cost: t('attacks.costRiskLosses'),
+        color: '#16a34a',
+        risk: 'MEDIUM',
+      },
+    ],
+  };
+}
 
 function categoryLabels() {
   return {
-    missile: i18n.t('attacks.missile'),
-    air:     i18n.t('attacks.air'),
-    ground:  i18n.t('attacks.ground'),
-    naval:   i18n.t('attacks.naval'),
+    missile: t('attacks.missile'),
+    air:     t('attacks.air'),
+    ground:  t('attacks.ground'),
+    naval:   t('attacks.naval'),
   };
 }
 
@@ -179,14 +181,14 @@ export async function renderAttacks(user, profile, nation) {
     { data: activeBlockade },
     { data: incomingBlockade },
   ] = await Promise.all([
-    sb.from('nations')
-      .select('id, name, flag_emoji, population, land, soldiers, security_index, money, is_bot')
-      .eq('is_alive', true).eq('round', nation.round).neq('id', nation.id)
-      .order('land', { ascending: false }),
+    sb.from('rankings')
+      .select('nation_id, nation_name, alliance_tag, alliance_name, overall_rank, is_bot')
+      .eq('round', nation.round).neq('nation_id', nation.id)
+      .order('overall_rank', { ascending: true }),
     sb.from('attacks')
       .select('*, attacker:attacker_nation_id(name,flag_emoji), defender:defender_nation_id(name,flag_emoji)')
       .or(`attacker_nation_id.eq.${nation.id},defender_nation_id.eq.${nation.id}`)
-      .order('attacked_at', { ascending: false }).limit(20),
+      .order('attacked_at', { ascending: false }).limit(12),
     sb.from('military_units')
       .select('equipment_id, quantity, level, equipment_types(attack_power, defense_power)')
       .eq('nation_id', nation.id),
@@ -240,7 +242,7 @@ export async function renderAttacks(user, profile, nation) {
             <div style="background:rgba(220,38,38,0.08);border:1.5px solid #dc2626;border-radius:8px;padding:10px 16px;
               display:flex;align-items:center;justify-content:space-between;gap:12px;">
               <div style="font-family:var(--font-mono);font-size:12px;color:#dc2626;font-weight:700;">
-                ⚓ YOUR PORTS ARE BLOCKADED — Oil rig and port income is 0. Use "Break Blockade" to restore trade.
+                ${t('attacks.blockadeWarning')}
               </div>
             </div>
           ` : ''}
@@ -270,7 +272,7 @@ export async function renderAttacks(user, profile, nation) {
       ${activeBlockade ? `
         <div style="background:rgba(59,130,246,0.08);border:1.5px solid #3b82f6;border-radius:8px;padding:10px 16px;margin-bottom:1rem;">
           <span style="font-family:var(--font-mono);font-size:12px;color:#3b82f6;font-weight:700;">
-            ⚓ ACTIVE BLOCKADE — You are currently blockading a nation. Their trade income is 0.
+            ${t('attacks.activeBlockadeMsg')}
           </span>
         </div>
       ` : ''}
@@ -286,8 +288,8 @@ export async function renderAttacks(user, profile, nation) {
             color:var(--text);font-family:var(--font-body);font-size:13px;padding:9px 12px;outline:none;">
             <option value="">${t('attacks.chooseNation')}</option>
             ${(targets||[]).map(nation => `
-              <option value="${nation.id}" data-soldiers="${nation.soldiers}" data-security="${nation.security_index}" data-land="${nation.land}">
-                ${nation.name} · ${(nation.population/1000).toFixed(0)}k pop · ${nation.land} land · ${nation.soldiers.toLocaleString()} soldiers${nation.is_bot ? ' ' + t('attacks.botLabel') : ''}
+              <option value="${nation.nation_id}">
+                #${nation.overall_rank} · ${nation.nation_name}${nation.alliance_tag ? ' [' + nation.alliance_tag + ']' : ''}
               </option>
             `).join('')}
           </select>
@@ -300,7 +302,7 @@ export async function renderAttacks(user, profile, nation) {
 
       <!-- Scenario categories -->
       <div id="scenario-area">
-        ${Object.entries(SCENARIOS).map(([cat, scenarios]) => `
+        ${Object.entries(getScenarios()).map(([cat, scenarios]) => `
           <div style="margin-bottom:1.5rem;">
             <div style="font-family:var(--font-title);font-size:16px;letter-spacing:2px;color:var(--text-muted);
               margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);">
@@ -361,7 +363,7 @@ function scenarioCard(s, unitMap, isBlockaded) {
         </div>
         <span style="font-family:var(--font-mono);font-size:9px;font-weight:700;color:${riskColor};
           background:${riskColor}18;border:1px solid ${riskColor}44;padding:2px 6px;border-radius:4px;
-          flex-shrink:0;white-space:nowrap;">${i18n.t('attacks.' + s.risk.toLowerCase().replace(' ', ''))}</span>
+          flex-shrink:0;white-space:nowrap;">${i18n.t('attacks.' + {'LOW':'low','MEDIUM':'medium','HIGH':'high','VERY HIGH':'veryHigh'}[s.risk] || s.risk)}</span>
       </div>
 
       <div style="font-size:12px;color:var(--text-muted);font-weight:500;margin-bottom:10px;line-height:1.5;">
@@ -371,7 +373,7 @@ function scenarioCard(s, unitMap, isBlockaded) {
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">
         <div style="font-family:var(--font-mono);font-size:10px;color:${hasUnits ? s.color : '#e05252'};">
           ${s.unitLabel}: <strong>${inv.qty.toLocaleString()}</strong>
-          ${inv.qty > 0 ? `<span style="color:var(--text-muted);">(Lv ${inv.level})</span>` : '⚠️ NONE'}
+          ${inv.qty > 0 ? `<span style="color:var(--text-muted);">(${t('attacks.levelAbbr')} ${inv.level})</span>` : `⚠️ ${t('attacks.noneWarning')}`}
         </div>
         ${s.requiresMissileQty ? `
           <div style="display:flex;align-items:center;gap:6px;">
@@ -386,7 +388,7 @@ function scenarioCard(s, unitMap, isBlockaded) {
               border-radius:5px;cursor:pointer;border:1.5px solid ${s.color};
               background:${s.color}18;color:${s.color};white-space:nowrap;
               ${!hasUnits ? 'opacity:0.4;cursor:not-allowed;' : ''}">
-              Launch
+              ${t('attacks.launch')}
             </button>
           </div>
         ` : `
@@ -396,7 +398,7 @@ function scenarioCard(s, unitMap, isBlockaded) {
             border-radius:5px;cursor:pointer;border:1.5px solid ${s.color};
             background:${s.color}18;color:${s.color};white-space:nowrap;
             ${dimmed ? 'opacity:0.4;cursor:not-allowed;' : ''}">
-            Execute
+            ${t('attacks.execute')}
           </button>
         `}
       </div>
@@ -423,15 +425,15 @@ function battleLogRow(a, myNationId) {
   const chips = [];
   if (mySol > 0)                        chips.push(`<span style="color:#f59e0b;">💀 ${mySol.toLocaleString()} ${t('attacks.yours')}</span>`);
   if (oppSol > 0)                       chips.push(`<span style="color:#e05252;">⚔️ ${oppSol.toLocaleString()} ${t('attacks.enemy')}</span>`);
-  if (land > 0 && isAttacker && a.success)  chips.push(`<span style="color:var(--accent);">🗺️ +${land} land</span>`);
-  if (land > 0 && !isAttacker && a.success) chips.push(`<span style="color:#e05252;">🗺️ -${land} land</span>`);
+  if (land > 0 && isAttacker && a.success)  chips.push(`<span style="color:var(--accent);">🗺️ +${land} ${t('attacks.land')}</span>`);
+  if (land > 0 && !isAttacker && a.success) chips.push(`<span style="color:#e05252;">🗺️ -${land} ${t('attacks.land')}</span>`);
   if (money > 0 && isAttacker && a.success) chips.push(`<span style="color:#16a34a;">💰 +$${money.toLocaleString()}</span>`);
   if (a.defender_facilities_destroyed > 0 && isAttacker)
     chips.push(`<span style="color:#8b5cf6;">🏭 ${a.defender_facilities_destroyed} ${t('attacks.facDestroyed')}</span>`);
   if (a.special_effect) chips.push(`<span style="color:var(--accent);">✨ ${a.special_effect}</span>`);
 
   const scenarioDisplay = a.scenario_type
-    ? SCENARIOS[a.attack_type]?.find(s => s.id === a.scenario_type)?.name || a.scenario_type
+    ? getScenarios()[a.attack_type]?.find(s => s.id === a.scenario_type)?.name || a.scenario_type
     : a.attack_type;
 
   return `
@@ -481,16 +483,13 @@ function bindAttackEvents(user, profile, nation, recentAttacks, unitMap, targets
     const opt = e.target.selectedOptions[0];
     const info = document.getElementById('target-info');
     if (!opt?.value) { info.style.display = 'none'; return; }
-    const t = targets.find(t => t.id === opt.value);
+    const t = targets.find(t => t.nation_id === opt.value);
     if (!t) return;
     info.style.display = 'block';
     info.innerHTML = `
       <div style="display:flex;gap:12px;flex-wrap:wrap;font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">
-        <span>👥 ${t.soldiers.toLocaleString()} soldiers</span>
-        <span>🗺️ ${t.land} land</span>
-        <span>🛡️ ${t.security_index}% security</span>
-        <span>💰 $${t.money.toLocaleString()}</span>
-        ${t.is_bot ? '<span style="color:var(--accent);">[BOT]</span>' : ''}
+        <span>🏆 ${i18n.t('attacks.targetRank')} #${t.overall_rank}</span>
+        ${t.alliance_name ? `<span>🤝 ${t.alliance_name}</span>` : ''}
       </div>
     `;
   });
@@ -524,17 +523,17 @@ function bindAttackEvents(user, profile, nation, recentAttacks, unitMap, targets
         }
       }
 
-      const targetName = document.getElementById('target-select').selectedOptions[0]?.text?.split('·')[0]?.trim() || 'enemy';
+      const targetName = document.getElementById('target-select').selectedOptions[0]?.text?.split('·')[1]?.trim()?.split('[')[0]?.trim() || 'enemy';
 
       // Confirm for destructive scenarios
       const highRisk = ['carpet_bombing','industrial_occupation','demoralization','missile_strike'];
       if (highRisk.includes(scenario)) {
-        const scenInfo = Object.values(SCENARIOS).flat().find(s => s.id === scenario);
-        if (!confirm(`Execute "${scenInfo?.name}" against ${targetName}?\n\n${scenInfo?.cost}`)) return;
+        const scenInfo = Object.values(getScenarios()).flat().find(s => s.id === scenario);
+        if (!confirm(`${scenInfo?.name} → ${targetName}?\n\n${scenInfo?.cost}`)) return;
       }
 
       document.querySelectorAll('.btn-launch-scenario').forEach(b => b.disabled = true);
-      showResult('loading', `Executing ${scenario.replace(/_/g,' ')} against ${targetName}...`);
+      showResult('loading', `${t('attacks.resultExecuting')} ${targetName}...`);
 
       const { data, error } = await sb.rpc('resolve_scenario_attack', {
         p_attacker_id: nation.id,
@@ -570,7 +569,7 @@ function showResult(type, message, data, scenario, onDismiss) {
   if (type === 'loading') {
     el.innerHTML = `
       <div style="background:rgba(40,88,208,0.06);border:1.5px solid var(--accent);border-radius:8px;padding:1rem 1.5rem;">
-        <div style="font-family:var(--font-title);font-size:18px;letter-spacing:2px;color:var(--accent);">⚔️ EXECUTING...</div>
+        <div style="font-family:var(--font-title);font-size:18px;letter-spacing:2px;color:var(--accent);">⚔️ ${t('attacks.resultExecuting')}</div>
         <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);margin-top:6px;">${message}</div>
       </div>
     `;
@@ -583,30 +582,30 @@ function showResult(type, message, data, scenario, onDismiss) {
     error:   { bg: 'rgba(220,38,38,0.08)',  border: '#dc2626', text: '#dc2626' },
   };
   const c = colors[type] || colors.defeat;
-  const scenInfo = scenario ? Object.values(SCENARIOS).flat().find(s => s.id === scenario) : null;
+  const scenInfo = scenario ? Object.values(getScenarios()).flat().find(s => s.id === scenario) : null;
 
   // Build equipment lost chips — sec_drop intentionally hidden (use intelligence to see enemy security)
   const chips = [];
   if (data) {
     if (data.att_eq_lost) {
       Object.entries(data.att_eq_lost).forEach(([k,v]) => {
-        if (v > 0) chips.push(`<span style="color:#f59e0b;">💀 Lost ${v} ${k.replace(/_/g,' ')}</span>`);
+        if (v > 0) chips.push(`<span style="color:#f59e0b;">💀 ${t('attacks.lostEquip', {count: v, unit: k.replace(/_/g,' ')})}</span>`);
       });
     }
     if (data.def_eq_lost) {
       Object.entries(data.def_eq_lost).forEach(([k,v]) => {
-        if (v > 0) chips.push(`<span style="color:#16a34a;">🎯 Destroyed ${v} enemy ${k.replace(/_/g,' ')}</span>`);
+        if (v > 0) chips.push(`<span style="color:#16a34a;">🎯 ${t('attacks.destroyedEquip', {count: v, unit: k.replace(/_/g,' ')})}</span>`);
       });
     }
-    if (data.missiles_through > 0) chips.push(`<span style="color:#8b5cf6;">🚀 ${data.missiles_through} missiles got through</span>`);
-    if (data.facilities_hit    > 0) chips.push(`<span style="color:#8b5cf6;">🏭 ${data.facilities_hit} facilities destroyed</span>`);
-    if (data.money_stolen      > 0) chips.push(`<span style="color:#16a34a;">💰 +$${data.money_stolen.toLocaleString()} looted</span>`);
+    if (data.missiles_through > 0) chips.push(`<span style="color:#8b5cf6;">🚀 ${data.missiles_through} ${t('attacks.missilesPenetrated')}</span>`);
+    if (data.facilities_hit    > 0) chips.push(`<span style="color:#8b5cf6;">🏭 ${data.facilities_hit} ${t('attacks.facDestroyed')}</span>`);
+    if (data.money_stolen      > 0) chips.push(`<span style="color:#16a34a;">💰 ${t('attacks.moneyLooted')} +$${data.money_stolen.toLocaleString()}</span>`);
     if (data.special_effect)        chips.push(`<span style="color:var(--accent);">✨ ${data.special_effect}</span>`);
   }
 
   const headline = type === 'success'
-    ? `🏆 ${scenInfo?.icon||''} SUCCESS`
-    : type === 'error' ? `⚠️ ERROR` : `💀 FAILED`;
+    ? `🏆 ${scenInfo?.icon||''} ${t('attacks.resultSuccess')}`
+    : type === 'error' ? `⚠️ ${t('attacks.resultError')}` : `💀 ${t('attacks.resultFailed')}`;
 
   el.innerHTML = `
     <div style="background:${c.bg};border:1.5px solid ${c.border};border-radius:8px;padding:1rem 1.5rem;position:relative;">
@@ -695,7 +694,7 @@ function errorMessage(code) {
     no_artillery: t('attacks.errNoArtillery'),
     no_naval_units: t('attacks.errNoNaval'),
     no_destroyers: t('attacks.errNoDestroyers'),
-    no_enemy_submarines:       'Enemy has no submarines to hunt.',
+    no_enemy_submarines: t('attacks.noEnemySubs'),
     requires_tanks_and_artillery: t('attacks.errRequiresTanksArtillery'),
     blockade_already_active: t('attacks.errBlockadeActive'),
     not_under_blockade: t('attacks.errNotBlockaded'),

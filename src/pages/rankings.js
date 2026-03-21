@@ -24,8 +24,6 @@ export async function renderRankings(user, profile, nation) {
         ${categoryTab('overall',    '🏆', i18n.t('rankings.overall'))}
         ${categoryTab('military',   '⚔️', i18n.t('rankings.military'))}
         ${categoryTab('economy',    '💰', i18n.t('rankings.economy'))}
-        ${categoryTab('land',       '🗺️', i18n.t('rankings.land'))}
-        ${categoryTab('population', '👥', i18n.t('rankings.population'))}
         ${categoryTab('alliances',  '🤝', i18n.t('rankings.alliances'))}
       </div>
 
@@ -119,8 +117,6 @@ function rankColumn() {
     overall: 'overall_rank',
     military: 'military_rank',
     economy: 'economy_rank',
-    land: 'land_rank',
-    population: 'population_rank',
   };
   return cols[currentCategory] || 'overall_rank';
 }
@@ -132,12 +128,10 @@ function rankRow(n, i, myNation) {
   const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
 
   const mainValue = {
-    overall:    { label: i18n.t('rankings.score'),      value: n.score.toLocaleString() },
-    military:   { label: i18n.t('rankings.soldiers'),   value: n.soldiers.toLocaleString() },
-    economy:    { label: i18n.t('rankings.treasury'),   value: '$' + n.money.toLocaleString() },
-    land:       { label: i18n.t('rankings.land'),       value: n.land + ' ' + t('rankings.landSuffix') },
-    population: { label: i18n.t('rankings.population'), value: n.population.toLocaleString() },
-  }[currentCategory];
+    overall:  { label: i18n.t('rankings.score'), value: fmtScore(n.score), rank: n.overall_rank,  showValue: true  },
+    military: { label: i18n.t('rankings.milScore'), value: fmtScore(n.military_score), rank: n.military_rank, showValue: true },
+    economy:  { label: i18n.t('rankings.ecoScore'), value: fmtScore(n.economy_score),  rank: n.economy_rank,  showValue: true },
+  }[currentCategory] || { label: i18n.t('rankings.score'), value: fmtScore(n.score), rank: n.overall_rank, showValue: true };
 
   return `
     <div style="
@@ -166,7 +160,6 @@ function rankRow(n, i, myNation) {
           white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:6px;">
           ${n.nation_name}
           ${isMe ? `<span style="font-size:10px;color:var(--accent);font-weight:700;background:var(--accent-bg);padding:1px 6px;border-radius:4px;">${t('dashboard.youBadge')}</span>` : ''}
-          ${n.is_bot ? '<span style="font-size:10px;color:var(--text-dim);background:var(--surface3);padding:1px 6px;border-radius:4px;border:1px solid var(--border);">BOT</span>' : ''}
           ${n.alliance_tag ? `<span style="font-size:10px;color:var(--accent-2);background:rgba(99,102,241,0.08);padding:1px 7px;border-radius:4px;border:1px solid rgba(99,102,241,0.2);font-family:var(--font-mono);font-weight:700;">[${n.alliance_tag}]</span>` : ''}
         </div>
         <div style="font-size:11px;color:var(--text-muted);margin-top:2px;font-weight:500;">
@@ -174,14 +167,17 @@ function rankRow(n, i, myNation) {
         </div>
       </div>
 
-      <!-- Main value -->
+      <!-- Right side: score for overall, rank badge only for military/economy -->
       <div style="text-align:end;flex-shrink:0;">
-        <div style="font-size:17px;font-weight:800;color:var(--accent);">
-          ${mainValue.value}
-        </div>
-        <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:600;margin-top:1px;">
-          ${mainValue.label}
-        </div>
+        ${mainValue.showValue ? `
+          <div style="font-size:17px;font-weight:800;color:var(--accent);">${mainValue.value}</div>
+          <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:600;margin-top:1px;">${mainValue.label}</div>
+        ` : `
+          <div style="font-size:${mainValue.rank <= 3 ? '22' : '17'}px;font-weight:800;color:${mainValue.rank <= 3 ? medalColor(mainValue.rank) : 'var(--accent)'};">
+            ${mainValue.rank === 1 ? '🥇' : mainValue.rank === 2 ? '🥈' : mainValue.rank === 3 ? '🥉' : '#' + mainValue.rank}
+          </div>
+          <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:600;margin-top:1px;">${mainValue.label}</div>
+        `}
       </div>
     </div>
   `;
@@ -203,11 +199,9 @@ function renderMyBanner(mine) {
     ">
       <div style="font-family:var(--font-mono);font-size:10px;color:var(--accent);letter-spacing:2px;
         grid-column:1/-1;margin-bottom:4px;">${t('rankings.yourStandings')}</div>
-      ${miniRank('🏆', i18n.t('rankings.overall'),    '#' + mine.overall_rank)}
-      ${miniRank('⚔️', i18n.t('rankings.military'),   '#' + mine.military_rank)}
-      ${miniRank('💰', i18n.t('rankings.economy'),    '#' + mine.economy_rank)}
-      ${miniRank('🗺️', i18n.t('rankings.land'),       '#' + mine.land_rank)}
-      ${miniRank('👥', i18n.t('rankings.population'), '#' + mine.population_rank)}
+      ${miniRank('🏆', i18n.t('rankings.overall'),  '#' + mine.overall_rank)}
+      ${miniRank('⚔️', i18n.t('rankings.military'), '#' + mine.military_rank)}
+      ${miniRank('💰', i18n.t('rankings.economy'),  '#' + mine.economy_rank)}
     </div>
   `;
 }
@@ -230,7 +224,7 @@ async function loadAllianceRankings(content, myNation) {
   // Aggregate alliance stats from rankings view
   const { data } = await sb
     .from('rankings')
-    .select('alliance_id, alliance_name, alliance_tag, score, soldiers, money, land, population')
+    .select('alliance_id, alliance_name, alliance_tag, score')
     .eq('round', 1)
     .not('alliance_id', 'is', null);
 
@@ -243,7 +237,7 @@ async function loadAllianceRankings(content, myNation) {
   const alMap = {};
   data.forEach(n => {
     if (!alMap[n.alliance_id]) {
-      alMap[n.alliance_id] = { id: n.alliance_id, name: n.alliance_name, tag: n.alliance_tag, members: 0, score: 0, soldiers: 0, money: 0, land: 0, population: 0 };
+      alMap[n.alliance_id] = { id: n.alliance_id, name: n.alliance_name, tag: n.alliance_tag, members: 0, score: 0 };
     }
     alMap[n.alliance_id].members++;
     alMap[n.alliance_id].score      += Number(n.score) || 0;
@@ -283,9 +277,6 @@ async function loadAllianceRankings(content, myNation) {
               </div>
               <div style="font-size:11px;color:var(--text-muted);font-weight:500;margin-top:3px;display:flex;gap:12px;">
                 <span>👥 ${al.members} ${t('rankings.membersLabel')}</span>
-                <span>⚔️ ${al.soldiers.toLocaleString()} ${t('rankings.soldiersLabel')}</span>
-                <span>💰 $${(al.money/1000).toFixed(0)}k ${t('rankings.treasuryLabel')}</span>
-                <span>🗺️ ${al.land} ${t('rankings.landLabel')}</span>
               </div>
             </div>
             <div style="text-align:end;flex-shrink:0;">

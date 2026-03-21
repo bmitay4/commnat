@@ -317,7 +317,7 @@ export async function renderEconomy(user, profile, nation) {
     </div>
   `;
 
-  startIncomeCountdown(nation.last_income_at);
+  startIncomeCountdown(nation.last_income_at, user, profile, nation);
   bindEconomyEvents(user, profile, nation, facMap, facilityTypes, landFree);
 }
 
@@ -399,13 +399,31 @@ function showMsg(id, type, text) {
   if (type === 'success') setTimeout(() => el.className = 'msg', 4000);
 }
 
-function startIncomeCountdown(lastIncomeAt) {
+function startIncomeCountdown(lastIncomeAt, user, profile, nation) {
   const el = document.getElementById('income-countdown');
   if (!el) return;
+  let wasOverdue = false;
   function update() {
     if (!document.getElementById('income-countdown')) return;
     const diff = new Date(lastIncomeAt).getTime() + 3600000 - Date.now();
-    if (diff <= 0) { el.textContent = t('economy.collecting'); el.style.color = '#16a34a'; return; }
+    if (diff <= 0) {
+      el.textContent = t('economy.collecting');
+      el.style.color = '#16a34a';
+      // Poll DB every 5s until last_income_at changes (collection happened)
+      if (!wasOverdue) wasOverdue = true;
+      setTimeout(async () => {
+        if (!document.getElementById('income-countdown')) return;
+        const { data } = await sb.from('nations').select('last_income_at').eq('id', nation.id).single();
+        if (data && data.last_income_at !== lastIncomeAt) {
+          // Income collected — reload the economy page
+          const { renderEconomy } = await import('./economy.js');
+          renderEconomy(user, profile, { ...nation, last_income_at: data.last_income_at });
+        } else {
+          update();
+        }
+      }, 5000);
+      return;
+    }
     const m = Math.floor(diff / 60000);
     const s = Math.floor((diff % 60000) / 1000);
     el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;

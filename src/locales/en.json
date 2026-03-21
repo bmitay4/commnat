@@ -10,7 +10,6 @@
   "back": "Back",
   "comingSoon": "Coming soon",
   "signOut": "Sign out",
-
   "nav": {
     "dashboard": "Dashboard",
     "military": "Military",
@@ -23,7 +22,6 @@
     "signOut": "Sign out",
     "admin": "Admin"
   },
-
   "auth": {
     "secureLogin": "// Secure Login",
     "badge": "Free Online Multiplayer Strategy Game",
@@ -53,12 +51,10 @@
     "welcomeSub": "Your nation awaits your command.",
     "adminBadge": "Administrator"
   },
-
   "ticker": {
     "nationsActive": "Nations Active",
     "timeToReset": "Round Ends In"
   },
-
   "nation": {
     "foundTitle": "Found Your Nation",
     "foundSubtitle": "Round {{round}} · Choose your nation's name",
@@ -75,7 +71,6 @@
     "riseBtn": "Rise from the Ashes",
     "stillActive": "Your commander account ({{username}}) is still active. Rise again — found a new nation in Round {{round}}."
   },
-
   "dashboard": {
     "title": "Command Center",
     "loading": "Loading...",
@@ -136,7 +131,6 @@
     "youBadge": "YOU",
     "botBadge": "BOT"
   },
-
   "military": {
     "title": "Military",
     "loading": "Loading Military...",
@@ -192,7 +186,6 @@
     "purchaseSuccess": "Purchased: {{summary}} — Total: ${{total}}",
     "soldSuccess": "Sold {{qty}}× {{name}} for ${{refund}}"
   },
-
   "economy": {
     "title": "Economy",
     "loading": "Loading Economy...",
@@ -233,7 +226,6 @@
     "buildSuccess": "Built: {{summary}} — Cost: ${{cost}}",
     "demolishSuccess": "Demolished {{qty}}× {{name}}, received ${{refund}}."
   },
-
   "attacks": {
     "title": "Attack Center",
     "loading": "Loading Attack Center...",
@@ -301,9 +293,71 @@
     "errNotEnoughTurnsCode": "Not enough turns.",
     "errCannotAttackSelf": "Cannot attack yourself.",
     "errAttackerNotFound": "Your nation was not found.",
-    "errDefenderNotFound": "Target nation not found."
+    "errDefenderNotFound": "Target nation not found.",
+    "targetRank": "Rank",
+    "scenarioMissileStrike": "Strategic Surprise Strike",
+    "scenarioSead": "Suppress Air Defenses",
+    "scenarioDemoralization": "Demoralization Strike",
+    "scenarioAirSuperiority": "Air Superiority",
+    "scenarioCarpetBombing": "Carpet Bombing",
+    "scenarioTankHunter": "Tank Hunter",
+    "scenarioBlitzRaid": "Blitz Raid",
+    "scenarioAttrition": "War of Attrition",
+    "scenarioIndustrialOccupation": "Industrial Occupation",
+    "scenarioNavalBlockade": "Naval Blockade",
+    "scenarioSubmarineHunt": "Submarine Hunt",
+    "scenarioBreakBlockade": "Break Blockade",
+    "descMissileStrike": "Destroy enemy oil rigs, factories and power plants. Each missile that gets through eliminates one facility.",
+    "descSead": "Target enemy SAM Batteries. Success disables their air defenses for 15 minutes.",
+    "descDemoralization": "Strike civilian infrastructure. Drops enemy security and halts population growth + 5% income penalty for 24h.",
+    "descAirSuperiority": "Destroy the enemy air force. Victory grants a 1-hour window where your bombers operate freely.",
+    "descCarpetBombing": "Devastate enemy ground forces. WARNING: Enemy SAMs shred bombers — use SEAD first.",
+    "descTankHunter": "Surgical strikes on enemy tanks. Extremely effective without enemy air cover.",
+    "descBlitzRaid": "Storm the enemy treasury. APCs boost success rate significantly.",
+    "descAttrition": "Long-range bombardment of enemy APCs and Tanks. Very low risk — the safe grind.",
+    "descIndustrialOccupation": "Full assault to seize an enemy oil rig. Your security drops due to occupation strain.",
+    "descNavalBlockade": "Blockade enemy ports. As long as blockade holds, all enemy oil rig and port income drops to 0.",
+    "descSubmarineHunt": "Hunt and sink enemy submarines. Only destroyers can effectively eliminate subs.",
+    "descBreakBlockade": "Break an active blockade on YOUR nation. Only available when you are currently blockaded.",
+    "unitBallisticMissiles": "Ballistic Missiles",
+    "unitCruiseMissiles": "Cruise Missiles",
+    "unitFighterJets": "Fighter Jets",
+    "unitBombers": "Bombers",
+    "unitHelicopters": "Attack Helicopters",
+    "unitTanksApcs": "Tanks + APCs",
+    "unitArtillery": "Artillery",
+    "unitTanksArtillery": "Tanks + Artillery",
+    "unitDestroyers": "Destroyers",
+    "unitDestroyersSubs": "Destroyers + Submarines",
+    "unitBombersDestroyers": "Bombers or Destroyers",
+    "costMissilesConsumed": "Missiles consumed on launch",
+    "costRiskJetLosses": "Risk of jet losses",
+    "costHeavyBomberLosses": "Heavy bomber losses if SAMs active",
+    "costRiskHeliLosses": "Risk of helicopter losses",
+    "costRiskTankApcLosses": "Risk of tank and APC losses",
+    "costMinimalLosses": "Minimal losses",
+    "costMajorLosses": "Major tank/artillery losses + security penalty",
+    "costOngoing": "Ongoing — enemy can break blockade",
+    "costRiskDestroyerLosses": "Risk of destroyer losses",
+    "costRiskLosses": "Risk of losses",
+    "noneWarning": "NONE",
+    "levelAbbr": "Lv",
+    "targetLand": "land",
+    "targetSecurity": "security",
+    "targetSoldiers": "soldiers",
+    "botTag": "BOT",
+    "land": "land",
+    "lostEquip": "Lost {{count}} {{unit}}",
+    "destroyedEquip": "Destroyed {{count}} enemy {{unit}}",
+    "missilesPenetrated": "missiles got through",
+    "moneyLooted": "Looted",
+    "noEnemySubs": "Enemy has no submarines to hunt.",
+    "onlyHaveMissiles": "You only have {{count}} missiles.",
+    "resultSuccess": "SUCCESS",
+    "resultFailed": "FAILED",
+    "resultError": "ERROR",
+    "resultExecuting": "EXECUTING..."
   },
-
   "alliances": {
     "title": "Alliances",
     "loading": "Loading Alliances...",
@@ -366,7 +420,6 @@
     "hAgo": "{{h}}h ago",
     "dAgo": "{{d}}d ago"
   },
-
   "intelligence": {
     "title": "Intelligence",
     "loading": "Loading Intelligence...",
@@ -411,9 +464,90 @@
     "missionOn": "on",
     "missionBy": "by",
     "doneSuccess": "Done! -${{cost}}",
-    "errNotEnough": "Not enough money. Need ${{need}}, have ${{have}}."
+    "errNotEnough": "Not enough money. Need ${{need}}, have ${{have}}.",
+    "operationsTitle": "Intelligence Operations",
+    "operationsSub": "Select a target nation and launch a mission",
+    "selectTargetNation": "Select Target Nation",
+    "chooseTarget": "— Choose a target —",
+    "launchMission": "Launch Mission",
+    "selfMission": "Self (Counter-Intel only)",
+    "catSatellite": "🛰️ Satellite Recon",
+    "catSpy": "🕵️ Spy Operations",
+    "catDefensive": "🛡️ Defensive",
+    "missionReconMilitary": "Military Recon",
+    "missionReconIndustrial": "Industrial Recon",
+    "missionReconTech": "Tech Recon",
+    "missionTechSting": "Tech-Sting",
+    "missionIndustrialSabotage": "Industrial Sabotage",
+    "missionTrojanHorse": "Trojan Horse",
+    "missionUnitSabotage": "Unit Sabotage",
+    "missionCounterIntel": "Counter-Intelligence",
+    "descReconMilitary": "Reveal exact unit counts — tanks, jets, missiles and more.",
+    "descReconIndustrial": "Reveal enemy factories, buildings and available land.",
+    "descReconTech": "Reveal upgrade levels of all enemy unit types.",
+    "descTechSting": "Sabotage enemy servers. Degrades a random unit tech by 1 level. Costs 20 turns.",
+    "descIndustrialSabotage": "Trigger chaos — gas explosions, grid shutdowns. Drops enemy security 15–20 pts.",
+    "descTrojanHorse": "Infect ABM/AA systems. Disables 20–40% of missile defense for 30 min.",
+    "descUnitSabotage": "Destroy jets and helicopters on the ground. Silent — no alert to enemy.",
+    "descCounterIntel": "Deploy a smokescreen. Enemy recon sees inflated/false data for 12 hours.",
+    "requiresSpy": "Requires: Spies",
+    "requiresSat": "Requires: Satellites",
+    "requiresSelf": "Targets yourself",
+    "turnCost": "{{turns}} turn(s)",
+    "noSpies": "⚠️ You have no spies",
+    "noSats": "⚠️ You have no satellites",
+    "failRecon": "Jamming: Signal lost",
+    "failSpy": "Spies compromised",
+    "successRecon": "Recon complete",
+    "successSpy": "Mission success",
+    "resultUnits": "Enemy Units",
+    "resultFacilities": "Enemy Facilities",
+    "resultTechLevels": "Enemy Tech Levels",
+    "resultLand": "Land",
+    "resultSmokescreenWarning": "⚠️ Data may be spoofed — enemy smokescreen active",
+    "smokescreenActive": "🌫️ Smokescreen Active",
+    "smokescreenDesc": "Enemy recon will receive false data",
+    "alertnessActive": "🚨 Enemy on High Alert",
+    "missionReconMilitary_log": "Military Recon",
+    "missionReconIndustrial_log": "Industrial Recon",
+    "missionReconTech_log": "Tech Recon",
+    "missionTechSting_log": "Tech-Sting",
+    "missionIndustrialSabotage_log": "Industrial Sabotage",
+    "missionTrojanHorse_log": "Trojan Horse",
+    "missionUnitSabotage_log": "Unit Sabotage",
+    "missionCounterIntel_log": "Counter-Intel",
+    "techLvSub": "Tech Lv {{lv}} · ${{maint}}/2h",
+    "defensesAndTech": "🛡️ Defenses & Tech",
+    "trojanActive": "🐴 Trojan Horse Active",
+    "notEnoughTurns": "Not enough turns",
+    "techSuccessBonus": "+{{pct}}% success",
+    "enemyPenaltyPct": "-{{pct}}% enemy",
+    "errSelfOnly": "Counter-Intel targets yourself — select \"Self\".",
+    "errNeedTarget": "This mission requires a target nation.",
+    "errMissionFailed": "Mission failed.",
+    "viewReport": "← View Report",
+    "resultSecDrop": "Enemy security index dropped by {{pts}} points",
+    "resultSelfSecDrop": "Your security dropped by {{pts}} points (international condemnation)",
+    "resultDestroyed": "destroyed on the ground",
+    "resultDisabled": "disabled",
+    "resultSmokescreen": "Smokescreen active for {{h}} hours",
+    "resultSpiesLost": "{{n}} spies captured",
+    "sumReconMilitary": "Military reconnaissance complete. Unit positions mapped.",
+    "sumReconIndustrial": "Industrial scan complete. Facility layout and land usage captured.",
+    "sumReconTech": "Tech scan complete. Enemy upgrade levels identified.",
+    "sumJammed": "Signal lost due to electronic jamming. Satellites blinded.",
+    "sumSmokescreen": "Smokescreen deployed. Enemy recon will receive false data for 12 hours.",
+    "sumSmokecrash": "System crash! Your real data is now more accessible to enemy recon for 6 hours.",
+    "sumTechStingSuccess": "Tech-Sting succeeded! Enemy unit tech degraded by 1 level.",
+    "sumTechStingFail": "Spies compromised. Defender is now on high alert for 24 hours.",
+    "sumTechStingNoTarget": "Tech-Sting succeeded but no upgradeable units found to degrade.",
+    "sumSabotageSuccess": "Industrial sabotage succeeded! Enemy security index dropped.",
+    "sumSabotageFail": "Spies captured and confessed! International condemnation — your security dropped.",
+    "sumTrojanSuccess": "Trojan Horse deployed! Enemy missile defense disabled.",
+    "sumTrojanFail": "Intrusion detected! Enemy ABM systems locked into Autonomous Mode.",
+    "sumUnitSabotageSuccess": "Unit sabotage successful. Jets and helicopters destroyed on the ground.",
+    "sumUnitSabotageFail": "Agents neutralized at enemy air base. Spies lost."
   },
-
   "rankings": {
     "title": "📊 Rankings",
     "sub": "Live standings",
@@ -436,9 +570,10 @@
     "membersLabel": "members",
     "soldiersLabel": "soldiers",
     "treasuryLabel": "treasury",
-    "landLabel": "land"
+    "landLabel": "land",
+    "milScore": "Military Score",
+    "ecoScore": "Economy Score"
   },
-
   "hof": {
     "title": "🏆 Hall of Fame",
     "subtitle": "Legends of Nation Commander",
@@ -449,5 +584,17 @@
     "commander": "Commander: {{name}}",
     "score": "SCORE",
     "landSuffix": "land"
+  },
+  "notifications": {
+    "notif_warning_fiscal_title": "⚠️ Treasury Warning — Security Declining",
+    "notif_warning_fiscal_msg": "Your nation could not fully cover military maintenance. The unpaid bill of ${{shortfall}} has caused civil unrest. Security index dropped by {{sec}} point(s). Keep your treasury positive to avoid further penalties.",
+    "notif_danger_fiscal_title": "🚨 Fiscal Crisis — Military Degrading",
+    "notif_danger_fiscal_msg": "Your nation is in a severe fiscal crisis! The unpaid maintenance bill of ${{shortfall}} exceeds $50,000. Security dropped by {{sec}} point(s) and 10% of all military equipment was lost due to desertion and neglect. Immediately increase your income or reduce your military.",
+    "notif_danger_tech_sting_title": "🖥️ Tech Sabotage Detected",
+    "notif_danger_tech_sting_msg": "Enemy spies sabotaged your {{unit}} tech! Level dropped from {{old}} to {{new}}. You must re-upgrade to restore capability.",
+    "notif_danger_sabotage_title": "💥 Infrastructure Attack",
+    "notif_danger_sabotage_msg": "Enemy agents caused chaos across your nation. Security index dropped by {{sec}} points.",
+    "notif_warning_unit_sabotage_title": "🚨 Foreign Agents Neutralized",
+    "notif_warning_unit_sabotage_msg": "warning_unit_sabotage_msg"
   }
 }

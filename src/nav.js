@@ -1,5 +1,6 @@
 import i18n from './i18n.js';
 import { sb } from './supabase.js';
+import { initNotifications, openNotificationsPanel, destroyNotifications } from './notifications.js';
 
 const NAV_ICONS = {
   dashboard:    '🏛️',
@@ -76,7 +77,7 @@ export function renderPageTopbar(user, profile, nation, activePage) {
         `).join('')}
       </div>
 
-      <!-- Right: lang switcher, admin, sign out -->
+      <!-- Right: lang switcher, notifications, admin, sign out -->
       <div style="
         display:flex;align-items:center;gap:6px;flex-shrink:0;
         padding-inline-start:14px;
@@ -87,6 +88,34 @@ export function renderPageTopbar(user, profile, nation, activePage) {
           <button class="lang-btn-light ${i18n.language === 'en' ? 'active' : ''}" data-lang="en">EN</button>
           <button class="lang-btn-light ${i18n.language === 'he' ? 'active' : ''}" data-lang="he">עב</button>
         </div>
+
+        ${nation ? `
+          <button id="btn-notif-bell" style="
+            position:relative;
+            background:none;border:1.5px solid var(--border);
+            border-radius:var(--radius-sm);
+            color:var(--text-muted);
+            font-size:15px;
+            width:34px;height:34px;
+            display:flex;align-items:center;justify-content:center;
+            cursor:pointer;flex-shrink:0;
+            transition:all 0.15s;
+          " title="Notifications">
+            🔔
+            <span id="notif-badge" style="
+              display:none;
+              position:absolute;top:-5px;right:-5px;
+              background:var(--danger);color:#fff;
+              font-size:9px;font-weight:700;
+              min-width:16px;height:16px;
+              border-radius:999px;
+              align-items:center;justify-content:center;
+              padding:0 3px;
+              border:2px solid var(--surface);
+              font-family:var(--font-body);
+            "></span>
+          </button>
+        ` : ''}
         ${profile?.is_admin ? `
           <button data-page="admin" style="
             background:none;border:1.5px solid var(--border);border-radius:var(--radius-sm);
@@ -110,6 +139,15 @@ export function bindPageNav(user, profile, nation) {
   });
 
   document.getElementById('btn-signout')?.addEventListener('click', () => sb.auth.signOut());
+
+  // Notification bell
+  document.getElementById('btn-notif-bell')?.addEventListener('click', () => openNotificationsPanel());
+
+  // Init notifications (fetch unread count + subscribe realtime)
+  if (nation) {
+    destroyNotifications(); // clean up any previous subscription
+    initNotifications(nation);
+  }
 
   document.querySelectorAll('[data-lang]').forEach(btn => {
     btn.addEventListener('click', async () => {

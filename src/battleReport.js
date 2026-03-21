@@ -15,25 +15,17 @@ import { sb } from './supabase.js';
  * @param {string} myNationId - The current player's nation ID
  */
 export async function openBattleReport(attack, myNationId) {
-  // Fetch the military units snapshot at time of attack if stored, else current lineup
-  const [
-    { data: myUnits },
-    { data: enemyUnits },
-  ] = await Promise.all([
-    sb.from('military_units')
-      .select('quantity, equipment_types(id, name, attack_power, defense_power, category)')
-      .eq('nation_id', myNationId),
-    sb.from('military_units')
-      .select('quantity, equipment_types(id, name, attack_power, defense_power, category)')
-      .eq('nation_id', attack.attacker_nation_id === myNationId ? attack.defender_nation_id : attack.attacker_nation_id),
-  ]);
+  // Only fetch the viewer's own units — never expose enemy army composition
+  const { data: myUnits } = await sb.from('military_units')
+    .select('quantity, equipment_types(id, name, attack_power, defense_power, category)')
+    .eq('nation_id', myNationId);
 
-  showPopup(attack, myNationId, myUnits || [], enemyUnits || []);
+  showPopup(attack, myNationId, myUnits || []);
 }
 
 // ─── Popup renderer ───────────────────────────────────────────────────────────
 
-function showPopup(a, myNationId, myUnits, enemyUnits) {
+function showPopup(a, myNationId, myUnits) {
   // Remove any existing popup
   document.getElementById('battle-report-overlay')?.remove();
 
@@ -72,8 +64,7 @@ function showPopup(a, myNationId, myUnits, enemyUnits) {
   const oppSoldiers = isAttacker ? defSoldiersLost : attSoldiersLost;
 
   // ── Build units HTML  (only show viewer's own army composition)
-  const myUnitsHTML  = buildUnitsTable(myUnits,    'My Forces',    '#3b82f6', true);
-  const hasEnemyInfo = enemyUnits.length > 0;
+  const myUnitsHTML  = buildUnitsTable(myUnits, 'My Forces', '#3b82f6', true);
 
   const date = new Date(a.attacked_at);
   const dateStr = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
@@ -184,23 +175,30 @@ function showPopup(a, myNationId, myUnits, enemyUnits) {
             <div style="font-family:var(--font-mono);font-size:12px;color:${mySoldiers > 0 ? LOSS_COLOR : WIN_COLOR};margin-bottom:4px;">
               ${mySoldiers > 0 ? `💀 ${mySoldiers.toLocaleString()} soldiers killed` : '✅ No soldier losses'}
             </div>
-            ${myUnitsHTML}
+            ${buildLossesTable(isAttacker ? a.attacker_equipment_lost : a.defender_equipment_lost, '#f59e0b')}
           </div>
 
-          <!-- Enemy side -->
+          <!-- Enemy side — only reveal if attack succeeded (attacker view) or attack failed (defender view) -->
           <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
             <div style="font-size:12px;font-weight:700;margin-bottom:8px;color:var(--text);">
               ${isAttacker ? '🛡️ Enemy Defense' : '⚔️ Enemy Attack'}
             </div>
-            <div style="font-family:var(--font-mono);font-size:12px;color:${oppSoldiers > 0 ? WIN_COLOR : LOSS_COLOR};margin-bottom:4px;">
-              ${oppSoldiers > 0 ? `💀 ${oppSoldiers.toLocaleString()} soldiers eliminated` : '⚠️ No enemy losses'}
-            </div>
-            ${hasEnemyInfo
-              ? buildUnitsTable(enemyUnits, 'Enemy Forces', '#e05252', false)
-              : `<div style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim);margin-top:6px;">
-                   Intel insufficient — enemy force composition unknown.
-                 </div>`
-            }
+            ${(() => {
+              // Attacker sees enemy losses only if they WON
+              // Defender sees attacker losses only if they SUCCESSFULLY defended (attack failed)
+              const showEnemyDetail = isAttacker ? a.success : !a.success;
+              if (!showEnemyDetail) {
+                return `<div style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim);margin-top:4px;font-style:italic;">
+                  Intel classified — no reconnaissance data available.
+                </div>`;
+              }
+              return `
+                <div style="font-family:var(--font-mono);font-size:12px;color:${oppSoldiers > 0 ? WIN_COLOR : LOSS_COLOR};margin-bottom:4px;">
+                  ${oppSoldiers > 0 ? `💀 ${oppSoldiers.toLocaleString()} soldiers eliminated` : '⚠️ No enemy losses'}
+                </div>
+                ${buildLossesTable(isAttacker ? a.defender_equipment_lost : a.attacker_equipment_lost, '#e05252')}
+              `;
+            })()}
           </div>
         </div>
       </div>
@@ -278,6 +276,30 @@ function gainRow(icon, label, desc, color) {
       </div>
     </div>
   `;
+}
+
+
+function buildLossesTable(equipmentLost, accentColor) {
+  // equipmentLost is a JSONB object like { "tank": 3, "artillery": 1 }
+  if (!equipmentLost || typeof equipmentLost !== 'object') {
+    return `<div style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim);margin-top:4px;">No equipment lost.</div>`;
+  }
+  const entries = Object.entries(equipmentLost).filter(([, v]) => v > 0);
+  if (!entries.length) {
+    return `<div style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim);margin-top:4px;">No equipment lost.</div>`;
+  }
+  const rows = entries.map(([key, qty]) => `
+    <div style="display:flex;justify-content:space-between;align-items:center;
+      padding:3px 0;border-bottom:1px solid var(--border-dim);">
+      <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);">
+        ${key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+      </span>
+      <span style="font-family:var(--font-mono);font-size:11px;font-weight:700;color:${accentColor};">
+        ×${Number(qty).toLocaleString()}
+      </span>
+    </div>
+  `).join('');
+  return `<div style="margin-top:6px;">${rows}</div>`;
 }
 
 function buildUnitsTable(units, title, accentColor, isMe) {

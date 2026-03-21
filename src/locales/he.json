@@ -10,7 +10,6 @@
   "back": "חזרה",
   "comingSoon": "בקרוב",
   "signOut": "התנתק",
-
   "nav": {
     "dashboard": "לוח בקרה",
     "military": "צבא",
@@ -23,7 +22,6 @@
     "signOut": "התנתק",
     "admin": "ניהול"
   },
-
   "auth": {
     "secureLogin": "// כניסה מאובטחת",
     "badge": "משחק אסטרטגיה מקוון מרובה משתתפים חינמי",
@@ -53,12 +51,10 @@
     "welcomeSub": "מדינתך ממתינה לפקודתך.",
     "adminBadge": "מנהל מערכת"
   },
-
   "ticker": {
     "nationsActive": "מדינות פעילות",
     "timeToReset": "הסבב מסתיים בעוד"
   },
-
   "nation": {
     "foundTitle": "הקם מדינה",
     "foundSubtitle": "סבב {{round}} · בחר שם למדינתך",
@@ -75,7 +71,6 @@
     "riseBtn": "קום מהאפר",
     "stillActive": "חשבון המפקד שלך ({{username}}) עדיין פעיל. קום שוב — הקם מדינה חדשה בסבב {{round}}."
   },
-
   "dashboard": {
     "title": "מרכז פיקוד",
     "loading": "טוען...",
@@ -136,7 +131,6 @@
     "youBadge": "אתה",
     "botBadge": "בוט"
   },
-
   "military": {
     "title": "צבא",
     "loading": "טוען צבא...",
@@ -192,7 +186,6 @@
     "purchaseSuccess": "נרכש: {{summary}} — סה״כ: ${{total}}",
     "soldSuccess": "נמכרו {{qty}}× {{name}} עבור ${{refund}}"
   },
-
   "economy": {
     "title": "כלכלה",
     "loading": "טוען כלכלה...",
@@ -233,7 +226,6 @@
     "buildSuccess": "נבנה: {{summary}} — עלות: ${{cost}}",
     "demolishSuccess": "הרסת {{qty}}× {{name}}, קיבלת ${{refund}}."
   },
-
   "attacks": {
     "title": "מרכז תקיפה",
     "loading": "טוען מרכז תקיפה...",
@@ -301,9 +293,71 @@
     "errNotEnoughTurnsCode": "אין מספיק תורים.",
     "errCannotAttackSelf": "לא ניתן לתקוף את עצמך.",
     "errAttackerNotFound": "המדינה שלך לא נמצאה.",
-    "errDefenderNotFound": "מדינת המטרה לא נמצאה."
+    "errDefenderNotFound": "מדינת המטרה לא נמצאה.",
+    "scenarioMissileStrike": "מתקפת הפתעה אסטרטגית",
+    "scenarioSead": "דיכוי הגנה אווירית",
+    "scenarioDemoralization": "מתקפת ערעור מורל",
+    "scenarioAirSuperiority": "עליונות אווירית",
+    "scenarioCarpetBombing": "הפצצה שטיחית",
+    "scenarioTankHunter": "צייד טנקים",
+    "scenarioBlitzRaid": "פשיטת ברק",
+    "scenarioAttrition": "מלחמת התשה",
+    "scenarioIndustrialOccupation": "כיבוש תעשייתי",
+    "scenarioNavalBlockade": "מצור ימי",
+    "scenarioSubmarineHunt": "ציד צוללות",
+    "scenarioBreakBlockade": "שבירת מצור",
+    "descMissileStrike": "השמד קידוחי נפט, מפעלים ותחנות כוח. כל טיל שעובר מחסל מתקן אחד.",
+    "descSead": "מקד בסוללות SAM של האויב. הצלחה משביתה את ההגנה האווירית שלהם ל-15 דקות.",
+    "descDemoralization": "תקוף תשתיות אזרחיות. מוריד ביטחון האויב ומקפיא צמיחת אוכלוסייה + עונש הכנסה 5% ל-24 שעות.",
+    "descAirSuperiority": "השמד את חיל האוויר של האויב. ניצחון מעניק חלון שעה בו המפציצים שלך פועלים ללא התנגדות.",
+    "descCarpetBombing": "הרוס כוחות קרקע של האויב. אזהרה: סוללות SAM מוחקות מפציצים — השתמש בדיכוי הגנה אווירית תחילה.",
+    "descTankHunter": "תקיפות כירורגיות על טנקי האויב. יעיל ביותר ללא כיסוי אווירי — אך מטוסי קרב ישמידו את המסוקים שלך.",
+    "descBlitzRaid": "פשוט לאוצר האויב. נגמ\"שים מעלים משמעותית את שיעור ההצלחה. סיכון גבוה לאובדן ציוד.",
+    "descAttrition": "הפגזה ממרחק על נגמ\"שים וטנקים של האויב. סיכון נמוך מאוד לארטילריה שלך — שחיקה בטוחה.",
+    "descIndustrialOccupation": "התקפה מלאה לתפיסת קידוח נפט של האויב. ביטחונך יורד בגלל עומס הכיבוש.",
+    "descNavalBlockade": "הטל מצור על נמלי האויב. כל עוד המצור מוחזק, הכנסות קידוחי נפט ונמלי האויב יורדות ל-0.",
+    "descSubmarineHunt": "צוד והטבע צוללות של האויב. רק משחתות יכולות לחסל צוללות ביעילות.",
+    "descBreakBlockade": "שבור מצור פעיל על מדינתך. זמין רק כאשר אתה נמצא תחת מצור.",
+    "unitBallisticMissiles": "טילים בליסטיים",
+    "unitCruiseMissiles": "טילי שיוט",
+    "unitFighterJets": "מטוסי קרב",
+    "unitBombers": "מפציצים",
+    "unitHelicopters": "מסוקי קרב",
+    "unitTanksApcs": "טנקים + נגמ\"שים",
+    "unitArtillery": "ארטילריה",
+    "unitTanksArtillery": "טנקים + ארטילריה",
+    "unitDestroyers": "משחתות",
+    "unitDestroyersSubs": "משחתות + צוללות",
+    "unitBombersDestroyers": "מפציצים או משחתות",
+    "costMissilesConsumed": "טילים נצרכים בשיגור",
+    "costRiskJetLosses": "סיכון לאובדן מטוסי קרב",
+    "costHeavyBomberLosses": "אובדן כבד של מפציצים אם SAM פעיל",
+    "costRiskHeliLosses": "סיכון לאובדן מסוקים",
+    "costRiskTankApcLosses": "סיכון לאובדן טנקים ונגמ\"שים",
+    "costMinimalLosses": "אובדן מינימלי",
+    "costMajorLosses": "אובדן גדול טנקים/ארטילריה + עונש ביטחוני",
+    "costOngoing": "מתמשך — האויב יכול לשבור",
+    "costRiskDestroyerLosses": "סיכון לאובדן משחתות",
+    "costRiskLosses": "סיכון לאובדן",
+    "resultSuccess": "הצלחה",
+    "resultFailed": "נכשל",
+    "resultError": "שגיאה",
+    "resultExecuting": "מבצע...",
+    "levelAbbr": "דרגה",
+    "noneWarning": "אין",
+    "noEnemySubs": "לאויב אין צוללות לצוד.",
+    "onlyHaveMissiles": "יש לך רק {{count}} טילים.",
+    "targetSoldiers": "חיילים",
+    "targetLand": "שטח",
+    "targetSecurity": "ביטחון",
+    "targetTreasury": "אוצר",
+    "lostEquip": "אבדת {{count}} {{unit}}",
+    "destroyedEquip": "הושמדו {{count}} {{unit}} של האויב",
+    "missilesPenetrated": "טילים חדרו",
+    "moneyLooted": "בזזת",
+    "land": "שטח",
+    "targetRank": "דירוג"
   },
-
   "alliances": {
     "title": "בריתות",
     "loading": "טוען בריתות...",
@@ -366,7 +420,6 @@
     "hAgo": "לפני {{h}}ש׳",
     "dAgo": "לפני {{d}}י׳"
   },
-
   "intelligence": {
     "title": "מודיעין",
     "loading": "טוען מודיעין...",
@@ -411,9 +464,90 @@
     "missionOn": "על",
     "missionBy": "על ידי",
     "doneSuccess": "!בוצע! -${{cost}}",
-    "errNotEnough": "אין מספיק כסף. נדרש ${{need}}, יש ${{have}}."
+    "errNotEnough": "אין מספיק כסף. נדרש ${{need}}, יש ${{have}}.",
+    "operationsTitle": "מבצעי מודיעין",
+    "operationsSub": "בחר מדינת מטרה ושגר מבצע",
+    "selectTargetNation": "בחר מדינת מטרה",
+    "chooseTarget": "— בחר מטרה —",
+    "launchMission": "שגר מבצע",
+    "selfMission": "עצמי (נגד-מודיעין בלבד)",
+    "catSatellite": "🛰️ סיור לווייני",
+    "catSpy": "🕵️ מבצעי ריגול",
+    "catDefensive": "🛡️ הגנה",
+    "missionReconMilitary": "סיור צבאי",
+    "missionReconIndustrial": "סיור תעשייתי",
+    "missionReconTech": "סיור טכנולוגי",
+    "missionTechSting": "מכה טכנולוגית",
+    "missionIndustrialSabotage": "חבלה תעשייתית",
+    "missionTrojanHorse": "סוס טרויאני",
+    "missionUnitSabotage": "חבלה ביחידות",
+    "missionCounterIntel": "נגד-מודיעין",
+    "descReconMilitary": "חשוף את כמויות היחידות המדויקות — טנקים, מטוסים, טילים ועוד.",
+    "descReconIndustrial": "חשוף מפעלים, מבנים ושטח פנוי של האויב.",
+    "descReconTech": "חשוף את רמות השדרוג של כל סוגי היחידות של האויב.",
+    "descTechSting": "חבל בשרתי האויב. מוריד טכנולוגיית יחידה אקראית ברמה 1. עולה 20 תורות.",
+    "descIndustrialSabotage": "גרום לכאוס — פיצוצי גז, השבתת רשת חשמל. מוריד ביטחון אויב ב-15–20 נקודות.",
+    "descTrojanHorse": "הדבק מערכות ABM/AA. משבית 20–40% מהגנת הטילים ל-30 דקות.",
+    "descUnitSabotage": "השמד מטוסים ומסוקים על הקרקע. שקט — ללא התראה לאויב.",
+    "descCounterIntel": "פרוס מסך עשן. סיור של האויב יקבל נתונים מנופחים/כוזבים למשך 12 שעות.",
+    "requiresSpy": "דרוש: מרגלים",
+    "requiresSat": "דרוש: לוויינים",
+    "requiresSelf": "מכוון לעצמך",
+    "turnCost": "{{turns}} תור/ות",
+    "noSpies": "⚠️ אין לך מרגלים",
+    "noSats": "⚠️ אין לך לוויינים",
+    "failRecon": "שיבוש: אות אבד",
+    "failSpy": "מרגלים נפגעו",
+    "successRecon": "סיור הושלם",
+    "successSpy": "המבצע הצליח",
+    "resultUnits": "יחידות האויב",
+    "resultFacilities": "מתקני האויב",
+    "resultTechLevels": "רמות טכנולוגיה של האויב",
+    "resultLand": "שטח",
+    "resultSmokescreenWarning": "⚠️ הנתונים עלולים להיות מזויפים — מסך עשן פעיל",
+    "smokescreenActive": "🌫️ מסך עשן פעיל",
+    "smokescreenDesc": "סיור האויב יקבל נתונים כוזבים",
+    "alertnessActive": "🚨 האויב במצב כוננות גבוהה",
+    "missionReconMilitary_log": "סיור צבאי",
+    "missionReconIndustrial_log": "סיור תעשייתי",
+    "missionReconTech_log": "סיור טכנולוגי",
+    "missionTechSting_log": "מכה טכנולוגית",
+    "missionIndustrialSabotage_log": "חבלה תעשייתית",
+    "missionTrojanHorse_log": "סוס טרויאני",
+    "missionUnitSabotage_log": "חבלה ביחידות",
+    "missionCounterIntel_log": "נגד-מודיעין",
+    "techLvSub": "רמת טכנולוגיה {{lv}} · ${{maint}}/2h",
+    "defensesAndTech": "🛡️ הגנות וטכנולוגיה",
+    "trojanActive": "🐴 סוס טרויאני פעיל",
+    "notEnoughTurns": "אין מספיק תורות",
+    "techSuccessBonus": "+{{pct}}% הצלחה",
+    "enemyPenaltyPct": "-{{pct}}% אויב",
+    "errSelfOnly": "מבצע זה מכוון לעצמך — בחר \"עצמי\".",
+    "errNeedTarget": "מבצע זה דורש מדינת מטרה.",
+    "errMissionFailed": "המבצע נכשל.",
+    "viewReport": "← צפה בדוח",
+    "resultSecDrop": "מדד ביטחון האויב ירד ב-{{pts}} נקודות",
+    "resultSelfSecDrop": "מדד הביטחון שלך ירד ב-{{pts}} נקודות (גינוי בינלאומי)",
+    "resultDestroyed": "הושמדו על הקרקע",
+    "resultDisabled": "מושבתים",
+    "resultSmokescreen": "מסך עשן פעיל ל-{{h}} שעות",
+    "resultSpiesLost": "{{n}} מרגלים נתפסו",
+    "sumReconMilitary": "סיור צבאי הושלם. מיקום יחידות מוּפה.",
+    "sumReconIndustrial": "סריקה תעשייתית הושלמה. פריסת מתקנים ושטח נלכדו.",
+    "sumReconTech": "סריקת טכנולוגיה הושלמה. רמות שדרוג האויב זוהו.",
+    "sumJammed": "אות אבד עקב שיבוש אלקטרוני. הלוויינים עיוורו.",
+    "sumSmokescreen": "מסך עשן נפרס. סיור האויב יקבל נתונים כוזבים למשך 12 שעות.",
+    "sumSmokecrash": "קריסת מערכת! הנתונים האמיתיים שלך נגישים יותר לסיור האויב למשך 6 שעות.",
+    "sumTechStingSuccess": "מכה טכנולוגית הצליחה! טכנולוגיית יחידה של האויב שודרגה לאחור.",
+    "sumTechStingFail": "מרגלים נחשפו. המגן נמצא כעת במצב כוננות גבוהה למשך 24 שעות.",
+    "sumTechStingNoTarget": "מכה טכנולוגית הצליחה אך לא נמצאו יחידות הניתנות לשדרוג לאחור.",
+    "sumSabotageSuccess": "חבלה תעשייתית הצליחה! מדד הביטחון של האויב ירד.",
+    "sumSabotageFail": "מרגלים נתפסו והתוודו! גינוי בינלאומי — מדד הביטחון שלך ירד.",
+    "sumTrojanSuccess": "סוס טרויאני הוטמע! הגנת הטילים של האויב מושבתת.",
+    "sumTrojanFail": "חדירה זוהתה! מערכות ABM של האויב עברו למצב אוטונומי.",
+    "sumUnitSabotageSuccess": "חבלה ביחידות הצליחה. מטוסים ומסוקים הושמדו על הקרקע.",
+    "sumUnitSabotageFail": "סוכנים סוכלו בבסיס האוויר. מרגלים אבדו."
   },
-
   "rankings": {
     "title": "📊 דירוגים",
     "sub": "טבלת דירוג חיה",
@@ -436,9 +570,10 @@
     "membersLabel": "חברים",
     "soldiersLabel": "חיילים",
     "treasuryLabel": "אוצר",
-    "landLabel": "שטח"
+    "landLabel": "שטח",
+    "milScore": "ניקוד צבאי",
+    "ecoScore": "ניקוד כלכלי"
   },
-
   "hof": {
     "title": "🏆 לוח התהילה",
     "subtitle": "אגדות Nation Commander",
@@ -449,5 +584,17 @@
     "commander": "מפקד: {{name}}",
     "score": "ניקוד",
     "landSuffix": "שטח"
+  },
+  "notifications": {
+    "notif_warning_fiscal_title": "⚠️ אזהרת אוצר — ביטחון יורד",
+    "notif_warning_fiscal_msg": "מדינתך לא הצליחה לכסות את עלויות תחזוקת הצבא. החשבון שלא שולם בסך ${{shortfall}} גרם לתסיסה אזרחית. מדד הביטחון ירד ב-{{sec}} נקודה/ות. שמור על יתרה חיובית למניעת עונשים נוספים.",
+    "notif_danger_fiscal_title": "🚨 משבר פיסקלי — הצבא נחלש",
+    "notif_danger_fiscal_msg": "מדינתך נמצאת במשבר פיסקלי חמור! החשבון שלא שולם בסך ${{shortfall}} עולה על $50,000. הביטחון ירד ב-{{sec}} נקודה/ות ו-10% מהציוד הצבאי אבד עקב עריקות והזנחה. הגדל מיידית את הכנסותיך או צמצם את הצבא.",
+    "notif_danger_tech_sting_title": "🖥️ חבלת טכנולוגיה זוהתה",
+    "notif_danger_tech_sting_msg": "מרגלי האויב חיבלו בטכנולוגיית {{unit}} שלך! הרמה ירדה מ-{{old}} ל-{{new}}. יש לשדרג מחדש.",
+    "notif_danger_sabotage_title": "💥 תקיפת תשתיות",
+    "notif_danger_sabotage_msg": "סוכני האויב גרמו לכאוס ברחבי מדינתך. מדד הביטחון ירד ב-{{sec}} נקודות.",
+    "notif_warning_unit_sabotage_title": "🚨 סוכנים זרים סוכלו",
+    "notif_warning_unit_sabotage_msg": "warning_unit_sabotage_msg"
   }
 }
