@@ -44,7 +44,7 @@ export async function renderHallOfFame(user, profile) {
       ` : roundNums.map(round => `
         <div style="width:100%;max-width:800px;margin-bottom:1.5rem;">
           <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;
-            letter-spacing:1px;margin-bottom:10px;">Round ${round}</div>
+            letter-spacing:1px;margin-bottom:10px;">${t('hof.round',{round})}</div>
           <div style="display:flex;flex-direction:column;gap:8px;">
             ${rounds[round].map(e => hofCard(e)).join('')}
           </div>

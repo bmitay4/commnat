@@ -127,8 +127,8 @@ export async function renderDashboard(user, profile) {
       <div class="section-grid">
         ${sectionCard('⚔️', t('nav.military'),
           nation.soldiers.toLocaleString(), t('dashboard.soldiers'),
-          myAtk.toLocaleString()+' pts', t('dashboard.attackPower'),
-          myDef.toLocaleString()+' pts', t('dashboard.defensePower'),
+          myAtk.toLocaleString()+' '+t('dashboard.pts'), t('dashboard.attackPower'),
+          myDef.toLocaleString()+' '+t('dashboard.pts'), t('dashboard.defensePower'),
           myMaint2h > 0 ? '-$'+fmt(myMaint2h)+'/2h' : '$0/2h', t('dashboard.maintenance'),
           '#e05252', Math.min(Math.round((myAtk / 5000) * 100), 100), 'military')}
 
@@ -136,21 +136,21 @@ export async function renderDashboard(user, profile) {
           '+$'+fmt(incomeHr)+'/hr', t('dashboard.income'),
           '-$'+fmt(upkeepHr)+'/hr', t('dashboard.upkeep'),
           '+$'+fmt(netHr)+'/hr',   t('dashboard.net'),
-          totalFacilities+' built', t('dashboard.facilities'),
+          totalFacilities+' '+t('dashboard.built'), t('dashboard.facilities'),
           '#16a34a', Math.min(Math.round((incomeHr / 10000) * 100), 100), 'economy')}
 
         ${sectionCard('🤝', t('nav.alliances'),
-          alInfo ? alInfo.name : t('dashboard.noAlliance'), alInfo ? '['+alInfo.tag+']' : 'Status',
-          alInfo ? (alMemberCount?.count || 1)+' members' : '—', t('dashboard.members'),
-          alInfo ? myMembership?.role || 'Member' : '—', t('dashboard.yourRole'),
+          alInfo ? alInfo.name : t('dashboard.noAlliance'), alInfo ? '['+alInfo.tag+']' : t('dashboard.statusLabel'),
+          alInfo ? (alMemberCount?.count || 1)+' '+t('dashboard.membersLabel') : '—', t('dashboard.members'),
+          alInfo ? t('alliances.'+(myMembership?.role||'member')+'Badge') || myMembership?.role || '—' : '—', t('dashboard.yourRole'),
           alInfo ? t('dashboard.active') : t('dashboard.joinOrCreate'), t('dashboard.alliance'),
           '#6366f1', alInfo ? 60 : 0, 'alliances')}
 
         ${sectionCard('🔍', t('nav.intelligence'),
-          (intelData?.spies||0)+' spies', t('dashboard.spies'),
-          (intelData?.satellites||0)+' sats', t('dashboard.satellites'),
+          (intelData?.spies||0)+' '+t('dashboard.spiesLabel'), t('dashboard.spies'),
+          (intelData?.satellites||0)+' '+t('dashboard.satsLabel'), t('dashboard.satellites'),
           t('dashboard.techLevel', { level: intelData?.tech_level||0 }), t('dashboard.technology'),
-          'Anti: '+(intelData?.anti_spy_level||0)+' / '+(intelData?.anti_sat_level||0), t('dashboard.antiSpySat'),
+          t('dashboard.antiLabel')+': '+(intelData?.anti_spy_level||0)+' / '+(intelData?.anti_sat_level||0), t('dashboard.antiSpySat'),
           '#f59e0b', Math.min(((intelData?.tech_level||0)/5)*100, 100), 'intelligence')}
       </div>
 
@@ -187,10 +187,10 @@ export async function renderDashboard(user, profile) {
                     <div class="event-body">
                       <div class="event-title">${isAtt?t('dashboard.attackOn'):t('dashboard.attackedBy')} <strong>${opp?.name||'Unknown'}</strong>
                         <span style="font-size:9px;color:var(--text-muted);background:var(--surface2);border:1px solid var(--border);
-                          padding:1px 5px;border-radius:4px;margin-inline-start:4px;text-transform:uppercase;">${a.attack_type}</span>
+                          padding:1px 5px;border-radius:4px;margin-inline-start:4px;text-transform:uppercase;">${translateAttackType(a.attack_type, a.scenario_type)}</span>
                       </div>
                       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:3px;">
-                        ${chips.length ? chips.join('') : `<span class="event-desc">${a.result_summary || a.attack_type}</span>`}
+                        ${chips.length ? chips.join('') : `<span class="event-desc">${translateResultSummary(a.result_summary) || translateAttackType(a.attack_type, a.scenario_type)}</span>`}
                       </div>
                     </div>
                     <div style="text-align:end;flex-shrink:0;">
@@ -335,6 +335,44 @@ function renderDestroyedNation(app, user, profile, nation, round) {
   document.getElementById('btn-signout').addEventListener('click', () => sb.auth.signOut());
 }
 
+
+// ─── Translation helpers for DB-stored strings ────────────────────────────────
+function translateAttackType(attackType, scenarioType) {
+  if (!attackType) return '—';
+  if (scenarioType) {
+    const words = scenarioType.split('_').map(w => w[0].toUpperCase() + w.slice(1)).join('');
+    const tr = i18n.t('attacks.scenario' + words, { defaultValue: '' });
+    if (tr) return tr;
+  }
+  const words = attackType.split('_').map(w => w[0].toUpperCase() + w.slice(1)).join('');
+  const tr = i18n.t('attacks.scenario' + words, { defaultValue: '' });
+  return tr || attackType.toUpperCase();
+}
+
+function translateResultSummary(summary) {
+  if (!summary) return '';
+  if (/missiles? got through|missiles? penetrat/i.test(summary)) {
+    const mp = summary.match(/(\d+)/)?.[1] || '';
+    const fd = summary.match(/(\d+)\s*facilit/i)?.[1] || '';
+    return i18n.t('battleReport.summaryMissileHit', { penetrated: mp, facilities: fd });
+  }
+  if (/intercepted|missiles? lost/i.test(summary)) return i18n.t('battleReport.summaryMissileIntercepted');
+  if (/air superior/i.test(summary)) return i18n.t('battleReport.summaryAirWin');
+  if (/sead|air defens.*suppress/i.test(summary)) return i18n.t('battleReport.summarySEADWin');
+  if (/blockade.*establish/i.test(summary)) return i18n.t('battleReport.summaryBlockadeWin');
+  if (/blockade.*fail|fleet repel/i.test(summary)) return i18n.t('battleReport.summaryBlockadeFail');
+  if (/Blitz.*success|seized/i.test(summary)) {
+    const money = summary.match(/\$(\d+[\d,]*)/)?.[1] || '';
+    return money ? i18n.t('attacks.moneyLooted') + ` +$${money}` : summary;
+  }
+  if (/You lost.*tanks/i.test(summary)) {
+    const tanks = summary.match(/(\d+) tanks/)?.[1] || '0';
+    const apcs = summary.match(/(\d+) APCs/)?.[1] || '0';
+    return i18n.t('attacks.lostEquip', { count: tanks, unit: i18n.t('equipment.tank') }) +
+           (apcs !== '0' ? ', ' + i18n.t('attacks.lostEquip', { count: apcs, unit: i18n.t('equipment.apc') }) : '');
+  }
+  return summary;
+}
 function startCountdown(currentTurns, user, profile) {
   const clock = document.getElementById('turn-countdown-clock');
   if (!clock) return;

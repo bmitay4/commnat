@@ -14,12 +14,19 @@ function _translateNotif(notif) {
   const parts = notif.message.split(':');
   const msgKey = 'notifications.notif_' + parts[0];
   const translatedMsg = i18n.t(msgKey);
-  if (translatedMsg !== msgKey && parts.length >= 3) {
+  if (translatedMsg !== msgKey) {
+    // Translate scenario name for attack notifications
+    const scenarioRaw = parts[2] || '';
+    const scenarioWords = scenarioRaw.split('_').map(w => w[0]?.toUpperCase() + w.slice(1)).join('');
+    const scenarioTranslated = scenarioRaw
+      ? i18n.t('attacks.scenario' + scenarioWords, { defaultValue: scenarioRaw.replace(/_/g, ' ') })
+      : '';
     message = translatedMsg
       .replace('{{shortfall}}', Number(parts[1]).toLocaleString())
-      .replace('{{sec}}', parts[2]);
-  } else if (translatedMsg !== msgKey) {
-    message = translatedMsg;
+      .replace('{{sec}}', parts[2] || '')
+      .replace('{{alliance}}', parts[1] || '')
+      .replace('{{attacker}}', parts[1] || '')
+      .replace('{{scenario}}', scenarioTranslated);
   }
 
   return { ...notif, title, message };
@@ -120,11 +127,11 @@ function _typeStyle(type) {
 function _timeAgo(isoStr) {
   const diff = Date.now() - new Date(isoStr).getTime();
   const m = Math.floor(diff / 60000);
-  if (m < 1)   return 'just now';
-  if (m < 60)  return `${m}m ago`;
+  if (m < 1)   return i18n.t('notifications.justNow');
+  if (m < 60)  return i18n.t('notifications.mAgo', { m });
   const h = Math.floor(m / 60);
-  if (h < 24)  return `${h}h ago`;
-  return `${Math.floor(h / 24)}d ago`;
+  if (h < 24)  return i18n.t('notifications.hAgo', { h });
+  return i18n.t('notifications.dAgo', { d: Math.floor(h / 24) });
 }
 
 function _renderPanel(notifs) {
@@ -175,7 +182,7 @@ function _renderPanel(notifs) {
       display:flex;align-items:center;justify-content:space-between;
       flex-shrink:0;
     ">
-      <div style="font-size:14px;font-weight:700;color:var(--text);">🔔 Notifications</div>
+      <div style="font-size:14px;font-weight:700;color:var(--text);">${i18n.t('notifications.panelTitle')}</div>
       <button id="notif-panel-close" style="
         background:none;border:none;cursor:pointer;
         font-size:18px;color:var(--text-muted);padding:2px 6px;
@@ -191,7 +198,7 @@ function _renderPanel(notifs) {
           color:var(--text-muted);font-size:13px;
         ">
           <div style="font-size:32px;margin-bottom:8px;">✅</div>
-          All clear — no notifications
+          ${i18n.t('notifications.allClear')}
         </div>
       ` : notifs.map(rawN => { const n = _translateNotif(rawN);
         const s = _typeStyle(n.type);
@@ -259,7 +266,7 @@ function _showToast(rawNotif) {
       ${notif.message}
     </div>
     <div style="font-size:11px;color:var(--text-dim);margin-top:6px;">
-      Click to view all notifications
+      ${i18n.t('notifications.clickToView')}
     </div>
   `;
 

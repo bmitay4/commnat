@@ -1095,3 +1095,67 @@ html, body {
 .section-card:nth-child(2) { animation: staggerUp 0.3s ease 0.15s both; }
 .section-card:nth-child(3) { animation: staggerUp 0.3s ease 0.20s both; }
 .section-card:nth-child(4) { animation: staggerUp 0.3s ease 0.25s both; }
+
+/* ══════════════════════════════════
+   THEMES
+══════════════════════════════════ */
+
+/* ── Warzone (dark military, amber accents) ── */
+[data-theme="warzone"] {
+  --bg:          #0d0f0c;
+  --surface:     #161a14;
+  --surface2:    #1e2419;
+  --surface3:    #242b1e;
+  --border:      #2e3828;
+  --border-dim:  #232b1d;
+  --text:        #e8e4d8;
+  --text-muted:  #8a9080;
+  --text-dim:    #5a6050;
+  --accent:      #d97706;
+  --accent-2:    #f59e0b;
+  --accent-bg:   rgba(217,119,6,0.1);
+  --accent-border: rgba(217,119,6,0.3);
+  --navy:        #0d0f0c;
+  --danger:      #ef4444;
+  --danger-bg:   rgba(239,68,68,0.1);
+  --danger-border: rgba(239,68,68,0.3);
+  --success:     #22c55e;
+  --success-bg:  rgba(34,197,94,0.1);
+  --success-border: rgba(34,197,94,0.3);
+  --warning:     #f59e0b;
+  --warning-bg:  rgba(245,158,11,0.1);
+  --warning-border: rgba(245,158,11,0.3);
+  --shadow-sm:   0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md:   0 4px 12px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.3);
+  --shadow-accent: 0 4px 14px rgba(217,119,6,0.35);
+}
+
+/* ── Midnight Command (deep navy + electric blue) ── */
+[data-theme="midnight"] {
+  --bg:          #080c18;
+  --surface:     #0e1426;
+  --surface2:    #131c33;
+  --surface3:    #182240;
+  --border:      #1e2d50;
+  --border-dim:  #172240;
+  --text:        #e2e8f0;
+  --text-muted:  #7890b0;
+  --text-dim:    #4a5e80;
+  --accent:      #38bdf8;
+  --accent-2:    #7dd3fc;
+  --accent-bg:   rgba(56,189,248,0.08);
+  --accent-border: rgba(56,189,248,0.25);
+  --navy:        #080c18;
+  --danger:      #f87171;
+  --danger-bg:   rgba(248,113,113,0.1);
+  --danger-border: rgba(248,113,113,0.3);
+  --success:     #34d399;
+  --success-bg:  rgba(52,211,153,0.1);
+  --success-border: rgba(52,211,153,0.3);
+  --warning:     #fbbf24;
+  --warning-bg:  rgba(251,191,36,0.1);
+  --warning-border: rgba(251,191,36,0.3);
+  --shadow-sm:   0 1px 3px rgba(0,0,0,0.5), 0 1px 2px rgba(0,0,0,0.4);
+  --shadow-md:   0 4px 12px rgba(0,0,0,0.6), 0 2px 4px rgba(0,0,0,0.4);
+  --shadow-accent: 0 4px 14px rgba(56,189,248,0.3);
+}

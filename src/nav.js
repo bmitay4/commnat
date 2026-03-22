@@ -77,17 +77,25 @@ export function renderPageTopbar(user, profile, nation, activePage) {
         `).join('')}
       </div>
 
-      <!-- Right: lang switcher, notifications, admin, sign out -->
+      <!-- Right: profile, notifications, admin, sign out -->
       <div style="
         display:flex;align-items:center;gap:6px;flex-shrink:0;
         padding-inline-start:14px;
         border-inline-start:1px solid var(--border);
         height:100%;
       ">
-        <div class="lang-switcher-light" style="display:flex;gap:4px;">
-          <button class="lang-btn-light ${i18n.language === 'en' ? 'active' : ''}" data-lang="en">EN</button>
-          <button class="lang-btn-light ${i18n.language === 'he' ? 'active' : ''}" data-lang="he">עב</button>
-        </div>
+        <!-- Profile shield icon -->
+        <button id="btn-profile" data-page="profile" style="
+          background:none;border:1.5px solid var(--border);
+          border-radius:var(--radius-sm);
+          color:var(--text-muted);
+          font-size:15px;
+          width:34px;height:34px;
+          display:flex;align-items:center;justify-content:center;
+          cursor:pointer;flex-shrink:0;
+          transition:all 0.15s;
+          ${activePage === 'profile' ? 'border-color:var(--accent);color:var(--accent);background:var(--accent-bg);' : ''}
+        " title="${i18n.t('profile.title')}">🛡️</button>
 
         ${nation ? `
           <button id="btn-notif-bell" style="
@@ -140,6 +148,9 @@ export function bindPageNav(user, profile, nation) {
 
   document.getElementById('btn-signout')?.addEventListener('click', () => sb.auth.signOut());
 
+  // Profile button
+  document.getElementById('btn-profile')?.addEventListener('click', () => _navigate('profile', user, profile, nation));
+
   // Notification bell
   document.getElementById('btn-notif-bell')?.addEventListener('click', () => openNotificationsPanel());
 
@@ -148,18 +159,6 @@ export function bindPageNav(user, profile, nation) {
     destroyNotifications(); // clean up any previous subscription
     initNotifications(nation);
   }
-
-  document.querySelectorAll('[data-lang]').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const lang = btn.getAttribute('data-lang');
-      await i18n.changeLanguage(lang);
-      // i18n 'languageChanged' event in main.js handles full re-render
-      // Just update button states immediately
-      document.querySelectorAll('.lang-btn-light').forEach(b => {
-        b.classList.toggle('active', b.getAttribute('data-lang') === lang);
-      });
-    });
-  });
 }
 
 async function _navigate(page, user, profile, nation) {
@@ -184,5 +183,6 @@ async function _navigate(page, user, profile, nation) {
     case 'rankings':     { const { renderRankings }     = await import('./pages/rankings.js');     renderRankings(user, profile, n);     break; }
     case 'hof':          { const { renderHallOfFame }   = await import('./pages/hall-of-fame.js'); renderHallOfFame(user, profile);      break; }
     case 'admin':        { const { renderAdmin }        = await import('./pages/admin.js');        renderAdmin(user, profile);           break; }
+    case 'profile':      { const { renderProfile }      = await import('./pages/profile.js');      renderProfile(user, profile, n);      break; }
   }
 }

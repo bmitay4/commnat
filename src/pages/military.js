@@ -305,8 +305,13 @@ function bindEvents(user, profile, nation, invMap, equipTypes) {
   const slider = document.getElementById('draft-slider');
   slider.addEventListener('input', () => {
     const pct = parseInt(slider.value);
+    const maxAtPct = Math.floor(nation.population * pct / 100);
+    const canDraft = Math.max(0, maxAtPct - nation.soldiers);
     document.getElementById('draft-pct-label').textContent = pct + '%';
-    document.getElementById('draft-count').textContent = Math.floor(nation.population * pct / 100).toLocaleString();
+    document.getElementById('draft-count').textContent = maxAtPct.toLocaleString();
+    // Update input to show how many can still be drafted at this %
+    const amountInput = document.getElementById('draft-amount');
+    if (amountInput) amountInput.value = canDraft > 0 ? canDraft : '';
   });
 
   document.getElementById('btn-draft').addEventListener('click', async () => {
@@ -368,6 +373,14 @@ function bindEvents(user, profile, nation, invMap, equipTypes) {
         await logActivity(user.id, nation.id, 'purchase_equipment', { orders: orders.map(o=>({id:o.id,qty:o.qty})), total: grandTotal });
         showMsg('purchase-msg', 'success', t('military.purchaseSuccess', { summary: orders.map(o=>`${o.qty}× ${o.name}`).join(', '), total: grandTotal.toLocaleString() }));
         nation.money -= grandTotal;
+        // Security gain: +2% per 1000 units purchased in this order
+        const totalUnits = orders.reduce((s, o) => s + o.qty, 0);
+        const secGain = Math.floor(totalUnits / 1000) * 2;
+        if (secGain > 0) {
+          const newSec = Math.min(100, (nation.security_index || 0) + secGain);
+          await sb.from('nations').update({ security_index: newSec }).eq('id', nation.id);
+          nation.security_index = newSec;
+        }
         setTimeout(() => renderMilitary(user, profile, { ...nation }), 1500);
       }
     }

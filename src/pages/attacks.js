@@ -106,13 +106,13 @@ function getScenarios() {
       },
       {
         id: 'industrial_occupation',
-        name: t('attacks.scenarioIndustrialOccupation'),
-        icon: '🏭',
+        name: t('attacks.scenarioFullAssault'),
+        icon: '⚔️',
         unit: 'tank',
-        unitLabel: t('attacks.unitTanksArtillery'),
-        desc: t('attacks.descIndustrialOccupation'),
-        cost: t('attacks.costMajorLosses'),
-        color: '#8b5cf6',
+        unitLabel: t('attacks.unitAllGround'),
+        desc: t('attacks.descFullAssault'),
+        cost: t('attacks.costFullAssault'),
+        color: '#dc2626',
         risk: 'VERY HIGH',
       },
     ],
@@ -373,7 +373,7 @@ function scenarioCard(s, unitMap, isBlockaded) {
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">
         <div style="font-family:var(--font-mono);font-size:10px;color:${hasUnits ? s.color : '#e05252'};">
           ${s.unitLabel}: <strong>${inv.qty.toLocaleString()}</strong>
-          ${inv.qty > 0 ? `<span style="color:var(--text-muted);">(${t('attacks.levelAbbr')} ${inv.level})</span>` : `⚠️ ${t('attacks.noneWarning')}`}
+          ${inv.qty === 0 ? `⚠️ ${t('attacks.noneWarning')}` : ''}
         </div>
         ${s.requiresMissileQty ? `
           <div style="display:flex;align-items:center;gap:6px;">
@@ -430,11 +430,25 @@ function battleLogRow(a, myNationId) {
   if (money > 0 && isAttacker && a.success) chips.push(`<span style="color:#16a34a;">💰 +$${money.toLocaleString()}</span>`);
   if (a.defender_facilities_destroyed > 0 && isAttacker)
     chips.push(`<span style="color:#8b5cf6;">🏭 ${a.defender_facilities_destroyed} ${t('attacks.facDestroyed')}</span>`);
-  if (a.special_effect) chips.push(`<span style="color:var(--accent);">✨ ${a.special_effect}</span>`);
+  if (a.special_effect) chips.push(`<span style="color:var(--accent);">✨ ${translateSpecialEffect(a.special_effect)}</span>`);
 
-  const scenarioDisplay = a.scenario_type
-    ? getScenarios()[a.attack_type]?.find(s => s.id === a.scenario_type)?.name || a.scenario_type
-    : a.attack_type;
+  // Try translated scenario name first, fall back to translated attack_type
+  const scenarioDisplay = (() => {
+    if (a.scenario_type) {
+      const found = getScenarios()[a.attack_type]?.find(s => s.id === a.scenario_type);
+      if (found) return found.name;
+      // Try i18n key directly
+      const words = a.scenario_type.split('_').map(w => w[0].toUpperCase() + w.slice(1)).join('');
+      const tr = i18n.t(`attacks.scenario${words}`, { defaultValue: '' });
+      if (tr) return tr;
+      return a.scenario_type;
+    }
+    if (a.attack_type) {
+      const tr = i18n.t(`attacks.scenario${a.attack_type[0].toUpperCase() + a.attack_type.slice(1)}`, { defaultValue: '' });
+      if (tr) return tr;
+    }
+    return a.attack_type || '—';
+  })();
 
   return `
     <div class="battle-log-row" data-attack-id="${a.id}"
@@ -451,7 +465,7 @@ function battleLogRow(a, myNationId) {
             padding:1px 5px;border-radius:4px;">${scenarioDisplay}</span>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;">
-          ${chips.length ? chips.join('') : `<span style="color:var(--text-dim);">${a.result_summary || '—'}</span>`}
+          ${chips.length ? chips.join('') : `<span style="color:var(--text-dim);">${translateResultSummary(a.result_summary) || '—'}</span>`}
         </div>
       </div>
       <div style="text-align:end;flex-shrink:0;">
@@ -461,6 +475,41 @@ function battleLogRow(a, myNationId) {
       </div>
     </div>
   `;
+}
+
+
+// ─── Translation helpers for DB-stored English strings ────────────────────────
+
+function translateSpecialEffect(effect) {
+  if (!effect) return effect;
+  // "3 industrial facilities destroyed" / "industrial facilities destroyed 3"
+  const facMatch = effect.match(/(\d+)\s*(?:industrial\s*)?facilit/i) || effect.match(/facilit.*?(\d+)/i);
+  if (facMatch) {
+    const n = facMatch[1];
+    return `${n} ${t('attacks.facDestroyed')}`;
+  }
+  if (/air.*superior|superior.*air/i.test(effect)) return t('attacks.scenarioAirSuperiority');
+  if (/sead|air.*defens|defens.*suppress/i.test(effect)) return t('attacks.scenarioSead');
+  if (/blockade/i.test(effect)) return t('attacks.scenarioNavalBlockade');
+  if (/trojan/i.test(effect)) return t('attacks.missionTrojanHorse') || effect;
+  if (/smokescreen/i.test(effect)) return t('attacks.missionCounterIntel') || effect;
+  return effect;
+}
+
+function translateResultSummary(summary) {
+  if (!summary) return summary;
+  if (/missiles? got through|missiles? penetrat/i.test(summary)) {
+    const mp = summary.match(/(\d+)/)?.[1] || '';
+    const fd = summary.match(/(\d+)\s*facilit/i)?.[1] || '';
+    if (mp && fd) return `${mp} ${t('attacks.missilesPenetrated')}. ${fd} ${t('attacks.facDestroyed')}`;
+    return t('battleReport.summaryMissileHit', { penetrated: mp, facilities: fd });
+  }
+  if (/intercepted|missiles? lost/i.test(summary)) return t('battleReport.summaryMissileIntercepted');
+  if (/air superior/i.test(summary)) return t('battleReport.summaryAirWin');
+  if (/sead|air defens.*suppress/i.test(summary)) return t('battleReport.summarySEADWin');
+  if (/blockade.*establish/i.test(summary)) return t('battleReport.summaryBlockadeWin');
+  if (/blockade.*fail|fleet repel/i.test(summary)) return t('battleReport.summaryBlockadeFail');
+  return summary;
 }
 
 // ─── Events ───────────────────────────────────────────────────────────────────
@@ -508,18 +557,18 @@ function bindAttackEvents(user, profile, nation, recentAttacks, unitMap, targets
     btn.addEventListener('click', async () => {
       const scenario  = btn.getAttribute('data-scenario');
       const targetId  = document.getElementById('target-select').value;
-      if (!targetId) { showResult('error', t('attacks.errSelectTarget')); return; }
-      if (nation.turns < 1) { showResult('error', t('attacks.errNotEnoughTurns')); return; }
+      if (!targetId) { showResult('error', t('attacks.errSelectTarget'), null, null, null); return; }
+      if (nation.turns < 1) { showResult('error', t('attacks.errNotEnoughTurns'), null, null, null); return; }
 
       // Missile qty
       let missileQty = 0;
       const mqInput = document.querySelector(`.missile-qty[data-scenario="${scenario}"]`);
       if (mqInput) {
         missileQty = parseInt(mqInput.value) || 0;
-        if (missileQty < 1) { showResult('error', t('attacks.errEnterMissiles')); return; }
+        if (missileQty < 1) { showResult('error', t('attacks.errEnterMissiles'), null, null, null); return; }
         const inv = unitMap[mqInput.closest('.scenario-card')?.getAttribute('data-scenario') === 'sead' ? 'cruise' : 'ballistic'];
         if (inv && missileQty > inv.qty) {
-          showResult('error', `You only have ${inv.qty} missiles.`); return;
+          showResult('error', t('attacks.onlyHaveMissiles', {count: inv.qty}), null, null, null); return;
         }
       }
 
@@ -546,11 +595,11 @@ function bindAttackEvents(user, profile, nation, recentAttacks, unitMap, targets
 
       if (error || data?.error) {
         const msg = errorMessage(data?.error || error?.message);
-        showResult('error', msg);
+        showResult('error', msg, null, null, null);
         return;
       }
 
-      showResult(data.success ? 'success' : 'defeat', data.summary, data, scenario, () => {
+      showResult(data.success ? 'success' : 'defeat', data.summary, data, scenario, nation, () => {
         renderAttacks(user, profile, { ...nation, turns: nation.turns - 1 });
       });
     });
@@ -559,7 +608,7 @@ function bindAttackEvents(user, profile, nation, recentAttacks, unitMap, targets
 
 // ─── Result panel ─────────────────────────────────────────────────────────────
 
-function showResult(type, message, data, scenario, onDismiss) {
+function showResult(type, message, data, scenario, nation, onDismiss) {
   const el = document.getElementById('attack-result');
   if (!el) return;
   el.style.display = 'block';
@@ -589,18 +638,18 @@ function showResult(type, message, data, scenario, onDismiss) {
   if (data) {
     if (data.att_eq_lost) {
       Object.entries(data.att_eq_lost).forEach(([k,v]) => {
-        if (v > 0) chips.push(`<span style="color:#f59e0b;">💀 ${t('attacks.lostEquip', {count: v, unit: k.replace(/_/g,' ')})}</span>`);
+        if (v > 0) chips.push(`<span style="color:#f59e0b;">💀 ${t('attacks.lostEquip', {count: v, unit: i18n.t('equipment.'+k, {defaultValue: k.replace(/_/g,' ')})})}</span>`);
       });
     }
     if (data.def_eq_lost) {
       Object.entries(data.def_eq_lost).forEach(([k,v]) => {
-        if (v > 0) chips.push(`<span style="color:#16a34a;">🎯 ${t('attacks.destroyedEquip', {count: v, unit: k.replace(/_/g,' ')})}</span>`);
+        if (v > 0) chips.push(`<span style="color:#16a34a;">🎯 ${t('attacks.destroyedEquip', {count: v, unit: i18n.t('equipment.'+k, {defaultValue: k.replace(/_/g,' ')})})}</span>`);
       });
     }
     if (data.missiles_through > 0) chips.push(`<span style="color:#8b5cf6;">🚀 ${data.missiles_through} ${t('attacks.missilesPenetrated')}</span>`);
     if (data.facilities_hit    > 0) chips.push(`<span style="color:#8b5cf6;">🏭 ${data.facilities_hit} ${t('attacks.facDestroyed')}</span>`);
     if (data.money_stolen      > 0) chips.push(`<span style="color:#16a34a;">💰 ${t('attacks.moneyLooted')} +$${data.money_stolen.toLocaleString()}</span>`);
-    if (data.special_effect)        chips.push(`<span style="color:var(--accent);">✨ ${data.special_effect}</span>`);
+    if (data.special_effect)        chips.push(`<span style="color:var(--accent);">✨ ${translateSpecialEffect(data.special_effect)}</span>`);
   }
 
   const headline = type === 'success'

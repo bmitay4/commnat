@@ -115,11 +115,11 @@ export async function renderIntelligence(user, profile, nation) {
 
       <!-- Stats row -->
       <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px;">
-        ${iStat('🕵️', intel.spies, t('intelligence.spiesTitle'), `Lv ${intel.spy_level}`)}
-        ${iStat('🛰️', intel.satellites, t('intelligence.satellitesTitle'), `Lv ${intel.sat_level}`)}
-        ${iStat('🛡️', `Lv ${intel.anti_spy_level}`, t('intelligence.counterIntelTitle'), `-${intel.anti_spy_level * 12}%`)}
-        ${iStat('📡', `Lv ${intel.anti_sat_level}`, 'Anti-Sat',  `-${intel.anti_sat_level * 12}%`)}
-        ${iStat('⚗️', `Lv ${intel.tech_level}`, t('intelligence.techTitle'), t('intelligence.techSuccessBonus', {pct: intel.tech_level * 5}))}
+        ${iStat('🕵️', intel.spies, t('intelligence.spiesTitle'), t('intelligence.levelNum',{level:intel.spy_level}))}
+        ${iStat('🛰️', intel.satellites, t('intelligence.satellitesTitle'), t('intelligence.levelNum',{level:intel.sat_level}))}
+        ${iStat('🛡️', t('intelligence.levelNum',{level:intel.anti_spy_level}), t('intelligence.counterIntelTitle'), `-${intel.anti_spy_level * 12}%`)}
+        ${iStat('📡', t('intelligence.levelNum',{level:intel.anti_sat_level}), t('intelligence.antiSatTitle'), `-${intel.anti_sat_level * 12}%`)}
+        ${iStat('⚗️', t('intelligence.levelNum',{level:intel.tech_level}), t('intelligence.techTitle'), t('intelligence.techSuccessBonus', {pct: intel.tech_level * 5}))}
       </div>
 
       <!-- Two-column layout: Assets left, Missions right -->
@@ -296,7 +296,7 @@ function defRow(action, label, level, money, cost) {
   return `
     <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--border-dim);">
       <div>
-        <div style="font-size:12px;font-weight:600;color:var(--text);">${label} <span style="color:var(--accent);">Lv ${level}</span></div>
+        <div style="font-size:12px;font-weight:600;color:var(--text);">${label} <span style="color:var(--accent);">${t('intelligence.levelNum',{level})}</span></div>
         <div style="font-size:10px;color:var(--text-muted);">${action === 'tech' ? t('intelligence.techSuccessBonus', {pct: level * 5}) : t('intelligence.enemyPenaltyPct', {pct: level * 12})}</div>
       </div>
       ${upgradeBtn('upgrade_' + action, upgradeLabel(level), cost, money)}
@@ -434,7 +434,7 @@ function showMissionResult(data, missionId, targetName) {
         <div style="display:flex;flex-wrap:wrap;gap:6px;">
           ${techEntries.map(([unit, lv]) => `
             <span style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:3px 8px;font-family:var(--font-mono);font-size:11px;">
-              ${unit.replace(/_/g,' ')}: <strong>Lv ${lv}</strong>
+              ${unit.replace(/_/g,' ')}: <strong>${t('intelligence.levelNum',{level:lv})}</strong>
             </span>`).join('')}
         </div>
       </div>`;
@@ -626,13 +626,13 @@ function openMissionReport(m, myNationId) {
       <div style="margin-bottom:12px;">
         <div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">${t('intelligence.resultTechLevels')}${rd.smokescreen_warning ? ' ⚠️' : ''}</div>
         <div style="display:flex;flex-wrap:wrap;gap:6px;">
-          ${entries.map(([u,lv]) => `<span style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:4px 10px;font-family:var(--font-mono);font-size:11px;">${u.replace(/_/g,' ')}: <strong>Lv ${lv}</strong></span>`).join('')}
+          ${entries.map(([u,lv]) => `<span style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:4px 10px;font-family:var(--font-mono);font-size:11px;">${u.replace(/_/g,' ')}: <strong>${t('intelligence.levelLabel',{level:lv})}</strong></span>`).join('')}
         </div>
       </div>`;
   }
   if (rd.target_unit) detailHtml += `
     <div style="background:rgba(220,38,38,0.08);border:1px solid #dc262644;border-radius:6px;padding:10px 14px;margin-bottom:12px;font-family:var(--font-mono);font-size:12px;color:#dc2626;">
-      🖥️ ${rd.target_unit.replace(/_/g,' ')}: Lv ${rd.old_level} → Lv ${rd.new_level}
+      🖥️ ${rd.target_unit.replace(/_/g,' ')}: ${t('intelligence.levelLabel',{level:rd.old_level})} → ${t('intelligence.levelLabel',{level:rd.new_level})}
     </div>`;
   if (rd.sec_drop) detailHtml += `
     <div style="background:rgba(220,38,38,0.08);border:1px solid #dc262644;border-radius:6px;padding:10px 14px;margin-bottom:12px;font-family:var(--font-mono);font-size:12px;color:#dc2626;">

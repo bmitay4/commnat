@@ -32,11 +32,6 @@ export function renderAuth() {
               <div class="auth-stat-val" id="ticker-nations">--</div>
               <div class="auth-stat-lbl" data-i18n="ticker.nationsActive"></div>
             </div>
-            <div class="auth-stat-divider"></div>
-            <div class="auth-stat">
-              <div class="auth-stat-val" id="ticker-countdown">--</div>
-              <div class="auth-stat-lbl" data-i18n="ticker.timeToReset"></div>
-            </div>
           </div>
           <div class="img-nav" id="img-nav">
             ${HERO_IMAGES.map((_, i) => `<button class="img-dot ${i===0?'active':''}" data-idx="${i}"></button>`).join('')}
@@ -187,17 +182,27 @@ function setLoading(btnId, loading, labelKey) {
   btn.textContent = loading ? i18n.t('loading') : i18n.t(labelKey);
 }
 
+// Pre-fetch IP as soon as auth page loads — ready before user even clicks Login
+let _cachedIp = 'unknown';
+fetch('https://api.ipify.org?format=json')
+  .then(r => r.json())
+  .then(d => { _cachedIp = d.ip || 'unknown'; })
+  .catch(() => {});
+
 async function logLogin(userId, username, email, success, failReason) {
   try {
-    await sb.from('login_logs').insert({
+    // Fire insert using cached IP — don't await a fresh fetch, or navigation will cancel it
+    const insertPromise = sb.from('login_logs').insert({
       user_id: userId || null,
       username_attempted: username || null,
       email_attempted: email,
-      ip_address: 'client-side',
+      ip_address: _cachedIp,
       user_agent: navigator.userAgent,
       success,
       fail_reason: failReason || null,
     });
+    // Wait for insert to complete before auth state change navigates away
+    await Promise.race([insertPromise, new Promise(r => setTimeout(r, 800))]);
   } catch (_) {}
 }
 
@@ -273,25 +278,6 @@ async function loadTicker() {
   const nationsEl = document.getElementById('ticker-nations');
   if (nationsEl && count !== null) nationsEl.textContent = count;
 
-  // Load round end date from game_config
-  const { data } = await sb
-    .from('game_config')
-    .select('value')
-    .eq('key', 'round_restart_date')
-    .single();
 
-  if (data?.value) startAuthCountdown(data.value);
 }
 
-function startAuthCountdown(endDateStr) {
-  const el = document.getElementById('ticker-countdown');
-  if (!el) return;
-
-  function update() {
-    if (!document.getElementById('ticker-countdown')) return;
-    const diff = new Date(endDateStr).getTime() - Date.now();
-    el.textContent = formatTimeLeft(diff);
-    setTimeout(update, 60000); // update every minute
-  }
-  update();
-}

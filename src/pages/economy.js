@@ -1,6 +1,14 @@
 import i18n from '../i18n.js';
 const t = (k, p) => i18n.t(k, p);
 const localName = (item) => i18n.language === 'he' && item.name_he ? item.name_he : item.name;
+const localDesc = (item) => {
+  if (i18n.language === 'he') {
+    const key = `economy.facilityDesc_${item.id}`;
+    const tr = i18n.t(key, { defaultValue: '' });
+    if (tr) return tr;
+  }
+  return item.description || '';
+};
 import { renderPageTopbar, bindPageNav } from '../nav.js';
 import { sb } from '../supabase.js';
 import { formatTimeLeft } from '../utils.js';
@@ -271,7 +279,7 @@ export async function renderEconomy(user, profile, nation) {
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
           <select id="demo-type" style="background:var(--surface2);border:1.5px solid var(--border);border-radius:6px;
             color:var(--text);font-family:var(--font-mono);font-size:13px;padding:8px 10px;outline:none;flex:1;min-width:160px;">
-            <option value="">Select facility...</option>
+            <option value="">${t('economy.selectFacility')}</option>
             ${(facilityTypes||[]).filter(ft=>(facMap[ft.id]||0)>0).map(ft=>
               `<option value="${ft.id}">${localName(ft)} (owned: ${facMap[ft.id]||0})</option>`
             ).join('')}
@@ -337,7 +345,7 @@ function facilityRow(ft, owned) {
       </td>
       <td style="padding:8px;">
         <div style="font-family:var(--font-title);font-size:14px;letter-spacing:1px;color:var(--text);">${localName(ft).toUpperCase()}</div>
-        <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);margin-top:1px;">${ft.description || ''}</div>
+        <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);margin-top:1px;">${localDesc(ft)}</div>
       </td>
       <td style="padding:8px;text-align:center;font-family:var(--font-mono);font-size:12px;color:#16a34a;font-weight:700;">
         +$${ft.income_per_hour.toLocaleString()}
@@ -524,6 +532,12 @@ function bindEconomyEvents(user, profile, nation, facMap, facilityTypes, landFre
       const summary = orders.map(o => `${o.qty}× ${o.name}`).join(', ');
       showMsg('build-msg', 'success', t('economy.buildSuccess',{summary,cost:grandCost.toLocaleString()}));
       nation.money -= grandCost;
+      // Security gain: +1% per facility built, capped at 100
+      const totalBuilt = orders.reduce((s, o) => s + o.qty, 0);
+      const secGain = totalBuilt;
+      const newSec = Math.min(100, (nation.security_index || 0) + secGain);
+      if (secGain > 0) await sb.from('nations').update({ security_index: newSec }).eq('id', nation.id);
+      nation.security_index = newSec;
       setTimeout(() => renderEconomy(user, profile, { ...nation }), 1500);
     }
 
@@ -540,7 +554,7 @@ function bindEconomyEvents(user, profile, nation, facMap, facilityTypes, landFre
     if (qty > owned) { showMsg('demo-msg', 'error', t('economy.errOnlyOwned',{count:owned})); return; }
     const ft = facilityTypes.find(f => f.id === typeId);
     const refund = Math.floor(qty * ft.build_cost * 0.3);
-    if (!confirm(`Demolish ${qty}× ${ft.name}? You'll receive $${refund.toLocaleString()} (30% refund).`)) return;
+    if (!confirm(t('economy.demolishConfirm', { qty, name: localName(ft), refund: refund.toLocaleString() }))) return;
 
     const newQty = owned - qty;
     const { error } = newQty > 0

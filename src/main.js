@@ -1,6 +1,10 @@
 import i18n, { applyDir, translateDOM } from './i18n.js';
 import { sb } from './supabase.js';
 import { renderAuth } from './pages/auth.js';
+import { loadTheme } from './theme.js';
+
+// Apply saved theme immediately before anything renders
+loadTheme();
 
 // Track what page is currently active so lang change can re-render it
 let currentPage = { name: 'auth', user: null, profile: null, nation: null };
@@ -10,10 +14,14 @@ async function fetchProfile(userId) {
   for (let i = 0; i <= delays.length; i++) {
     const { data } = await sb
       .from('profiles')
-      .select('username, is_admin, is_banned')
+      .select('username, is_admin, is_banned, theme')
       .eq('id', userId)
       .maybeSingle();
-    if (data) return data;
+    if (data) {
+      // Apply user's saved theme from DB
+      if (data.theme) { const { applyTheme } = await import('./theme.js'); applyTheme(data.theme); }
+      return data;
+    }
     if (i < delays.length) await new Promise(r => setTimeout(r, delays[i]));
   }
   return { username: 'Commander', is_admin: false, is_banned: false };
@@ -38,6 +46,7 @@ async function reRenderCurrentPage() {
   if (name === 'intelligence') { const { renderIntelligence } = await import('./pages/intelligence.js'); renderIntelligence(user, profile, nation); return; }
   if (name === 'rankings')  { const { renderRankings }  = await import('./pages/rankings.js');  renderRankings(user, profile, nation); return; }
   if (name === 'hof')       { const { renderHallOfFame } = await import('./pages/hall-of-fame.js'); renderHallOfFame(user, profile); return; }
+  if (name === 'profile')   { const { renderProfile }   = await import('./pages/profile.js');      renderProfile(user, profile, nation); return; }
 }
 
 async function boot() {
