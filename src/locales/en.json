@@ -137,7 +137,11 @@
     "satsLabel": "sats",
     "antiLabel": "Anti",
     "statusLabel": "Status",
-    "memberBadge": "Member"
+    "memberBadge": "Member",
+    "perHourUnit": "/hr",
+    "per2HoursUnit": "/2h",
+    "landUnits": "units",
+    "defenseAbbr": "DEF"
   },
   "military": {
     "title": "Military",
@@ -240,7 +244,13 @@
     "facilityDesc_port": "Enables maritime trade routes and naval logistics",
     "facilityDesc_bank": "Provides financial services and interest income",
     "facilityDesc_research_lab": "Advances national technology and productivity",
-    "facilityDesc_mine": "Extracts raw minerals and metals for export"
+    "facilityDesc_mine": "Extracts raw minerals and metals for export",
+    "landUsed": "{{used}}/{{total}} used",
+    "ownedSuffix": "(owned: {{count}})",
+    "qtyPlaceholder": "Qty",
+    "securityFullIncome": "100% (full income)",
+    "securityReduced": "{{pct}}% (reduced)",
+    "securityCritical": "40% (critical)"
   },
   "attacks": {
     "title": "Attack Center",
@@ -555,9 +565,12 @@
     "notEnoughTurns": "Not enough turns",
     "techSuccessBonus": "+{{pct}}% success",
     "enemyPenaltyPct": "-{{pct}}% enemy",
+    "levelLabel": "Level",
     "errSelfOnly": "Counter-Intel targets yourself — select \"Self\".",
     "errNeedTarget": "This mission requires a target nation.",
     "errMissionFailed": "Mission failed.",
+    "errNationNotFound": "Nation not found.",
+    "errNoIntelRecord": "No intelligence record found.",
     "viewReport": "← View Report",
     "resultSecDrop": "Enemy security index dropped by {{pts}} points",
     "resultSelfSecDrop": "Your security dropped by {{pts}} points (international condemnation)",
@@ -580,6 +593,7 @@
     "sumTrojanFail": "Intrusion detected! Enemy ABM systems locked into Autonomous Mode.",
     "sumUnitSabotageSuccess": "Unit sabotage successful. Jets and helicopters destroyed on the ground.",
     "sumUnitSabotageFail": "Agents neutralized at enemy air base. Spies lost.",
+    "sumBlockadeBroken": "Blockade broken. Your trade routes are restored.",
     "levelNum": "Lv {{level}}"
   },
   "rankings": {
@@ -656,6 +670,164 @@
     "themeMidName": "Midnight",
     "themeMidDesc": "Deep navy & cyber blue"
   },
+  "admin": {
+    "brand": "ADMIN",
+    "commandPanel": "COMMAND PANEL",
+    "loading": "Loading...",
+    "backDashboard": "Back to Dashboard",
+    "searchUsers": "Search username or email...",
+    "searchNations": "Search nation or commander...",
+    "searchLogs": "Search email, IP, reason...",
+    "searchActivity": "Search action, player, nation...",
+    "usersCount": "{{count}} users",
+    "nationsCount": "{{count}} nations",
+    "entriesCount": "{{count}} entries",
+    "noActivity": "No activity logged yet.",
+    "errorPrefix": "Error: ",
+    "configHelp": "Changes take effect immediately. All values affect new game rounds.",
+    "lastUpdated": "Last updated: {{date}}",
+    "configUpdated": "\"{{key}}\" updated successfully.",
+    "rowUpdated": "Row updated.",
+    "allConfigSaved": "All config saved successfully.",
+    "configSaveErrors": "{{count}} errors saving config.",
+    "tabs": {
+      "users": {
+        "label": "Users",
+        "subLabel": "Manage player accounts"
+      },
+      "nations": {
+        "label": "Nations",
+        "subLabel": "View and manage all nations"
+      },
+      "login_logs": {
+        "label": "Login Logs",
+        "subLabel": "Every login attempt with IP and browser"
+      },
+      "activity": {
+        "label": "Activity",
+        "subLabel": "Player in-game action logs"
+      },
+      "pricing": {
+        "label": "Pricing",
+        "subLabel": "Edit unit, facility, and action costs"
+      },
+      "config": {
+        "label": "Game Config",
+        "subLabel": "Edit global game settings"
+      }
+    },
+    "columns": {
+      "username": "Username",
+      "email": "Email",
+      "phone": "Phone",
+      "joined": "Joined",
+      "status": "Status",
+      "role": "Role",
+      "actions": "Actions",
+      "nation": "Nation",
+      "commander": "Commander",
+      "round": "Round",
+      "population": "Population",
+      "land": "Land",
+      "money": "Money",
+      "security": "Security",
+      "time": "Time",
+      "ip": "IP",
+      "result": "Result",
+      "reason": "Reason",
+      "browser": "Browser",
+      "player": "Player",
+      "action": "Action",
+      "details": "Details",
+      "unit": "Unit",
+      "costEach": "Cost Each ($)",
+      "maint2h": "Maint /2h ($)",
+      "attackPwr": "Attack PWR",
+      "defensePwr": "Defense PWR",
+      "facility": "Facility",
+      "buildCost": "Build Cost ($)",
+      "incomeHr": "Income /hr ($)",
+      "upkeepHr": "Upkeep /hr ($)"
+    },
+    "badges": {
+      "banned": "Banned",
+      "active": "Active",
+      "admin": "Admin",
+      "player": "Player",
+      "alive": "Alive",
+      "destroyed": "Destroyed",
+      "ok": "OK",
+      "fail": "FAIL"
+    },
+    "buttons": {
+      "ban": "Ban",
+      "unban": "Unban",
+      "turns": "Turns",
+      "money": "Money",
+      "makeAdmin": "Make Admin",
+      "revokeAdmin": "Revoke Admin",
+      "destroy": "Destroy",
+      "save": "Save",
+      "saving": "Saving...",
+      "saved": "Saved",
+      "saveAllConfig": "Save All Config"
+    },
+    "filters": {
+      "all": "All",
+      "failedOnly": "Failed only"
+    },
+    "prompts": {
+      "banReason": "Ban reason for {{name}}:",
+      "unbanConfirm": "Unban {{name}}?",
+      "makeAdminConfirm": "Make admin: {{name}}?",
+      "revokeAdminConfirm": "Revoke admin from: {{name}}?",
+      "noActiveNation": "{{name}} has no active nation.",
+      "editTurns": "Nation: \"{{nation}}\"\nCurrent turns: {{turns}}\n\nEnter new turn amount (0-200):",
+      "invalidTurns": "Invalid amount. Enter a number between 0 and 200.",
+      "turnsUpdated": "Turns updated to {{turns}} for {{name}}.",
+      "editMoney": "{{name}}'s nation \"{{nation}}\" current money: ${{money}}\n\nEnter new amount:",
+      "moneyUpdated": "Money updated!",
+      "destroyReason": "Destroy reason for \"{{name}}\":"
+    },
+    "sections": {
+      "militaryEquipment": "Military Equipment",
+      "militaryEquipmentHelp": "Cost to purchase, maintenance per 2h, attack power, defense power",
+      "economyFacilities": "Economy Facilities",
+      "economyFacilitiesHelp": "Build cost, income per hour, upkeep per hour, land required",
+      "intelligenceCosts": "Intelligence Costs",
+      "intelligenceCostsHelp": "Levels 1 to cap-1 cost base times level. At cap level and above, the fixed cap price applies.",
+      "actionsTurns": "Actions and Turns"
+    },
+    "configLabels": {
+      "intel_cap_level": "Cap level (price locks after)",
+      "intel_spy_base_cost": "Spy base cost",
+      "intel_spy_level_cost": "Spy upgrade cost (x level)",
+      "intel_spy_cap_price": "Spy cap price (level 10+)",
+      "intel_spy_maint_2h": "Spy maintenance /2h",
+      "intel_sat_base_cost": "Satellite base cost",
+      "intel_sat_level_cost": "Satellite upgrade (x level)",
+      "intel_sat_cap_price": "Satellite cap price (lv 10+)",
+      "intel_sat_maint_2h": "Satellite maintenance /2h",
+      "intel_anti_spy_cost": "Anti-spy cost (x level)",
+      "intel_anti_spy_cap_price": "Anti-spy cap price (lv 10+)",
+      "intel_anti_sat_cost": "Anti-sat cost (x level)",
+      "intel_anti_sat_cap_price": "Anti-sat cap price (lv 10+)",
+      "intel_tech_level_cost": "Tech level cost (x level)",
+      "intel_tech_cap_price": "Tech cap price (level 10+)",
+      "attack_destruction_turns": "Destruction attack turns",
+      "attack_conquest_turns": "Conquest attack turns",
+      "intel_mission_turns": "Intel mission turns",
+      "draft_cost_per_soldier": "Draft cost per soldier ($)",
+      "demob_refund_percent": "Demob refund %",
+      "sell_equipment_refund_pct": "Sell equipment refund %",
+      "demolish_facility_refund_pct": "Demolish facility refund %",
+      "turn_interval_minutes": "Turn interval (minutes)",
+      "max_turns": "Max turns",
+      "starting_money": "Starting money ($)",
+      "starting_land": "Starting land",
+      "starting_population": "Starting population"
+    }
+  },
   "notifications": {
     "notif_warning_fiscal_title": "⚠️ Treasury Warning — Security Declining",
     "notif_warning_fiscal_msg": "Your nation could not fully cover military maintenance. The unpaid bill of ${{shortfall}} has caused civil unrest. Security index dropped by {{sec}} point(s). Keep your treasury positive to avoid further penalties.",
@@ -666,7 +838,7 @@
     "notif_danger_sabotage_title": "💥 Infrastructure Attack",
     "notif_danger_sabotage_msg": "Enemy agents caused chaos across your nation. Security index dropped by {{sec}} points.",
     "notif_warning_unit_sabotage_title": "🚨 Foreign Agents Neutralized",
-    "notif_warning_unit_sabotage_msg": "warning_unit_sabotage_msg",
+    "notif_warning_unit_sabotage_msg": "Enemy saboteurs were intercepted before they could damage your aircraft.",
     "notif_info_alliance_invite_title": "✉️ Alliance Invitation",
     "notif_info_alliance_invite_msg": "You have been invited to join {{alliance}}. Visit the Alliances page to accept or decline.",
     "panelTitle": "🔔 Notifications",
@@ -739,6 +911,11 @@
     "summarySEADFail": "SEAD mission failed. Enemy SAMs remained active.",
     "summaryBlockadeWin": "Naval blockade established. Enemy trade routes cut.",
     "summaryBlockadeFail": "Blockade attempt failed. Enemy fleet repelled your ships.",
+    "summaryFullAssaultWin": "Full assault succeeded. Seized {{land}} land{{facility}}. Eliminated {{soldiers}} soldiers{{equipment}}{{security}}.",
+    "facilityAddon": " + {{count}} facility",
+    "equipmentAddon": ", destroyed {{items}}",
+    "securityAddon": ". Security {{pct}}%",
+    "summaryBlitzRaid": "Blitz raid succeeded. Looted ${{money}}.",
     "equipUnit": "units"
   },
   "equipment": {

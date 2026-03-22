@@ -203,7 +203,7 @@ export async function renderEconomy(user, profile, nation) {
         ${eStat('📈', t('economy.incomeHr'),   '+$' + totalIncome.toLocaleString(),   '#16a34a')}
         ${eStat('🔧', t('economy.upkeepHr'),   '-$' + totalUpkeep.toLocaleString(),  '#e05252')}
         ${eStat('💵', t('economy.netHr'),      (netIncome >= 0 ? '+' : '') + '$' + netIncome.toLocaleString(), netIncome >= 0 ? '#16a34a' : '#e05252')}
-        ${eStat('🗺️', t('economy.land'),        `${landUsed}/${nation.land} used`,    landFree <= 5 ? '#e05252' : 'var(--text-muted)')}
+        ${eStat('🗺️', t('economy.land'),        t('economy.landUsed', { used: landUsed, total: nation.land }),    landFree <= 5 ? '#e05252' : 'var(--text-muted)')}
       </div>
 
       <!-- Income countdown -->
@@ -214,7 +214,7 @@ export async function renderEconomy(user, profile, nation) {
           ${t('economy.nextIncome')} <strong id="income-countdown" style="color:#16a34a;font-size:15px;">--:--</strong>
         </div>
         <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">
-          ${t('economy.projected')} <strong style="color:#16a34a;">+$${netIncome.toLocaleString()}</strong> net
+          ${t('economy.projected')} <strong style="color:#16a34a;">${netIncome >= 0 ? '+' : ''}${netIncome.toLocaleString()}</strong> ${t('economy.net')}
           &nbsp;·&nbsp;
           ${t('economy.securityBonus')} <strong style="color:var(--accent);">${getSecurityLabel(nation.security_index)}</strong>
         </div>
@@ -232,7 +232,7 @@ export async function renderEconomy(user, profile, nation) {
           <button class="btn-logout" id="btn-clear-order" style="font-size:11px;padding:6px 12px;">${t('economy.clearBtn')}</button>
           <button class="btn-submit" id="btn-build-all"
             style="width:auto;padding:8px 20px;font-size:14px;letter-spacing:1px;border-radius:6px;background:#16a34a;">
-            Build All
+            ${t('economy.buildAllBtn')}
           </button>
         </div>
       </div>
@@ -281,10 +281,10 @@ export async function renderEconomy(user, profile, nation) {
             color:var(--text);font-family:var(--font-mono);font-size:13px;padding:8px 10px;outline:none;flex:1;min-width:160px;">
             <option value="">${t('economy.selectFacility')}</option>
             ${(facilityTypes||[]).filter(ft=>(facMap[ft.id]||0)>0).map(ft=>
-              `<option value="${ft.id}">${localName(ft)} (owned: ${facMap[ft.id]||0})</option>`
+              `<option value="${ft.id}">${localName(ft)} ${t('economy.ownedSuffix', { count: facMap[ft.id]||0 })}</option>`
             ).join('')}
           </select>
-          <input type="number" id="demo-amount" placeholder="Qty" min="1"
+          <input type="number" id="demo-amount" placeholder="${t('economy.qtyPlaceholder')}" min="1"
             style="width:90px;background:var(--surface2);border:1.5px solid var(--border);border-radius:6px;
             color:var(--text);font-family:var(--font-mono);font-size:13px;padding:8px 10px;outline:none;"/>
           <button class="btn-logout" id="btn-demolish" style="padding:8px 16px;font-size:12px;">${t('economy.demolishBtn')}</button>
@@ -394,9 +394,9 @@ function thStyle() {
 }
 
 function getSecurityLabel(idx) {
-  if (idx >= 80) return '100% (full income)';
-  if (idx >= 50) return `${idx}% (reduced)`;
-  return '40% (critical)';
+  if (idx >= 80) return t('economy.securityFullIncome');
+  if (idx >= 50) return t('economy.securityReduced', { pct: idx });
+  return t('economy.securityCritical');
 }
 
 function showMsg(id, type, text) {

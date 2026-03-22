@@ -2,6 +2,7 @@ import i18n from '../i18n.js';
 import { sb } from '../supabase.js';
 
 const t = (key, params) => i18n.t(key, params);
+const a = (key, params) => i18n.t('admin.' + key, params);
 
 let currentTab = 'users';
 
@@ -14,17 +15,17 @@ export function renderAdmin(user, profile) {
       <!-- Sidebar -->
       <div class="admin-sidebar">
         <div class="admin-logo">
-          <div style="font-family:var(--font-title);font-size:22px;letter-spacing:3px;color:var(--accent);">ADMIN</div>
-          <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);letter-spacing:2px;margin-top:2px;">COMMAND PANEL</div>
+          <div style="font-family:var(--font-title);font-size:22px;letter-spacing:3px;color:var(--accent);">${a('brand')}</div>
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);letter-spacing:2px;margin-top:2px;">${a('commandPanel')}</div>
         </div>
 
         <nav class="admin-nav">
-          ${navItem('users',      '👥', 'Users')}
-          ${navItem('nations',    '🌍', 'Nations')}
-          ${navItem('login_logs', '🔐', 'Login Logs')}
-          ${navItem('activity',   '📋', 'Activity')}
-          ${navItem('pricing',    '💲', 'Pricing')}
-          ${navItem('config',     '⚙️', 'Game Config')}
+          ${navItem('users',      '👥', a('tabs.users.label'))}
+          ${navItem('nations',    '🌍', a('tabs.nations.label'))}
+          ${navItem('login_logs', '🔐', a('tabs.login_logs.label'))}
+          ${navItem('activity',   '📋', a('tabs.activity.label'))}
+          ${navItem('pricing',    '💲', a('tabs.pricing.label'))}
+          ${navItem('config',     '⚙️', a('tabs.config.label'))}
         </nav>
 
         <div class="admin-sidebar-footer">
@@ -32,7 +33,7 @@ export function renderAdmin(user, profile) {
             ${profile.username.toUpperCase()}
           </div>
           <button class="btn-logout" id="btn-back" style="width:100%;text-align:center;">
-            ← Dashboard
+            ${a('backDashboard')}
           </button>
         </div>
       </div>
@@ -40,7 +41,7 @@ export function renderAdmin(user, profile) {
       <!-- Main content -->
       <div class="admin-main">
         <div class="admin-header">
-          <div id="admin-tab-title" style="font-family:var(--font-title);font-size:28px;letter-spacing:3px;color:var(--text);">USERS</div>
+          <div id="admin-tab-title" style="font-family:var(--font-title);font-size:28px;letter-spacing:3px;color:var(--text);">${a('tabs.users.label')}</div>
           <div id="admin-tab-sub" style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);letter-spacing:1px;margin-top:2px;"></div>
         </div>
         <div id="admin-content"></div>
@@ -83,19 +84,10 @@ async function loadTab(tab) {
   const title = document.getElementById('admin-tab-title');
   const sub = document.getElementById('admin-tab-sub');
 
-  content.innerHTML = `<div class="admin-loading">LOADING...</div>`;
+  content.innerHTML = `<div class="admin-loading">${a('loading')}</div>`;
 
-  const tabs = {
-    users:      { label: 'Users',       subLabel: 'Manage player accounts' },
-    nations:    { label: 'Nations',     subLabel: 'View and manage all nations' },
-    login_logs: { label: 'Login Logs',  subLabel: 'Every login attempt with IP & browser' },
-    activity:   { label: 'Activity',    subLabel: 'Player in-game action logs' },
-    pricing:    { label: 'Pricing',     subLabel: 'Edit all unit, facility and action costs' },
-    config:     { label: 'Game Config', subLabel: 'Edit global game settings' },
-  };
-
-  title.textContent = tabs[tab]?.label || tab.toUpperCase();
-  sub.textContent = tabs[tab]?.subLabel || '';
+  title.textContent = a(`tabs.${tab}.label`, { defaultValue: tab.toUpperCase() });
+  sub.textContent = a(`tabs.${tab}.subLabel`, { defaultValue: '' });
 
   switch (tab) {
     case 'users':      await loadUsers(content); break;
@@ -119,20 +111,20 @@ async function loadUsers(content) {
 
   content.innerHTML = `
     <div class="admin-toolbar">
-      <input class="admin-search" type="text" id="user-search" placeholder="Search username or email..." />
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">${users.length} users</div>
+      <input class="admin-search" type="text" id="user-search" placeholder="${a('searchUsers')}" />
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">${a('usersCount', { count: users.length })}</div>
     </div>
     <div class="admin-table-wrap">
       <table class="admin-table" id="users-table">
         <thead>
           <tr>
-            <th>Username</th>
-            <th>Email</th>
-            <th>Phone</th>
-            <th>Joined</th>
-            <th>Status</th>
-            <th>Role</th>
-            <th>Actions</th>
+            <th>${a('columns.username')}</th>
+            <th>${a('columns.email')}</th>
+            <th>${a('columns.phone')}</th>
+            <th>${a('columns.joined')}</th>
+            <th>${a('columns.status')}</th>
+            <th>${a('columns.role')}</th>
+            <th>${a('columns.actions')}</th>
           </tr>
         </thead>
         <tbody>
@@ -157,11 +149,11 @@ async function loadUsers(content) {
 function userRow(u) {
   const joined = new Date(u.created_at).toLocaleDateString();
   const statusBadge = u.is_banned
-    ? `<span class="badge badge-danger">Banned</span>`
-    : `<span class="badge badge-success">Active</span>`;
+    ? `<span class="badge badge-danger">${a('badges.banned')}</span>`
+    : `<span class="badge badge-success">${a('badges.active')}</span>`;
   const roleBadge = u.is_admin
-    ? `<span class="badge badge-gold">Admin</span>`
-    : `<span class="badge badge-muted">Player</span>`;
+    ? `<span class="badge badge-gold">${a('badges.admin')}</span>`
+    : `<span class="badge badge-muted">${a('badges.player')}</span>`;
 
   return `
     <tr data-id="${u.id}">
@@ -174,16 +166,16 @@ function userRow(u) {
       <td>
         <div style="display:flex;gap:6px;flex-wrap:wrap;">
           <button class="admin-btn" data-action="${u.is_banned ? 'unban' : 'ban'}" data-id="${u.id}" data-name="${u.username}">
-            ${u.is_banned ? '✅ Unban' : '🚫 Ban'}
+            ${u.is_banned ? a('buttons.unban') : a('buttons.ban')}
           </button>
           <button class="admin-btn" data-action="edit-turns" data-id="${u.id}" data-name="${u.username}">
-            ⏱️ Turns
+            ${a('buttons.turns')}
           </button>
           <button class="admin-btn" data-action="edit-money" data-id="${u.id}" data-name="${u.username}">
-            💰 Money
+            ${a('buttons.money')}
           </button>
           <button class="admin-btn ${u.is_admin ? 'admin-btn-active' : ''}" data-action="toggle-admin" data-id="${u.id}" data-name="${u.username}" data-is-admin="${u.is_admin}">
-            ${u.is_admin ? '⭐ Revoke Admin' : '⭐ Make Admin'}
+            ${u.is_admin ? a('buttons.revokeAdmin') : a('buttons.makeAdmin')}
           </button>
         </div>
       </td>
@@ -199,21 +191,21 @@ function bindUserActions(content, users) {
       const name = btn.getAttribute('data-name');
 
       if (action === 'ban') {
-        const reason = prompt(`Ban reason for ${name}:`);
+        const reason = prompt(a('prompts.banReason', { name }));
         if (reason === null) return;
         await sb.from('profiles').update({ is_banned: true, ban_reason: reason }).eq('id', id);
         loadTab('users');
       }
 
       if (action === 'unban') {
-        if (!confirm(`Unban ${name}?`)) return;
+        if (!confirm(a('prompts.unbanConfirm', { name }))) return;
         await sb.from('profiles').update({ is_banned: false, ban_reason: null }).eq('id', id);
         loadTab('users');
       }
 
       if (action === 'toggle-admin') {
         const isAdmin = btn.getAttribute('data-is-admin') === 'true';
-        if (!confirm(`${isAdmin ? 'Revoke admin from' : 'Make admin'}: ${name}?`)) return;
+        if (!confirm(a(isAdmin ? 'prompts.revokeAdminConfirm' : 'prompts.makeAdminConfirm', { name }))) return;
         await sb.from('profiles').update({ is_admin: !isAdmin }).eq('id', id);
         loadTab('users');
       }
@@ -226,22 +218,20 @@ function bindUserActions(content, users) {
           .eq('is_alive', true)
           .maybeSingle();
 
-        if (!nation) { alert(`${name} has no active nation.`); return; }
+        if (!nation) { alert(a('prompts.noActiveNation', { name })); return; }
 
-        const input = prompt(
-          `Nation: "${nation.name}"\nCurrent turns: ${nation.turns}\n\nEnter new turn amount (0–200):`
-        );
+        const input = prompt(a('prompts.editTurns', { nation: nation.name, turns: nation.turns }));
         if (input === null) return;
         const newTurns = parseInt(input);
         if (isNaN(newTurns) || newTurns < 0 || newTurns > 200) {
-          alert('Invalid amount. Enter a number between 0 and 200.'); return;
+          alert(a('prompts.invalidTurns')); return;
         }
         const { error } = await sb
           .from('nations')
           .update({ turns: newTurns })
           .eq('id', nation.id);
-        if (!error) alert(`✅ Turns updated to ${newTurns} for ${name}.`);
-        else alert('Error: ' + error.message);
+        if (!error) alert(a('prompts.turnsUpdated', { turns: newTurns, name }));
+        else alert(a('errorPrefix') + error.message);
       }
 
       if (action === 'edit-money') {
@@ -253,12 +243,12 @@ function bindUserActions(content, users) {
           .eq('is_alive', true)
           .maybeSingle();
 
-        if (!nation) { alert(`${name} has no active nation.`); return; }
+        if (!nation) { alert(a('prompts.noActiveNation', { name })); return; }
 
-        const newMoney = prompt(`${name}'s nation "${nation.name}" current money: $${nation.money.toLocaleString()}\n\nEnter new amount:`);
+        const newMoney = prompt(a('prompts.editMoney', { name, nation: nation.name, money: nation.money.toLocaleString() }));
         if (newMoney === null || isNaN(parseInt(newMoney))) return;
         await sb.from('nations').update({ money: parseInt(newMoney) }).eq('id', nation.id);
-        alert('Money updated!');
+        alert(a('prompts.moneyUpdated'));
       }
     });
   });
@@ -276,22 +266,22 @@ async function loadNations(content) {
 
   content.innerHTML = `
     <div class="admin-toolbar">
-      <input class="admin-search" type="text" id="nation-search" placeholder="Search nation or commander..." />
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">${nations.length} nations</div>
+      <input class="admin-search" type="text" id="nation-search" placeholder="${a('searchNations')}" />
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">${a('nationsCount', { count: nations.length })}</div>
     </div>
     <div class="admin-table-wrap">
       <table class="admin-table" id="nations-table">
         <thead>
           <tr>
-            <th>Nation</th>
-            <th>Commander</th>
-            <th>Round</th>
-            <th>Status</th>
-            <th>Population</th>
-            <th>Land</th>
-            <th>Money</th>
-            <th>Security</th>
-            <th>Actions</th>
+            <th>${a('columns.nation')}</th>
+            <th>${a('columns.commander')}</th>
+            <th>${a('columns.round')}</th>
+            <th>${a('columns.status')}</th>
+            <th>${a('columns.population')}</th>
+            <th>${a('columns.land')}</th>
+            <th>${a('columns.money')}</th>
+            <th>${a('columns.security')}</th>
+            <th>${a('columns.actions')}</th>
           </tr>
         </thead>
         <tbody>
@@ -300,14 +290,14 @@ async function loadNations(content) {
               <td><strong>${n.name}</strong></td>
               <td style="font-family:var(--font-mono);font-size:12px;">${n.profiles?.username || '—'}</td>
               <td style="font-family:var(--font-mono);font-size:12px;">R${n.round}</td>
-              <td>${n.is_alive ? '<span class="badge badge-success">Alive</span>' : '<span class="badge badge-danger">Destroyed</span>'}</td>
+              <td>${n.is_alive ? `<span class="badge badge-success">${a('badges.alive')}</span>` : `<span class="badge badge-danger">${a('badges.destroyed')}</span>`}</td>
               <td style="font-family:var(--font-mono);font-size:12px;">${n.population.toLocaleString()}</td>
               <td style="font-family:var(--font-mono);font-size:12px;">${n.land}</td>
               <td style="font-family:var(--font-mono);font-size:12px;">$${n.money.toLocaleString()}</td>
               <td style="font-family:var(--font-mono);font-size:12px;">${n.security_index}%</td>
               <td>
                 <div style="display:flex;gap:6px;">
-                  ${n.is_alive ? `<button class="admin-btn" data-action="destroy-nation" data-id="${n.id}" data-name="${n.name}">💀 Destroy</button>` : ''}
+                  ${n.is_alive ? `<button class="admin-btn" data-action="destroy-nation" data-id="${n.id}" data-name="${n.name}">${a('buttons.destroy')}</button>` : ''}
                 </div>
               </td>
             </tr>
@@ -331,7 +321,7 @@ async function loadNations(content) {
       const name = btn.getAttribute('data-name');
 
       if (action === 'destroy-nation') {
-        const reason = prompt(`Destroy reason for "${name}":`);
+        const reason = prompt(a('prompts.destroyReason', { name }));
         if (reason === null) return;
         await sb.from('nations').update({
           is_alive: false,
@@ -357,23 +347,23 @@ async function loadLoginLogs(content) {
 
   content.innerHTML = `
     <div class="admin-toolbar">
-      <input class="admin-search" type="text" id="log-search" placeholder="Search email, IP, reason..." />
+      <input class="admin-search" type="text" id="log-search" placeholder="${a('searchLogs')}" />
       <div style="display:flex;gap:8px;">
-        <button class="admin-btn" id="filter-all" style="border-color:var(--accent);">All</button>
-        <button class="admin-btn" id="filter-fail">Failed only</button>
+        <button class="admin-btn" id="filter-all" style="border-color:var(--accent);">${a('filters.all')}</button>
+        <button class="admin-btn" id="filter-fail">${a('filters.failedOnly')}</button>
       </div>
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">${logs.length} entries</div>
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">${a('entriesCount', { count: logs.length })}</div>
     </div>
     <div class="admin-table-wrap">
       <table class="admin-table" id="logs-table">
         <thead>
           <tr>
-            <th>Time</th>
-            <th>Email</th>
-            <th>IP</th>
-            <th>Result</th>
-            <th>Reason</th>
-            <th>Browser</th>
+            <th>${a('columns.time')}</th>
+            <th>${a('columns.email')}</th>
+            <th>${a('columns.ip')}</th>
+            <th>${a('columns.result')}</th>
+            <th>${a('columns.reason')}</th>
+            <th>${a('columns.browser')}</th>
           </tr>
         </thead>
         <tbody>
@@ -382,7 +372,7 @@ async function loadLoginLogs(content) {
               <td style="font-family:var(--font-mono);font-size:11px;white-space:nowrap;">${new Date(l.logged_at).toLocaleString()}</td>
               <td style="font-family:var(--font-mono);font-size:12px;">${l.email_attempted || '—'}</td>
               <td style="font-family:var(--font-mono);font-size:12px;">${l.ip_address || '—'}</td>
-              <td>${l.success ? '<span class="badge badge-success">OK</span>' : '<span class="badge badge-danger">FAIL</span>'}</td>
+              <td>${l.success ? `<span class="badge badge-success">${a('badges.ok')}</span>` : `<span class="badge badge-danger">${a('badges.fail')}</span>`}</td>
               <td style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">${l.fail_reason || '—'}</td>
               <td style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${l.user_agent || ''}">${l.user_agent ? l.user_agent.substring(0, 40) + '…' : '—'}</td>
             </tr>
@@ -423,23 +413,23 @@ async function loadActivity(content) {
 
   content.innerHTML = `
     <div class="admin-toolbar">
-      <input class="admin-search" type="text" id="act-search" placeholder="Search action, player, nation..." />
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">${logs.length} entries</div>
+      <input class="admin-search" type="text" id="act-search" placeholder="${a('searchActivity')}" />
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">${a('entriesCount', { count: logs.length })}</div>
     </div>
     <div class="admin-table-wrap">
       <table class="admin-table" id="act-table">
         <thead>
           <tr>
-            <th>Time</th>
-            <th>Player</th>
-            <th>Nation</th>
-            <th>Action</th>
-            <th>Details</th>
+            <th>${a('columns.time')}</th>
+            <th>${a('columns.player')}</th>
+            <th>${a('columns.nation')}</th>
+            <th>${a('columns.action')}</th>
+            <th>${a('columns.details')}</th>
           </tr>
         </thead>
         <tbody>
           ${logs.length === 0
-            ? `<tr><td colspan="5" style="text-align:center;color:var(--text-muted);font-family:var(--font-mono);padding:2rem;">No activity logged yet.</td></tr>`
+            ? `<tr><td colspan="5" style="text-align:center;color:var(--text-muted);font-family:var(--font-mono);padding:2rem;">${a('noActivity')}</td></tr>`
             : logs.map(l => `
               <tr>
                 <td style="font-family:var(--font-mono);font-size:11px;white-space:nowrap;">${new Date(l.logged_at).toLocaleString()}</td>
@@ -476,7 +466,7 @@ async function loadConfig(content) {
   content.innerHTML = `
     <div style="max-width:680px;">
       <p style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);letter-spacing:1px;margin-bottom:1.5rem;">
-        Changes take effect immediately. All values affect new game rounds.
+        ${a('configHelp')}
       </p>
       <div id="config-list">
         ${configs.map(c => configRow(c)).join('')}
@@ -493,7 +483,7 @@ async function loadConfig(content) {
 
       if (!value) return;
 
-      btn.textContent = 'Saving...';
+      btn.textContent = a('buttons.saving');
       btn.disabled = true;
 
       const { error } = await sb
@@ -505,8 +495,8 @@ async function loadConfig(content) {
         showAdminMsg('config-msg', 'error', error.message);
       } else {
         btn.textContent = '✓ Saved';
-        setTimeout(() => { btn.textContent = 'Save'; btn.disabled = false; }, 1500);
-        showAdminMsg('config-msg', 'success', `"${key}" updated successfully.`);
+        setTimeout(() => { btn.textContent = a('buttons.save'); btn.disabled = false; }, 1500);
+        showAdminMsg('config-msg', 'success', a('configUpdated', { key }));
       }
     });
   });
@@ -525,9 +515,9 @@ function configRow(c) {
           value="${c.value}"
           style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:13px;padding:7px 10px;outline:none;"
         />
-        <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-top:4px;">Last updated: ${updatedAt}</div>
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-top:4px;">${a('lastUpdated', { date: updatedAt })}</div>
       </div>
-      <button class="admin-btn config-save-btn" data-key="${c.key}" style="align-self:flex-end;white-space:nowrap;">Save</button>
+      <button class="admin-btn config-save-btn" data-key="${c.key}" style="align-self:flex-end;white-space:nowrap;">${a('buttons.save')}</button>
     </div>
   `;
 }
@@ -553,17 +543,17 @@ async function loadPricing(content) {
     <!-- MILITARY UNITS -->
     <div style="margin-bottom:24px;">
       <div style="font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
-        ⚔️ Military Equipment
-        <span style="font-size:11px;color:var(--text-muted);font-weight:500;">Cost to purchase, maintenance per 2h, attack power, defense power</span>
+        ⚔️ 
+        <span style="font-size:11px;color:var(--text-muted);font-weight:500;">${a('sections.militaryEquipment')} · ${a('sections.militaryEquipmentHelp')}</span>
       </div>
       <div class="admin-table-wrap">
         <table class="admin-table">
           <thead><tr>
-            <th>Unit</th>
-            <th>Cost Each ($)</th>
-            <th>Maint /2h ($)</th>
-            <th>Attack PWR</th>
-            <th>Defense PWR</th>
+            <th>${a('columns.unit')}</th>
+            <th>${a('columns.costEach')}</th>
+            <th>${a('columns.maint2h')}</th>
+            <th>${a('columns.attackPwr')}</th>
+            <th>${a('columns.defensePwr')}</th>
             <th></th>
           </tr></thead>
           <tbody>
@@ -574,7 +564,7 @@ async function loadPricing(content) {
                 <td><input class="price-input" data-field="maintenance_per_2h" value="${eq.maintenance_per_2h}" type="number" min="0" style="${inputStyle()}"/></td>
                 <td><input class="price-input" data-field="attack_power"    value="${eq.attack_power}"      type="number" min="0" style="${inputStyle()}"/></td>
                 <td><input class="price-input" data-field="defense_power"   value="${eq.defense_power}"     type="number" min="0" style="${inputStyle()}"/></td>
-                <td><button class="admin-btn save-row-btn">Save</button></td>
+                <td><button class="admin-btn save-row-btn">${a('buttons.save')}</button></td>
               </tr>
             `).join('')}
           </tbody>
@@ -585,17 +575,17 @@ async function loadPricing(content) {
     <!-- FACILITIES -->
     <div style="margin-bottom:24px;">
       <div style="font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
-        🏭 Economy Facilities
-        <span style="font-size:11px;color:var(--text-muted);font-weight:500;">Build cost, income per hour, upkeep per hour, land required</span>
+        🏭 
+        <span style="font-size:11px;color:var(--text-muted);font-weight:500;">${a('sections.economyFacilities')} · ${a('sections.economyFacilitiesHelp')}</span>
       </div>
       <div class="admin-table-wrap">
         <table class="admin-table">
           <thead><tr>
-            <th>Facility</th>
-            <th>Build Cost ($)</th>
-            <th>Income /hr ($)</th>
-            <th>Upkeep /hr ($)</th>
-            <th>Land</th>
+            <th>${a('columns.facility')}</th>
+            <th>${a('columns.buildCost')}</th>
+            <th>${a('columns.incomeHr')}</th>
+            <th>${a('columns.upkeepHr')}</th>
+            <th>${a('columns.land')}</th>
             <th></th>
           </tr></thead>
           <tbody>
@@ -616,47 +606,47 @@ async function loadPricing(content) {
 
     <!-- INTELLIGENCE -->
     <div style="margin-bottom:24px;">
-      <div style="font-size:14px;font-weight:700;margin-bottom:4px;">🔍 Intelligence Costs</div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:4px;">🔍 </div>
       <div style="font-size:12px;color:var(--text-muted);font-weight:500;margin-bottom:10px;">
         Levels 1–(cap-1) cost = base × level. At cap level and above, the fixed cap price applies.
       </div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
-        ${intelConfigRow('Cap level (price locks after)',  'intel_cap_level',            cfg)}
-        ${intelConfigRow('Spy base cost',                 'intel_spy_base_cost',        cfg)}
+        ${intelConfigRow('',  'intel_cap_level',            cfg)}
+        ${intelConfigRow('',                 'intel_spy_base_cost',        cfg)}
         ${intelConfigRow('Spy upgrade cost (×level)',     'intel_spy_level_cost',       cfg)}
-        ${intelConfigRow('Spy cap price (level 10+)',     'intel_spy_cap_price',        cfg)}
-        ${intelConfigRow('Spy maintenance /2h',           'intel_spy_maint_2h',         cfg)}
-        ${intelConfigRow('Satellite base cost',           'intel_sat_base_cost',        cfg)}
+        ${intelConfigRow('',     'intel_spy_cap_price',        cfg)}
+        ${intelConfigRow('',           'intel_spy_maint_2h',         cfg)}
+        ${intelConfigRow('',           'intel_sat_base_cost',        cfg)}
         ${intelConfigRow('Satellite upgrade (×level)',    'intel_sat_level_cost',       cfg)}
-        ${intelConfigRow('Satellite cap price (lv 10+)',  'intel_sat_cap_price',        cfg)}
-        ${intelConfigRow('Satellite maint /2h',           'intel_sat_maint_2h',         cfg)}
+        ${intelConfigRow('',  'intel_sat_cap_price',        cfg)}
+        ${intelConfigRow('',           'intel_sat_maint_2h',         cfg)}
         ${intelConfigRow('Anti-spy cost (×level)',        'intel_anti_spy_cost',        cfg)}
-        ${intelConfigRow('Anti-spy cap price (lv 10+)',   'intel_anti_spy_cap_price',   cfg)}
+        ${intelConfigRow('',   'intel_anti_spy_cap_price',   cfg)}
         ${intelConfigRow('Anti-sat cost (×level)',        'intel_anti_sat_cost',        cfg)}
-        ${intelConfigRow('Anti-sat cap price (lv 10+)',   'intel_anti_sat_cap_price',   cfg)}
+        ${intelConfigRow('',   'intel_anti_sat_cap_price',   cfg)}
         ${intelConfigRow('Tech level cost (×level)',      'intel_tech_level_cost',      cfg)}
-        ${intelConfigRow('Tech cap price (level 10+)',    'intel_tech_cap_price',       cfg)}
+        ${intelConfigRow('',    'intel_tech_cap_price',       cfg)}
       </div>
     </div>
 
-    <!-- ACTIONS & TURNS -->
+    <!--  -->
     <div style="margin-bottom:24px;">
-      <div style="font-size:14px;font-weight:700;margin-bottom:12px;">⚙️ Actions & Turns</div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:12px;">⚙️ </div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
-        ${intelConfigRow('Destruction attack turns',   'attack_destruction_turns',       cfg)}
-        ${intelConfigRow('Conquest attack turns',      'attack_conquest_turns',          cfg)}
-        ${intelConfigRow('Intel mission turns',        'intel_mission_turns',            cfg)}
-        ${intelConfigRow('Draft cost per soldier ($)', 'draft_cost_per_soldier',         cfg)}
-        ${intelConfigRow('Demob refund %',             'demob_refund_percent',           cfg)}
-        ${intelConfigRow('Sell equipment refund %',    'sell_equipment_refund_pct',      cfg)}
-        ${intelConfigRow('Demolish facility refund %', 'demolish_facility_refund_pct',   cfg)}
-        ${intelConfigRow('Turn interval (minutes)',    'turn_interval_minutes',          cfg)}
-        ${intelConfigRow('Max turns',                  'max_turns',                      cfg)}
-        ${intelConfigRow('Starting money ($)',         'starting_money',                 cfg)}
-        ${intelConfigRow('Starting land',              'starting_land',                  cfg)}
-        ${intelConfigRow('Starting population',        'starting_population',            cfg)}
+        ${intelConfigRow('',   'attack_destruction_turns',       cfg)}
+        ${intelConfigRow('',      'attack_conquest_turns',          cfg)}
+        ${intelConfigRow('',        'intel_mission_turns',            cfg)}
+        ${intelConfigRow('', 'draft_cost_per_soldier',         cfg)}
+        ${intelConfigRow('',             'demob_refund_percent',           cfg)}
+        ${intelConfigRow('',    'sell_equipment_refund_pct',      cfg)}
+        ${intelConfigRow('', 'demolish_facility_refund_pct',   cfg)}
+        ${intelConfigRow('',    'turn_interval_minutes',          cfg)}
+        ${intelConfigRow('',                  'max_turns',                      cfg)}
+        ${intelConfigRow('',         'starting_money',                 cfg)}
+        ${intelConfigRow('',              'starting_land',                  cfg)}
+        ${intelConfigRow('',        'starting_population',            cfg)}
       </div>
-      <button class="btn btn-primary" id="btn-save-config" style="margin-top:12px;">Save All Config</button>
+      <button class="btn btn-primary" id="btn-save-config" style="margin-top:12px;"></button>
     </div>
   `;
 
@@ -670,19 +660,19 @@ async function loadPricing(content) {
       row.querySelectorAll('.price-input').forEach(input => {
         updates[input.getAttribute('data-field')] = parseFloat(input.value) || 0;
       });
-      btn.textContent = 'Saving...'; btn.disabled = true;
+      btn.textContent = a('buttons.saving'); btn.disabled = true;
       const table = type === 'equipment' ? 'equipment_types' : 'facility_types';
       const { error } = await sb.from(table).update(updates).eq('id', id);
       if (error) { showAdminMsg('pricing-msg', 'error', error.message); }
-      else { btn.textContent = '✓'; setTimeout(() => { btn.textContent = 'Save'; btn.disabled = false; }, 1500); }
+      else { btn.textContent = '✓'; setTimeout(() => { btn.textContent = a('buttons.save'); btn.disabled = false; }, 1500); }
       showAdminMsg('pricing-msg', error ? 'error' : 'success', error ? error.message : `${type} updated.`);
     });
   });
 
-  // Save all config keys
+  //  keys
   document.getElementById('btn-save-config').addEventListener('click', async () => {
     const btn = document.getElementById('btn-save-config');
-    btn.textContent = 'Saving...'; btn.disabled = true;
+    btn.textContent = a('buttons.saving'); btn.disabled = true;
     let errors = 0;
     const inputs = content.querySelectorAll('.config-price-input');
     for (const input of inputs) {
@@ -690,7 +680,7 @@ async function loadPricing(content) {
       const { error } = await sb.from('game_config').update({ value: input.value.trim() }).eq('key', key);
       if (error) errors++;
     }
-    btn.textContent = 'Save All Config'; btn.disabled = false;
+    btn.textContent = ''; btn.disabled = false;
     showAdminMsg('pricing-msg', errors ? 'error' : 'success', errors ? `${errors} errors saving config.` : 'All config saved successfully.');
   });
 }

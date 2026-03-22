@@ -67,7 +67,7 @@ function categoryTab(cat, icon, label) {
 
 async function loadRankings(myNation) {
   const content = document.getElementById('rankings-content');
-  content.innerHTML = `<div style="font-size:13px;color:var(--text-muted);padding:2rem 0;font-weight:500;">Loading...</div>`;
+  content.innerHTML = `<div style="font-size:13px;color:var(--text-muted);padding:2rem 0;font-weight:500;">${t('rankings.loading')}</div>`;
 
   if (currentCategory === 'alliances') {
     await loadAllianceRankings(content, myNation);
@@ -273,7 +273,7 @@ async function loadAllianceRankings(content, myNation) {
                 <span style="font-size:10px;color:var(--accent-2);background:rgba(99,102,241,0.08);
                   padding:1px 7px;border-radius:4px;border:1px solid rgba(99,102,241,0.2);
                   font-family:var(--font-mono);font-weight:700;">[${al.tag}]</span>
-                ${isMe ? '<span style="font-size:10px;color:var(--accent);font-weight:700;background:var(--accent-bg);padding:1px 6px;border-radius:4px;">YOUR ALLIANCE</span>' : ''}
+                ${isMe ? `<span style="font-size:10px;color:var(--accent);font-weight:700;background:var(--accent-bg);padding:1px 6px;border-radius:4px;">${t('rankings.yourAlliance')}</span>` : ''}
               </div>
               <div style="font-size:11px;color:var(--text-muted);font-weight:500;margin-top:3px;display:flex;gap:12px;">
                 <span>👥 ${al.members} ${t('rankings.membersLabel')}</span>

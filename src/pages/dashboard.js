@@ -2,7 +2,7 @@ import i18n, { translateDOM } from '../i18n.js';
 import { sb } from '../supabase.js';
 import { formatTimeLeft } from '../utils.js';
 import { renderPageTopbar, bindPageNav } from '../nav.js';
-import { openBattleReport } from '../battleReport.js';
+import { openBattleReport, translateBattleResultSummary } from '../battleReport.js';
 
 const t = (key, p) => i18n.t(key, p);
 
@@ -118,10 +118,10 @@ export async function renderDashboard(user, profile) {
       </div>
 
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;">
-        ${statCard('💰', '$'+fmt(nation.money),         t('dashboard.money'),       netHr>=0?`↑ +$${fmt(netHr)}/hr`:`↓ $${fmt(Math.abs(netHr))}/hr`, netHr>=0?'up':'down')}
-        ${statCard('👥', fmt(nation.population),         t('dashboard.population'),  `↑ +10,000/${t('dashboard.perDay')}`,  'up')}
-        ${statCard('🗺️', nation.land+' units',           t('dashboard.land'),        `${totalFacilities} ${t('dashboard.facilities')}`, 'neutral')}
-        ${statCard('⚔️', myAtk.toLocaleString(),         t('dashboard.attackPower'), '🛡️ '+myDef.toLocaleString()+' DEF', 'neutral')}
+        ${statCard('💰', '$'+fmt(nation.money),         t('dashboard.money'),       netHr>=0?`+$${fmt(netHr)}${t('dashboard.perHourUnit')}`:`-$${fmt(Math.abs(netHr))}${t('dashboard.perHourUnit')}`, netHr>=0?'up':'down')}
+        ${statCard('👥', fmt(nation.population),         t('dashboard.population'),  `+10,000/${t('dashboard.perDay')}`,  'up')}
+        ${statCard('🗺️', nation.land+' '+t('dashboard.landUnits'),           t('dashboard.land'),        `${totalFacilities} ${t('dashboard.facilities')}`, 'neutral')}
+        ${statCard('⚔️', myAtk.toLocaleString(),         t('dashboard.attackPower'), '🛡️ '+myDef.toLocaleString()+' '+t('dashboard.defenseAbbr'), 'neutral')}
       </div>
 
       <div class="section-grid">
@@ -129,13 +129,13 @@ export async function renderDashboard(user, profile) {
           nation.soldiers.toLocaleString(), t('dashboard.soldiers'),
           myAtk.toLocaleString()+' '+t('dashboard.pts'), t('dashboard.attackPower'),
           myDef.toLocaleString()+' '+t('dashboard.pts'), t('dashboard.defensePower'),
-          myMaint2h > 0 ? '-$'+fmt(myMaint2h)+'/2h' : '$0/2h', t('dashboard.maintenance'),
+          myMaint2h > 0 ? '-$'+fmt(myMaint2h)+t('dashboard.per2HoursUnit') : '$0'+t('dashboard.per2HoursUnit'), t('dashboard.maintenance'),
           '#e05252', Math.min(Math.round((myAtk / 5000) * 100), 100), 'military')}
 
         ${sectionCard('🏭', t('nav.economy'),
-          '+$'+fmt(incomeHr)+'/hr', t('dashboard.income'),
-          '-$'+fmt(upkeepHr)+'/hr', t('dashboard.upkeep'),
-          '+$'+fmt(netHr)+'/hr',   t('dashboard.net'),
+          '+$'+fmt(incomeHr)+t('dashboard.perHourUnit'), t('dashboard.income'),
+          '-$'+fmt(upkeepHr)+t('dashboard.perHourUnit'), t('dashboard.upkeep'),
+          '+$'+fmt(netHr)+t('dashboard.perHourUnit'),   t('dashboard.net'),
           totalFacilities+' '+t('dashboard.built'), t('dashboard.facilities'),
           '#16a34a', Math.min(Math.round((incomeHr / 10000) * 100), 100), 'economy')}
 
@@ -185,12 +185,12 @@ export async function renderDashboard(user, profile) {
                     onmouseleave="this.style.background=''">
                     <div class="event-dot" style="background:${win?'var(--success)':'var(--danger)'};"></div>
                     <div class="event-body">
-                      <div class="event-title">${isAtt?t('dashboard.attackOn'):t('dashboard.attackedBy')} <strong>${opp?.name||'Unknown'}</strong>
+                      <div class="event-title">${isAtt?t('dashboard.attackOn'):t('dashboard.attackedBy')} <strong>${opp?.name||t('battleReport.unknownNation')}</strong>
                         <span style="font-size:9px;color:var(--text-muted);background:var(--surface2);border:1px solid var(--border);
                           padding:1px 5px;border-radius:4px;margin-inline-start:4px;text-transform:uppercase;">${translateAttackType(a.attack_type, a.scenario_type)}</span>
                       </div>
                       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:3px;">
-                        ${chips.length ? chips.join('') : `<span class="event-desc">${translateResultSummary(a.result_summary) || translateAttackType(a.attack_type, a.scenario_type)}</span>`}
+                        ${chips.length ? chips.join('') : `<span class="event-desc">${translateBattleResultSummary(a.result_summary, a, isAtt, opp?.name) || translateAttackType(a.attack_type, a.scenario_type)}</span>`}
                       </div>
                     </div>
                     <div style="text-align:end;flex-shrink:0;">
@@ -349,30 +349,7 @@ function translateAttackType(attackType, scenarioType) {
   return tr || attackType.toUpperCase();
 }
 
-function translateResultSummary(summary) {
-  if (!summary) return '';
-  if (/missiles? got through|missiles? penetrat/i.test(summary)) {
-    const mp = summary.match(/(\d+)/)?.[1] || '';
-    const fd = summary.match(/(\d+)\s*facilit/i)?.[1] || '';
-    return i18n.t('battleReport.summaryMissileHit', { penetrated: mp, facilities: fd });
-  }
-  if (/intercepted|missiles? lost/i.test(summary)) return i18n.t('battleReport.summaryMissileIntercepted');
-  if (/air superior/i.test(summary)) return i18n.t('battleReport.summaryAirWin');
-  if (/sead|air defens.*suppress/i.test(summary)) return i18n.t('battleReport.summarySEADWin');
-  if (/blockade.*establish/i.test(summary)) return i18n.t('battleReport.summaryBlockadeWin');
-  if (/blockade.*fail|fleet repel/i.test(summary)) return i18n.t('battleReport.summaryBlockadeFail');
-  if (/Blitz.*success|seized/i.test(summary)) {
-    const money = summary.match(/\$(\d+[\d,]*)/)?.[1] || '';
-    return money ? i18n.t('attacks.moneyLooted') + ` +$${money}` : summary;
-  }
-  if (/You lost.*tanks/i.test(summary)) {
-    const tanks = summary.match(/(\d+) tanks/)?.[1] || '0';
-    const apcs = summary.match(/(\d+) APCs/)?.[1] || '0';
-    return i18n.t('attacks.lostEquip', { count: tanks, unit: i18n.t('equipment.tank') }) +
-           (apcs !== '0' ? ', ' + i18n.t('attacks.lostEquip', { count: apcs, unit: i18n.t('equipment.apc') }) : '');
-  }
-  return summary;
-}
+
 function startCountdown(currentTurns, user, profile) {
   const clock = document.getElementById('turn-countdown-clock');
   if (!clock) return;

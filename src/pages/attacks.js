@@ -2,7 +2,7 @@ import i18n from '../i18n.js';
 const t = (k, p) => i18n.t(k, p);
 import { renderPageTopbar, bindPageNav } from '../nav.js';
 import { sb } from '../supabase.js';
-import { openBattleReport } from '../battleReport.js';
+import { openBattleReport, translateBattleResultSummary } from '../battleReport.js';
 
 // ─── Scenario definitions ─────────────────────────────────────────────────────
 
@@ -465,7 +465,7 @@ function battleLogRow(a, myNationId) {
             padding:1px 5px;border-radius:4px;">${scenarioDisplay}</span>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;">
-          ${chips.length ? chips.join('') : `<span style="color:var(--text-dim);">${translateResultSummary(a.result_summary) || '—'}</span>`}
+          ${chips.length ? chips.join('') : `<span style="color:var(--text-dim);">${translateBattleResultSummary(a.result_summary, a, isAttacker, opponent?.name) || '?'}</span>`}
         </div>
       </div>
       <div style="text-align:end;flex-shrink:0;">

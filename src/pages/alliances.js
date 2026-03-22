@@ -5,7 +5,7 @@ import { renderPageTopbar, bindPageNav } from '../nav.js';
 
 export async function renderAlliances(user, profile, nation) {
   const app = document.getElementById('app');
-  app.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:60vh;font-size:13px;color:var(--text-muted);font-family:var(--font-body);">Loading Alliances...</div>`;
+  app.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:60vh;font-size:13px;color:var(--text-muted);font-family:var(--font-body);">${t('alliances.loading')}</div>`;
 
   // Fetch nation's current alliance membership
   const { data: membership } = await sb
@@ -54,16 +54,16 @@ async function renderAllianceLobby(app, user, profile, nation) {
         <div style="display:grid;grid-template-columns:1fr 120px;gap:10px;">
           <div class="field" style="margin:0;">
             <label>${t('alliances.nameLabel')}</label>
-            <input type="text" id="al-name" placeholder="e.g. Northern Pact" maxlength="40"/>
+            <input type="text" id="al-name" placeholder="${t('alliances.namePlaceholder')}" maxlength="40"/>
           </div>
           <div class="field" style="margin:0;">
             <label>${t('alliances.tagLabel')}</label>
-            <input type="text" id="al-tag" placeholder="NATO" maxlength="5"/>
+            <input type="text" id="al-tag" placeholder="${t('alliances.tagPlaceholder')}" maxlength="5"/>
           </div>
         </div>
         <div class="field" style="margin-top:10px;">
           <label>${t('alliances.descLabel')} <span class="optional-label">${t('alliances.optional')}</span></label>
-          <input type="text" id="al-desc" placeholder="What does your alliance stand for?" maxlength="120"/>
+          <input type="text" id="al-desc" placeholder="${t('alliances.descPlaceholder')}" maxlength="120"/>
         </div>
         <div style="display:flex;align-items:center;gap:10px;margin-top:10px;">
           <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500;cursor:pointer;">
@@ -107,7 +107,7 @@ async function renderAllianceLobby(app, user, profile, nation) {
 
       <!-- Search -->
       <div style="margin-bottom:10px;">
-        <input type="text" id="alliance-search" placeholder="Search by name or tag..."
+        <input type="text" id="alliance-search" placeholder="${t('alliances.searchPlaceholder')}"
           style="width:100%;background:var(--surface);border:1.5px solid var(--border);
           border-radius:var(--radius-md);color:var(--text);font-family:var(--font-body);
           font-size:13px;font-weight:500;padding:9px 12px;outline:none;

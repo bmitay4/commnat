@@ -331,34 +331,59 @@ function generateSummary(a, isAttacker, opponent) {
       : t('battleReport.summaryDestructionRepelled');
   }
   // Generic / missile / air / naval — use result_summary from DB or generic fallback
-  if (a.result_summary) return translateResultSummary(a.result_summary, a, isAttacker, opponentName);
+  if (a.result_summary) return translateBattleResultSummary(a.result_summary, a, isAttacker, opponentName);
   return t('battleReport.battleConcluded');
 }
 
 // Best-effort translation of stored English result_summary strings
-function translateResultSummary(summary, a, isAttacker, opponentName) {
-  const mf = a.missiles_fired || 0;
+export function translateBattleResultSummary(summary, a = {}, isAttacker = true, opponentName = '') {
+  const clean = String(summary || '').trim();
   const mp = a.missiles_penetrated || 0;
   const fd = a.defender_facilities_destroyed || 0;
-  const attLost = a.att_soldiers_lost || 0;
 
-  if (summary.includes('missiles got through') || summary.includes('facilities destroyed')) {
+  if (!clean) return '';
+  if (clean.includes('missiles got through') || clean.includes('facilities destroyed')) {
     return t('battleReport.summaryMissileHit', { penetrated: mp, facilities: fd });
   }
-  if (summary.includes('intercepted') || summary.includes('Missiles lost')) {
+  if (clean.includes('intercepted') || clean.includes('Missiles lost')) {
     return t('battleReport.summaryMissileIntercepted');
   }
-  if (summary.includes('Air superiority') || summary.includes('air superiority')) {
+  if (clean.includes('Air superiority') || clean.includes('air superiority')) {
     return a.success
       ? t('battleReport.summaryAirWin')
       : t('battleReport.summaryAirFail');
   }
-  if (summary.includes('SAM') || summary.includes('SEAD') || summary.includes('air defense')) {
+  if (clean.includes('SAM') || clean.includes('SEAD') || clean.includes('air defense')) {
     return a.success ? t('battleReport.summarySEADWin') : t('battleReport.summarySEADFail');
   }
-  if (summary.includes('blockade')) {
+  if (clean.includes('blockade')) {
     return a.success ? t('battleReport.summaryBlockadeWin') : t('battleReport.summaryBlockadeFail');
   }
-  // Fallback — return as-is (old English records from DB)
-  return summary;
+
+  const seizedLand = clean.match(/Seized\s+(\d+)\s+land/i)?.[1] || '';
+  const seizedFacility = clean.match(/\+\s*(\d+)\s+facilit/i)?.[1] || '';
+  const eliminatedSoldiers = clean.match(/Eliminated\s+(\d+)\s+(?:enemy\s+)?soldiers/i)?.[1] || '';
+  const destroyedTanks = clean.match(/destroyed\s+(\d+)\s+tanks/i)?.[1] || '';
+  const destroyedApcs = clean.match(/,\s*(\d+)\s+APCs?/i)?.[1] || '';
+  const securityShift = clean.match(/Security\s*([+-]?\d+)%/i)?.[1] || '';
+  if (/full assault|ground assault|industrial occupation/i.test(clean) || seizedLand || eliminatedSoldiers) {
+    const equipmentParts = [
+      destroyedTanks && destroyedTanks !== '0' ? `${destroyedTanks} ${t('equipment.tank')}` : '',
+      destroyedApcs && destroyedApcs !== '0' ? `${destroyedApcs} ${t('equipment.apc')}` : '',
+    ].filter(Boolean);
+    return t('battleReport.summaryFullAssaultWin', {
+      land: seizedLand || 0,
+      facility: seizedFacility ? t('battleReport.facilityAddon', { count: seizedFacility }) : '',
+      soldiers: eliminatedSoldiers || 0,
+      equipment: equipmentParts.length ? t('battleReport.equipmentAddon', { items: equipmentParts.join(', ') }) : '',
+      security: securityShift ? t('battleReport.securityAddon', { pct: securityShift }) : '',
+    });
+  }
+
+  const looted = clean.match(/Looted\s+\$?([\d,]+)/i)?.[1] || '';
+  if (looted) {
+    return t('battleReport.summaryBlitzRaid', { money: looted });
+  }
+
+  return clean;
 }

@@ -137,7 +137,11 @@
     "satsLabel": "לוויינים",
     "antiLabel": "הגנה",
     "statusLabel": "סטטוס",
-    "memberBadge": "חבר"
+    "memberBadge": "חבר",
+    "perHourUnit": "/שעה",
+    "per2HoursUnit": "/2ש'",
+    "landUnits": "יחידות",
+    "defenseAbbr": "הגנה"
   },
   "military": {
     "title": "צבא",
@@ -240,7 +244,13 @@
     "facilityDesc_port": "מאפשר מסחר ימי ולוגיסטיקה נאבלית",
     "facilityDesc_bank": "מספק שירותים פיננסיים והכנסות ריבית",
     "facilityDesc_research_lab": "מקדם טכנולוגיה לאומית ופריון",
-    "facilityDesc_mine": "מפיק מינרלים וחומרי גלם לייצוא"
+    "facilityDesc_mine": "מפיק מינרלים וחומרי גלם לייצוא",
+    "landUsed": "{{used}}/{{total}} בשימוש",
+    "ownedSuffix": "(בבעלותך: {{count}})",
+    "qtyPlaceholder": "כמות",
+    "securityFullIncome": "100% (הכנסה מלאה)",
+    "securityReduced": "{{pct}}% (מופחת)",
+    "securityCritical": "40% (קריטי)"
   },
   "attacks": {
     "title": "מרכז תקיפה",
@@ -366,7 +376,6 @@
     "targetSoldiers": "חיילים",
     "targetLand": "שטח",
     "targetSecurity": "ביטחון",
-    "targetTreasury": "אוצר",
     "lostEquip": "אבדת {{count}} {{unit}}",
     "destroyedEquip": "הושמדו {{count}} {{unit}} של האויב",
     "missilesPenetrated": "טילים חדרו",
@@ -377,7 +386,8 @@
     "unitAllGround": "כוחות קרקע",
     "descFullAssault": "מלחמה טוטאלית — שלח את כל כוחות הקרקע (טנקים, נגמ\"שים, ארטילריה, מסוקים + חיילים). בהצלחה: השמד כוחות אויב, כבוש שטח ומתקן. אבדות כבדות משני הצדדים.",
     "costFullAssault": "אבדות כבדות בכל כוחות הקרקע",
-    "errRequiresGroundUnits": "נדרשת לפחות יחידת קרקע אחת (טנקים, נגמ\"שים, ארטילריה או מסוקים)."
+    "errRequiresGroundUnits": "נדרשת לפחות יחידת קרקע אחת (טנקים, נגמ\"שים, ארטילריה או מסוקים).",
+    "botTag": "בוט"
   },
   "alliances": {
     "title": "בריתות",
@@ -581,7 +591,10 @@
     "sumTrojanFail": "חדירה זוהתה! מערכות ABM של האויב עברו למצב אוטונומי.",
     "sumUnitSabotageSuccess": "חבלה ביחידות הצליחה. מטוסים ומסוקים הושמדו על הקרקע.",
     "sumUnitSabotageFail": "סוכנים סוכלו בבסיס האוויר. מרגלים אבדו.",
-    "levelNum": "דרגה {{level}}"
+    "levelNum": "דרגה {{level}}",
+    "errNationNotFound": "המדינה לא נמצאה.",
+    "errNoIntelRecord": "לא נמצא רישום מודיעין.",
+    "sumBlockadeBroken": "ההסגר נשבר. נתיבי הסחר שלך שוקמו."
   },
   "rankings": {
     "title": "📊 דירוגים",
@@ -657,6 +670,164 @@
     "themeMidName": "חצות",
     "themeMidDesc": "כחול כהה וסייבר"
   },
+  "admin": {
+    "brand": "ניהול",
+    "commandPanel": "לוח פיקוד",
+    "loading": "טוען...",
+    "backDashboard": "חזרה ללוח הבקרה",
+    "searchUsers": "חיפוש לפי שם משתמש או אימייל...",
+    "searchNations": "חיפוש לפי מדינה או מפקד...",
+    "searchLogs": "חיפוש לפי אימייל, IP או סיבה...",
+    "searchActivity": "חיפוש לפי פעולה, שחקן או מדינה...",
+    "usersCount": "{{count}} משתמשים",
+    "nationsCount": "{{count}} מדינות",
+    "entriesCount": "{{count}} רשומות",
+    "noActivity": "עדיין לא נרשמה פעילות.",
+    "errorPrefix": "שגיאה: ",
+    "configHelp": "השינויים נכנסים לתוקף באופן מיידי. כל הערכים ישפיעו על סבבי משחק חדשים.",
+    "lastUpdated": "עודכן לאחרונה: {{date}}",
+    "configUpdated": "\"{{key}}\" עודכן בהצלחה.",
+    "rowUpdated": "השורה עודכנה בהצלחה.",
+    "allConfigSaved": "כל ההגדרות נשמרו בהצלחה.",
+    "configSaveErrors": "אירעו {{count}} שגיאות במהלך שמירת ההגדרות.",
+    "tabs": {
+      "users": {
+        "label": "משתמשים",
+        "subLabel": "ניהול חשבונות שחקנים"
+      },
+      "nations": {
+        "label": "מדינות",
+        "subLabel": "צפייה וניהול של כלל המדינות"
+      },
+      "login_logs": {
+        "label": "יומני התחברות",
+        "subLabel": "כל ניסיון התחברות עם כתובת IP ודפדפן"
+      },
+      "activity": {
+        "label": "פעילות",
+        "subLabel": "יומני פעולות של שחקנים בתוך המשחק"
+      },
+      "pricing": {
+        "label": "תמחור",
+        "subLabel": "עריכת עלויות יחידות, מתקנים ופעולות"
+      },
+      "config": {
+        "label": "הגדרות משחק",
+        "subLabel": "עריכת הגדרות המשחק הגלובליות"
+      }
+    },
+    "columns": {
+      "username": "שם משתמש",
+      "email": "אימייל",
+      "phone": "טלפון",
+      "joined": "הצטרף",
+      "status": "סטטוס",
+      "role": "תפקיד",
+      "actions": "פעולות",
+      "nation": "מדינה",
+      "commander": "מפקד",
+      "round": "סבב",
+      "population": "אוכלוסייה",
+      "land": "שטח",
+      "money": "כסף",
+      "security": "ביטחון",
+      "time": "זמן",
+      "ip": "IP",
+      "result": "תוצאה",
+      "reason": "סיבה",
+      "browser": "דפדפן",
+      "player": "שחקן",
+      "action": "פעולה",
+      "details": "פרטים",
+      "unit": "יחידה",
+      "costEach": "עלות ליחידה ($)",
+      "maint2h": "תחזוקה ל־2ש' ($)",
+      "attackPwr": "עוצמת תקיפה",
+      "defensePwr": "עוצמת הגנה",
+      "facility": "מתקן",
+      "buildCost": "עלות בנייה ($)",
+      "incomeHr": "הכנסה לשעה ($)",
+      "upkeepHr": "תחזוקה לשעה ($)"
+    },
+    "badges": {
+      "banned": "חסום",
+      "active": "פעיל",
+      "admin": "מנהל",
+      "player": "שחקן",
+      "alive": "חי",
+      "destroyed": "הושמדה",
+      "ok": "תקין",
+      "fail": "נכשל"
+    },
+    "buttons": {
+      "ban": "חסום",
+      "unban": "בטל חסימה",
+      "turns": "תורות",
+      "money": "כסף",
+      "makeAdmin": "הפוך למנהל",
+      "revokeAdmin": "בטל הרשאת מנהל",
+      "destroy": "השמד",
+      "save": "שמור",
+      "saving": "שומר...",
+      "saved": "נשמר",
+      "saveAllConfig": "שמור את כל ההגדרות"
+    },
+    "filters": {
+      "all": "הכול",
+      "failedOnly": "נכשלו בלבד"
+    },
+    "prompts": {
+      "banReason": "סיבת החסימה עבור {{name}}:",
+      "unbanConfirm": "לבטל את החסימה של {{name}}?",
+      "makeAdminConfirm": "להעניק ל-{{name}} הרשאת מנהל?",
+      "revokeAdminConfirm": "לבטל את הרשאת המנהל של {{name}}?",
+      "noActiveNation": "ל-{{name}} אין מדינה פעילה.",
+      "editTurns": "מדינה: \"{{nation}}\"\nמספר תורות נוכחי: {{turns}}\n\nהזן מספר תורות חדש (0-200):",
+      "invalidTurns": "ערך לא תקין. יש להזין מספר בין 0 ל-200.",
+      "turnsUpdated": "מספר התורות של {{name}} עודכן ל-{{turns}}.",
+      "editMoney": "הכסף הנוכחי של מדינתו של {{name}}, \"{{nation}}\", הוא ${{money}}\n\nהזן סכום חדש:",
+      "moneyUpdated": "הכסף עודכן בהצלחה.",
+      "destroyReason": "סיבת ההשמדה עבור \"{{name}}\":"
+    },
+    "sections": {
+      "militaryEquipment": "ציוד צבאי",
+      "militaryEquipmentHelp": "עלות רכישה, תחזוקה לכל שעתיים, עוצמת תקיפה ועוצמת הגנה",
+      "economyFacilities": "מתקנים כלכליים",
+      "economyFacilitiesHelp": "עלות בנייה, הכנסה לשעה, תחזוקה לשעה ושטח נדרש",
+      "intelligenceCosts": "עלויות מודיעין",
+      "intelligenceCostsHelp": "רמות 1 עד לרמת התקרה מחושבות לפי עלות בסיס כפול רמה. מרמת התקרה והלאה חלה עלות קבועה.",
+      "actionsTurns": "פעולות ותורות"
+    },
+    "configLabels": {
+      "intel_cap_level": "רמת תקרה (לאחריה המחיר ננעל)",
+      "intel_spy_base_cost": "עלות בסיס למרגל",
+      "intel_spy_level_cost": "עלות שדרוג מרגל (כפול רמה)",
+      "intel_spy_cap_price": "מחיר תקרה למרגל (רמה 10+)",
+      "intel_spy_maint_2h": "תחזוקת מרגל ל־2ש'",
+      "intel_sat_base_cost": "עלות בסיס ללוויין",
+      "intel_sat_level_cost": "עלות שדרוג לוויין (כפול רמה)",
+      "intel_sat_cap_price": "מחיר תקרה ללוויין (רמה 10+)",
+      "intel_sat_maint_2h": "תחזוקת לוויין ל־2ש'",
+      "intel_anti_spy_cost": "עלות נגד-ריגול (כפול רמה)",
+      "intel_anti_spy_cap_price": "מחיר תקרה לנגד-ריגול (רמה 10+)",
+      "intel_anti_sat_cost": "עלות נגד-לוויין (כפול רמה)",
+      "intel_anti_sat_cap_price": "מחיר תקרה לנגד-לוויין (רמה 10+)",
+      "intel_tech_level_cost": "עלות רמת טכנולוגיה (כפול רמה)",
+      "intel_tech_cap_price": "מחיר תקרה לטכנולוגיה (רמה 10+)",
+      "attack_destruction_turns": "תורות למתקפת השמדה",
+      "attack_conquest_turns": "תורות למתקפת כיבוש",
+      "intel_mission_turns": "תורות למשימת מודיעין",
+      "draft_cost_per_soldier": "עלות גיוס לחייל ($)",
+      "demob_refund_percent": "אחוז החזר בשחרור",
+      "sell_equipment_refund_pct": "אחוז החזר במכירת ציוד",
+      "demolish_facility_refund_pct": "אחוז החזר בהריסת מתקן",
+      "turn_interval_minutes": "מרווח בין תורות (בדקות)",
+      "max_turns": "מקסימום תורות",
+      "starting_money": "כסף התחלתי ($)",
+      "starting_land": "שטח התחלתי",
+      "starting_population": "אוכלוסייה התחלתית"
+    }
+  },
   "notifications": {
     "notif_warning_fiscal_title": "⚠️ אזהרת אוצר — ביטחון יורד",
     "notif_warning_fiscal_msg": "מדינתך לא הצליחה לכסות את עלויות תחזוקת הצבא. החשבון שלא שולם בסך ${{shortfall}} גרם לתסיסה אזרחית. מדד הביטחון ירד ב-{{sec}} נקודה/ות. שמור על יתרה חיובית למניעת עונשים נוספים.",
@@ -667,7 +838,7 @@
     "notif_danger_sabotage_title": "💥 תקיפת תשתיות",
     "notif_danger_sabotage_msg": "סוכני האויב גרמו לכאוס ברחבי מדינתך. מדד הביטחון ירד ב-{{sec}} נקודות.",
     "notif_warning_unit_sabotage_title": "🚨 סוכנים זרים סוכלו",
-    "notif_warning_unit_sabotage_msg": "warning_unit_sabotage_msg",
+    "notif_warning_unit_sabotage_msg": "סוכני אויב יורטו לפני שהצליחו לפגוע בכלי הטיס שלך.",
     "notif_info_alliance_invite_title": "✉️ הזמנה לברית",
     "notif_info_alliance_invite_msg": "הוזמנת להצטרף אל {{alliance}}. עבור לדף הבריתות כדי לקבל או לדחות.",
     "panelTitle": "🔔 התראות",
@@ -685,7 +856,7 @@
     "victory": "ניצחון",
     "defended": "הגנה הצליחה",
     "defeat": "תבוסה",
-    "overrun": "הוצף",
+    "overrun": "תבוסה קשה, אובדן שטח",
     "attack": "תקיפה",
     "unknownNation": "מדינה לא ידועה",
     "enemy": "אויב",
@@ -740,7 +911,12 @@
     "summarySEADFail": "משימת ה-SEAD נכשלה. ה-SAM של האויב נשאר פעיל.",
     "summaryBlockadeWin": "מצור ימי הוקם. נתיבי הסחר של האויב נחסמו.",
     "summaryBlockadeFail": "ניסיון המצור נכשל. ציי האויב דחו את ספינותיך.",
-    "equipUnit": "יחידות"
+    "equipUnit": "יחידות",
+    "summaryFullAssaultWin": "הסתערות מלאה הצליחה. נתפסו {{land}} יחידות שטח{{facility}}. חוסלו {{soldiers}} חיילים{{equipment}}{{security}}.",
+    "facilityAddon": " + {{count}} מתקן",
+    "equipmentAddon": ", והושמדו {{items}}",
+    "securityAddon": ". מדד הביטחון {{pct}}%",
+    "summaryBlitzRaid": "פשיטת בזק הצליחה. נשדדו ${{money}}."
   },
   "equipment": {
     "fighter_jet": "מטוס קרב",

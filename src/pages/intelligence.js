@@ -49,7 +49,7 @@ function getMissions(intel) {
 
 export async function renderIntelligence(user, profile, nation) {
   const app = document.getElementById('app');
-  app.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:60vh;font-size:13px;color:var(--text-muted);">Loading...</div>`;
+  app.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:60vh;font-size:13px;color:var(--text-muted);">${t('intelligence.loading')}</div>`;
 
   const [
     { data: intel },
@@ -510,7 +510,11 @@ function bindIntelEvents(user, profile, nation, intel) {
       document.querySelectorAll('.btn-launch-mission').forEach(b => b.disabled = false);
 
       if (error || data?.error) {
-        const msg = { not_enough_turns: t('attacks.errNotEnoughTurns'), attacker_not_found: 'Nation not found', no_intel_record: 'No intel record' };
+        const msg = {
+          not_enough_turns: t('attacks.errNotEnoughTurns'),
+          attacker_not_found: t('intelligence.errNationNotFound'),
+          no_intel_record: t('intelligence.errNoIntelRecord'),
+        };
         showMsg('error', msg[data?.error || error?.message] || data?.error || error?.message);
         return;
       }

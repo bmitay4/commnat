@@ -43,7 +43,7 @@ export function renderAuth() {
       <div class="auth-right">
         <div class="auth-panel">
           <div class="auth-panel-top">
-            <div class="auth-panel-brand">// Secure Login</div>
+            <div class="auth-panel-brand">${i18n.t('auth.secureLogin')}</div>
             <div class="lang-switcher-light">
               <button class="lang-btn-light ${i18n.language==='en'?'active':''}" data-lang="en">EN</button>
               <button class="lang-btn-light ${i18n.language==='he'?'active':''}" data-lang="he">עב</button>
@@ -280,4 +280,3 @@ async function loadTicker() {
 
 
 }
-

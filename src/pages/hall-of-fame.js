@@ -1,6 +1,7 @@
 import i18n from '../i18n.js';
 import { renderPageTopbar, bindPageNav } from '../nav.js';
 import { sb } from '../supabase.js';
+const t = (k, p) => i18n.t(k, p);
 
 export async function renderHallOfFame(user, profile) {
   const app = document.getElementById('app');
