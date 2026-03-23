@@ -2,11 +2,9 @@ import i18n from '../i18n.js';
 const t = (k, p) => i18n.t(k, p);
 const localName = (item) => i18n.language === 'he' && item.name_he ? item.name_he : item.name;
 const localDesc = (item) => {
-  if (i18n.language === 'he') {
-    const key = `economy.facilityDesc_${item.id}`;
-    const tr = i18n.t(key, { defaultValue: '' });
-    if (tr) return tr;
-  }
+  const key = `economy.facilityDesc_${item.id}`;
+  const tr = i18n.t(key, { defaultValue: '' });
+  if (tr) return tr;
   return item.description || '';
 };
 import { renderPageTopbar, bindPageNav } from '../nav.js';

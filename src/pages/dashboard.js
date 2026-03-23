@@ -95,7 +95,7 @@ export async function renderDashboard(user, profile) {
         </div>
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 240px;gap:10px;margin-bottom:16px;align-items:stretch;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;align-items:stretch;">
         <div class="turns-strip" style="margin-bottom:0;">
           <div class="turns-count-wrap">
             <div class="turns-big">${nation.turns}</div>

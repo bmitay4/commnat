@@ -196,7 +196,8 @@
     "errOnlySoldiers": "Only {{count}} soldiers available.",
     "upgradeSuccess": "{{name}} upgraded to Level {{level}}! -${{cost}}",
     "purchaseSuccess": "Purchased: {{summary}} — Total: ${{total}}",
-    "soldSuccess": "Sold {{qty}}× {{name}} for ${{refund}}"
+    "soldSuccess": "Sold {{qty}}× {{name}} for ${{refund}}",
+    "draftSecWarning": "⚠️ {{pct}}% draft rate → -{{drain}}% security/hr"
   },
   "economy": {
     "title": "Economy",
@@ -237,20 +238,24 @@
     "errOnlyOwned": "Only {{count}} owned.",
     "buildSuccess": "Built: {{summary}} — Cost: ${{cost}}",
     "demolishSuccess": "Demolished {{qty}}× {{name}}, received ${{refund}}.",
-    "facilityDesc_farm": "Feeds your population, generating steady income",
-    "facilityDesc_oil_rig": "Extracts oil for export, high income but needs land",
-    "facilityDesc_factory": "Produces manufactured goods for trade",
-    "facilityDesc_power_plant": "Powers your nation's industry and infrastructure",
-    "facilityDesc_port": "Enables maritime trade routes and naval logistics",
-    "facilityDesc_bank": "Provides financial services and interest income",
+    "facilityDesc_farm": "Basic income source. Cheap to build, low returns.",
+    "facilityDesc_oil_rig": "Extracts oil. High income, vulnerable to blockades.",
+    "facilityDesc_factory": "Manufactures goods. Moderate income.",
+    "facilityDesc_power_plant": "Generates power. High income for its cost.",
+    "facilityDesc_port": "Trade hub. Very high income per hour.",
+    "facilityDesc_bank": "Financial institution. High income per hour.",
     "facilityDesc_research_lab": "Advances national technology and productivity",
-    "facilityDesc_mine": "Extracts raw minerals and metals for export",
+    "facilityDesc_mine": "Extracts raw materials. Steady income per hour.",
     "landUsed": "{{used}}/{{total}} used",
     "ownedSuffix": "(owned: {{count}})",
     "qtyPlaceholder": "Qty",
     "securityFullIncome": "100% (full income)",
     "securityReduced": "{{pct}}% (reduced)",
-    "securityCritical": "40% (critical)"
+    "securityCritical": "40% (critical)",
+    "facilityDesc_solar": "Renewable energy. Good income with low upkeep.",
+    "facilityDesc_tech_lab": "Research facility. High income per hour.",
+    "facilityDesc_airport": "Air transport hub. Highest income for its cost.",
+    "facilityDesc_market": "Underground trade. Highest build cost, lower returns."
   },
   "attacks": {
     "title": "Attack Center",

@@ -519,8 +519,24 @@ function bindIntelEvents(user, profile, nation, intel) {
         return;
       }
 
-      showMissionResult(data, missionId, isSelf ? null : targetName);
-      setTimeout(() => renderIntelligence(user, profile, { ...nation, turns: nation.turns - getMissions(intel).find(m => m.id === missionId)?.turns }), 2000);
+      // Fetch the freshly-created mission record and show the full report popup immediately
+      const { data: freshMission } = await sb
+        .from('intel_missions')
+        .select('*, attacker:attacker_nation_id(name), defender:defender_nation_id(name)')
+        .eq('attacker_nation_id', nation.id)
+        .order('executed_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      const turnCost = getMissions(intel).find(m => m.id === missionId)?.turns || 1;
+      await renderIntelligence(user, profile, { ...nation, turns: nation.turns - turnCost });
+
+      if (freshMission) {
+        openMissionReport(freshMission, nation.id);
+      } else {
+        // Fallback to inline result if fetch fails
+        showMissionResult(data, missionId, isSelf ? null : targetName);
+      }
     });
   });
 }

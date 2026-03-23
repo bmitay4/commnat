@@ -196,7 +196,8 @@
     "errOnlySoldiers": "יש רק {{count}} חיילים זמינים.",
     "upgradeSuccess": "{{name}} שודרג לרמה {{level}}! -${{cost}}",
     "purchaseSuccess": "נרכש: {{summary}} — סה״כ: ${{total}}",
-    "soldSuccess": "נמכרו {{qty}}× {{name}} עבור ${{refund}}"
+    "soldSuccess": "נמכרו {{qty}}× {{name}} עבור ${{refund}}",
+    "draftSecWarning": "⚠️ גיוס {{pct}}% → -{{drain}}% ביטחון לשעה"
   },
   "economy": {
     "title": "כלכלה",
@@ -237,20 +238,24 @@
     "errOnlyOwned": "יש רק {{count}} בבעלותך.",
     "buildSuccess": "נבנה: {{summary}} — עלות: ${{cost}}",
     "demolishSuccess": "הרסת {{qty}}× {{name}}, קיבלת ${{refund}}.",
-    "facilityDesc_farm": "מאכיל את האוכלוסייה ומייצר הכנסה יציבה",
-    "facilityDesc_oil_rig": "מפיק נפט לייצוא — הכנסה גבוהה אך דורש שטח",
-    "facilityDesc_factory": "מייצר סחורות תעשייתיות לסחר",
-    "facilityDesc_power_plant": "מספק חשמל לתעשייה ולתשתיות המדינה",
-    "facilityDesc_port": "מאפשר מסחר ימי ולוגיסטיקה נאבלית",
-    "facilityDesc_bank": "מספק שירותים פיננסיים והכנסות ריבית",
+    "facilityDesc_farm": "מקור הכנסה בסיסי. זול לבנייה, תשואה נמוכה.",
+    "facilityDesc_oil_rig": "מפיק נפט. הכנסה גבוהה, חשוף לבלוקדות.",
+    "facilityDesc_factory": "ייצור תעשייתי. הכנסה בינונית לשעה.",
+    "facilityDesc_power_plant": "מפיק חשמל. הכנסה גבוהה ביחס לעלות.",
+    "facilityDesc_port": "מרכז סחר. הכנסה גבוהה מאוד לשעה.",
+    "facilityDesc_bank": "מוסד פיננסי. הכנסה גבוהה לשעה.",
     "facilityDesc_research_lab": "מקדם טכנולוגיה לאומית ופריון",
-    "facilityDesc_mine": "מפיק מינרלים וחומרי גלם לייצוא",
+    "facilityDesc_mine": "מפיק חומרי גלם. הכנסה יציבה לשעה.",
     "landUsed": "{{used}}/{{total}} בשימוש",
     "ownedSuffix": "(בבעלותך: {{count}})",
     "qtyPlaceholder": "כמות",
     "securityFullIncome": "100% (הכנסה מלאה)",
     "securityReduced": "{{pct}}% (מופחת)",
-    "securityCritical": "40% (קריטי)"
+    "securityCritical": "40% (קריטי)",
+    "facilityDesc_solar": "אנרגיה מתחדשת. הכנסה טובה עם אחזקה נמוכה.",
+    "facilityDesc_tech_lab": "מתקן מחקר. הכנסה גבוהה לשעה.",
+    "facilityDesc_airport": "מרכז תחבורה אווירית. ההכנסה הגבוהה ביחס לעלות.",
+    "facilityDesc_market": "סחר תת-קרקעי. עלות בנייה גבוהה, תשואה נמוכה יחסית."
   },
   "attacks": {
     "title": "מרכז תקיפה",

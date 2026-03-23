@@ -574,13 +574,6 @@ function bindAttackEvents(user, profile, nation, recentAttacks, unitMap, targets
 
       const targetName = document.getElementById('target-select').selectedOptions[0]?.text?.split('·')[1]?.trim()?.split('[')[0]?.trim() || 'enemy';
 
-      // Confirm for destructive scenarios
-      const highRisk = ['carpet_bombing','industrial_occupation','demoralization','missile_strike'];
-      if (highRisk.includes(scenario)) {
-        const scenInfo = Object.values(getScenarios()).flat().find(s => s.id === scenario);
-        if (!confirm(`${scenInfo?.name} → ${targetName}?\n\n${scenInfo?.cost}`)) return;
-      }
-
       document.querySelectorAll('.btn-launch-scenario').forEach(b => b.disabled = true);
       showResult('loading', `${t('attacks.resultExecuting')} ${targetName}...`);
 
@@ -599,9 +592,25 @@ function bindAttackEvents(user, profile, nation, recentAttacks, unitMap, targets
         return;
       }
 
-      showResult(data.success ? 'success' : 'defeat', data.summary, data, scenario, nation, () => {
-        renderAttacks(user, profile, { ...nation, turns: nation.turns - 1 });
-      });
+      // Fetch the freshly-created attack record so we can show the full report popup immediately
+      const { data: freshAttack } = await sb
+        .from('attacks')
+        .select('*, attacker:attacker_nation_id(name,flag_emoji), defender:defender_nation_id(name,flag_emoji)')
+        .eq('attacker_nation_id', nation.id)
+        .order('attacked_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      // Re-render the page first (updates turns, etc.), then open the report popup on top
+      await renderAttacks(user, profile, { ...nation, turns: nation.turns - 1 });
+      if (freshAttack) {
+        openBattleReport(freshAttack, nation.id);
+      } else {
+        // Fallback: show the old result panel if we can't fetch the record
+        showResult(data.success ? 'success' : 'defeat', data.summary, data, scenario, nation, () => {
+          renderAttacks(user, profile, { ...nation, turns: nation.turns - 1 });
+        });
+      }
     });
   });
 }

@@ -34,8 +34,8 @@ function showPopup(a, myNationId, myUnits) {
     ? (isAttacker ? `🏆 ${t('battleReport.victory')}` : `🛡️ ${t('battleReport.defended')}`)
     : (isAttacker ? `💀 ${t('battleReport.defeat')}`  : `⚔️ ${t('battleReport.overrun')}`);
 
-  const attSoldiersLost = a.att_soldiers_lost || 0;
-  const defSoldiersLost = a.def_soldiers_lost || 0;
+  const attSoldiersLost = a.attacker_soldiers_lost || a.att_soldiers_lost || 0;
+  const defSoldiersLost = a.defender_soldiers_lost || a.def_soldiers_lost || 0;
   const landGained      = a.land_loss        || 0;
   const moneyLooted     = (a.money_loss && a.success && isAttacker) ? Math.floor(a.money_loss / 2) : 0;
   const secLoss         = a.sec_loss         || 0;
@@ -175,10 +175,7 @@ function showPopup(a, myNationId, myUnits) {
             <div style="font-size:12px;font-weight:700;margin-bottom:8px;color:var(--text);">
               ${isAttacker ? `⚔️ ${t('battleReport.yourAttack')}` : `🛡️ ${t('battleReport.yourDefense')}`}
             </div>
-            ${mySoldiers > 0 ? `<div style="font-family:var(--font-mono);font-size:12px;color:${LOSS_COLOR};margin-bottom:4px;">
-              💀 ${t('battleReport.soldiersKilled', { count: mySoldiers.toLocaleString() })}
-            </div>` : ''}
-            ${buildLossesTable(isAttacker ? a.attacker_equipment_lost : a.defender_equipment_lost, '#f59e0b')}
+            ${buildLossesTableWithSoldiers(isAttacker ? a.attacker_equipment_lost : a.defender_equipment_lost, mySoldiers, '#f59e0b')}
           </div>
 
           <!-- Enemy side -->
@@ -188,17 +185,14 @@ function showPopup(a, myNationId, myUnits) {
             </div>
             ${(() => {
               const showEnemyDetail = isAttacker ? a.success : !a.success;
-              if (!showEnemyDetail) {
+              const enemyEquip = isAttacker ? a.defender_equipment_lost : a.attacker_equipment_lost;
+              if (!showEnemyDetail && oppSoldiers === 0) {
                 return `<div style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim);margin-top:4px;font-style:italic;">
                   ${t('battleReport.intelClassified')}
                 </div>`;
               }
-              return `
-                ${oppSoldiers > 0 ? `<div style="font-family:var(--font-mono);font-size:12px;color:${WIN_COLOR};margin-bottom:4px;">
-                  💀 ${t('battleReport.soldiersEliminated', { count: oppSoldiers.toLocaleString() })}
-                </div>` : ''}
-                ${buildLossesTable(isAttacker ? a.defender_equipment_lost : a.attacker_equipment_lost, '#e05252')}
-              `;
+              const equip = showEnemyDetail ? enemyEquip : null;
+              return buildLossesTableWithSoldiers(equip, oppSoldiers, '#e05252');
             })()}
           </div>
         </div>
@@ -280,6 +274,39 @@ function gainRow(icon, label, desc, color) {
   `;
 }
 
+function buildLossesTableWithSoldiers(equipmentLost, soldiers, accentColor) {
+  const rows = [];
+  if (soldiers > 0) {
+    rows.push(`
+      <div style="display:flex;justify-content:space-between;align-items:center;
+        padding:3px 0;border-bottom:1px solid var(--border-dim);">
+        <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);">
+          ${i18n.t('dashboard.soldiers')}
+        </span>
+        <span style="font-family:var(--font-mono);font-size:11px;font-weight:700;color:${accentColor};">
+          ×${soldiers.toLocaleString()}
+        </span>
+      </div>`);
+  }
+  if (equipmentLost && typeof equipmentLost === 'object') {
+    const entries = Object.entries(equipmentLost).filter(([, v]) => v > 0);
+    entries.forEach(([key, qty]) => {
+      rows.push(`
+        <div style="display:flex;justify-content:space-between;align-items:center;
+          padding:3px 0;border-bottom:1px solid var(--border-dim);">
+          <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);">
+            ${i18n.t('equipment.' + key, { defaultValue: key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) })}
+          </span>
+          <span style="font-family:var(--font-mono);font-size:11px;font-weight:700;color:${accentColor};">
+            ×${Number(qty).toLocaleString()}
+          </span>
+        </div>`);
+    });
+  }
+  if (!rows.length) return '';
+  return `<div style="margin-top:6px;">${rows.join('')}</div>`;
+}
+
 function buildLossesTable(equipmentLost, accentColor) {
   if (!equipmentLost || typeof equipmentLost !== 'object') return '';
   const entries = Object.entries(equipmentLost).filter(([, v]) => v > 0);
@@ -310,8 +337,8 @@ function typeLabel(attackType, scenarioType) {
 }
 
 function generateSummary(a, isAttacker, opponent) {
-  const attLost = a.att_soldiers_lost || 0;
-  const defLost = a.def_soldiers_lost || 0;
+  const attLost = a.attacker_soldiers_lost || a.att_soldiers_lost || 0;
+  const defLost = a.defender_soldiers_lost || a.def_soldiers_lost || 0;
   const opponentName = opponent?.name || t('battleReport.enemy');
 
   if (a.attack_type === 'conquest') {

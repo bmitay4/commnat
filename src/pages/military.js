@@ -87,9 +87,16 @@ export async function renderMilitary(user, profile, nation) {
             </div>
             <input type="range" id="draft-slider" min="5" max="40" step="1" value="${nation.draft_percent}" style="width:100%;accent-color:var(--accent);"/>
             <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-top:3px;">${t('military.draftCost')}</div>
+            <div id="draft-security-warning" style="font-family:var(--font-mono);font-size:10px;color:#e05252;margin-top:4px;font-weight:700;display:${nation.draft_percent > 20 ? 'block' : 'none'};">
+              ${nation.draft_percent > 20 ? t('military.draftSecWarning', { pct: nation.draft_percent, drain: (nation.draft_percent * 0.3).toFixed(1) }) : ''}
+            </div>
+            <div id="draft-cap-warning" style="font-family:var(--font-mono);font-size:10px;color:#f59e0b;margin-top:4px;font-weight:700;display:${nation.soldiers >= Math.floor(nation.population * nation.draft_percent / 100) ? 'block' : 'none'};">
+              ${nation.soldiers >= Math.floor(nation.population * nation.draft_percent / 100) ? t('military.draftAtCap', { soldiers: nation.soldiers.toLocaleString(), max: Math.floor(nation.population * nation.draft_percent / 100).toLocaleString() }) : ''}
+            </div>
           </div>
           <div style="display:flex;gap:8px;align-items:center;">
-            <input type="number" id="draft-amount" placeholder="${t('military.soldiers')}" min="1"
+            <input type="number" id="draft-amount" min="1"
+              value="${Math.max(0, Math.floor(nation.population * nation.draft_percent / 100) - nation.soldiers)}"
               style="flex:1;background:var(--surface2);border:1.5px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-mono);font-size:13px;padding:8px 10px;outline:none;"/>
             <button class="btn-submit" id="btn-draft" style="width:auto;padding:8px 14px;font-size:13px;letter-spacing:1px;border-radius:6px;">${t('military.draftBtn')}</button>
             <button class="btn-logout" id="btn-demob" style="font-size:11px;padding:8px 12px;white-space:nowrap;">${t('military.demobBtn')}</button>
@@ -303,15 +310,43 @@ window.updateOrder = function() {
 
 function bindEvents(user, profile, nation, invMap, equipTypes) {
   const slider = document.getElementById('draft-slider');
+  let draftSaveTimer = null;
   slider.addEventListener('input', () => {
     const pct = parseInt(slider.value);
     const maxAtPct = Math.floor(nation.population * pct / 100);
     const canDraft = Math.max(0, maxAtPct - nation.soldiers);
     document.getElementById('draft-pct-label').textContent = pct + '%';
     document.getElementById('draft-count').textContent = maxAtPct.toLocaleString();
-    // Update input to show how many can still be drafted at this %
     const amountInput = document.getElementById('draft-amount');
-    if (amountInput) amountInput.value = canDraft > 0 ? canDraft : '';
+    if (amountInput) amountInput.value = canDraft > 0 ? canDraft : 0;
+    const capWarning = document.getElementById('draft-cap-warning');
+    if (capWarning) {
+      if (nation.soldiers >= maxAtPct) {
+        capWarning.textContent = t('military.draftAtCap', { soldiers: nation.soldiers.toLocaleString(), max: maxAtPct.toLocaleString() });
+        capWarning.style.display = 'block';
+      } else {
+        capWarning.style.display = 'none';
+      }
+    }
+
+    // Show security warning if above 20%
+    const warningEl = document.getElementById('draft-security-warning');
+    if (warningEl) {
+      if (pct > 20) {
+        const drain = (pct * 0.3).toFixed(1);
+        warningEl.textContent = t('military.draftSecWarning', { pct, drain });
+        warningEl.style.display = 'block';
+      } else {
+        warningEl.style.display = 'none';
+      }
+    }
+
+    // Save draft_percent to DB immediately (debounced 600ms)
+    clearTimeout(draftSaveTimer);
+    draftSaveTimer = setTimeout(async () => {
+      await sb.from('nations').update({ draft_percent: pct }).eq('id', nation.id);
+      nation.draft_percent = pct;
+    }, 600);
   });
 
   document.getElementById('btn-draft').addEventListener('click', async () => {
