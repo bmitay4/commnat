@@ -483,6 +483,7 @@ function translateResultSummary(summary) {
   if (/missiles? got through|missiles? penetrat/i.test(summary)) {
     const mp = summary.match(/(\d+)/)?.[1] || '';
     const fd = summary.match(/(\d+)\s*facilit/i)?.[1] || '';
+    if (Number(mp) <= 0) return t('battleReport.summaryMissileIntercepted');
     if (mp && fd) return `${mp} ${t('attacks.missilesPenetrated')}. ${fd} ${t('attacks.facDestroyed')}`;
     return t('battleReport.summaryMissileHit', { penetrated: mp, facilities: fd });
   }

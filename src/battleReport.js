@@ -370,7 +370,9 @@ export function translateBattleResultSummary(summary, a = {}, isAttacker = true,
 
   if (!clean) return '';
   if (clean.includes('missiles got through') || clean.includes('facilities destroyed')) {
-    return t('battleReport.summaryMissileHit', { penetrated: mp, facilities: fd });
+    // BUG FIX: If 0 missiles penetrated, facilities destroyed must also be 0
+    const actualFacilities = mp > 0 ? fd : 0;
+    return t('battleReport.summaryMissileHit', { penetrated: mp, facilities: actualFacilities });
   }
   if (clean.includes('intercepted') || clean.includes('Missiles lost')) {
     return t('battleReport.summaryMissileIntercepted');
