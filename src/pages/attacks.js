@@ -637,7 +637,7 @@ function showResult(type, message, data, scenario, nation, onDismiss) {
         if (v > 0) chips.push(`<span style="color:#f59e0b;">💀 ${t('attacks.lostEquip', {count: v, unit: i18n.t('equipment.'+k, {defaultValue: k.replace(/_/g,' ')})})}</span>`);
       });
     }
-    if (data.def_eq_lost) {
+    if (data.success && data.def_eq_lost) {
       Object.entries(data.def_eq_lost).forEach(([k,v]) => {
         if (v > 0) chips.push(`<span style="color:#16a34a;">🎯 ${t('attacks.destroyedEquip', {count: v, unit: i18n.t('equipment.'+k, {defaultValue: k.replace(/_/g,' ')})})}</span>`);
       });

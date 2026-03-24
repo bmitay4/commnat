@@ -5,6 +5,7 @@ import { UNIT_SVGS } from '../unit-svgs.js';
 import { renderPageTopbar, bindPageNav } from '../nav.js';
 
 const MAX_LEVEL = 50;
+const HIDDEN_PURCHASE_EQUIPMENT_IDS = new Set(['carrier']);
 const localName = (item) => i18n.language === 'he' && item.name_he ? item.name_he : item.name;
 
 function upgradeCost(eq, currentLevel) {
@@ -118,7 +119,9 @@ export async function renderMilitary(user, profile, nation) {
         </div>
 
         ${categories.map(catId => {
-          const items = (equipTypes||[]).filter(e => e.category === catId);
+          const items = (equipTypes||[]).filter(
+            e => e.category === catId && !HIDDEN_PURCHASE_EQUIPMENT_IDS.has(e.id)
+          );
           if (!items.length) return '';
           return `
             <div>

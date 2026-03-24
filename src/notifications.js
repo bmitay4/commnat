@@ -13,15 +13,20 @@ function _translateNotif(notif) {
 
   const parts = notif.message.split(':');
   const msgKey = 'notifications.notif_' + parts[0];
-  const translatedMsg = i18n.t(msgKey);
-  if (translatedMsg !== msgKey && parts.length >= 3) {
-    message = translatedMsg
-      .replace('{{shortfall}}', Number(parts[1]).toLocaleString())
-      .replace('{{sec}}', parts[2])
-      .replace('{{alliance}}', parts[1]);
-  } else if (translatedMsg !== msgKey && parts.length === 2) {
-    message = translatedMsg.replace('{{alliance}}', parts[1]);
-  } else if (translatedMsg !== msgKey) {
+  const scenarioRaw = parts[2] || '';
+  const scenarioWords = scenarioRaw.split('_').map(w => w[0]?.toUpperCase() + w.slice(1)).join('');
+  const scenarioTranslated = scenarioRaw
+    ? i18n.t('attacks.scenario' + scenarioWords, { defaultValue: scenarioRaw.replace(/_/g, ' ') })
+    : '';
+  const translatedMsg = i18n.t(msgKey, {
+    defaultValue: msgKey,
+    shortfall: Number(parts[1] || 0).toLocaleString(),
+    sec: parts[2] || '',
+    alliance: parts[1] || '',
+    attacker: parts[1] || '',
+    scenario: scenarioTranslated,
+  });
+  if (translatedMsg !== msgKey) {
     message = translatedMsg;
   }
 

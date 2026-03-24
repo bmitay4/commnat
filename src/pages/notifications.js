@@ -13,20 +13,21 @@ function _translateNotif(notif) {
 
   const parts = notif.message.split(':');
   const msgKey = 'notifications.notif_' + parts[0];
-  const translatedMsg = i18n.t(msgKey);
+  const scenarioRaw = parts[2] || '';
+  const scenarioWords = scenarioRaw.split('_').map(w => w[0]?.toUpperCase() + w.slice(1)).join('');
+  const scenarioTranslated = scenarioRaw
+    ? i18n.t('attacks.scenario' + scenarioWords, { defaultValue: scenarioRaw.replace(/_/g, ' ') })
+    : '';
+  const translatedMsg = i18n.t(msgKey, {
+    defaultValue: msgKey,
+    shortfall: Number(parts[1] || 0).toLocaleString(),
+    sec: parts[2] || '',
+    alliance: parts[1] || '',
+    attacker: parts[1] || '',
+    scenario: scenarioTranslated,
+  });
   if (translatedMsg !== msgKey) {
-    // Translate scenario name for attack notifications
-    const scenarioRaw = parts[2] || '';
-    const scenarioWords = scenarioRaw.split('_').map(w => w[0]?.toUpperCase() + w.slice(1)).join('');
-    const scenarioTranslated = scenarioRaw
-      ? i18n.t('attacks.scenario' + scenarioWords, { defaultValue: scenarioRaw.replace(/_/g, ' ') })
-      : '';
-    message = translatedMsg
-      .replace('{{shortfall}}', Number(parts[1]).toLocaleString())
-      .replace('{{sec}}', parts[2] || '')
-      .replace('{{alliance}}', parts[1] || '')
-      .replace('{{attacker}}', parts[1] || '')
-      .replace('{{scenario}}', scenarioTranslated);
+    message = translatedMsg;
   }
 
   return { ...notif, title, message };

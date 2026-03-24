@@ -46,15 +46,16 @@ function showPopup(a, myNationId, myUnits) {
 
   const mySoldiers  = isAttacker ? attSoldiersLost : defSoldiersLost;
   const oppSoldiers = isAttacker ? defSoldiersLost : attSoldiersLost;
+  const revealEnemyLosses = isAttacker ? !!a.success : !a.success;
 
   // Count total equipment lost (for summary bar)
   const myEquipLost  = isAttacker ? a.attacker_equipment_lost : a.defender_equipment_lost;
   const oppEquipLost = isAttacker ? a.defender_equipment_lost : a.attacker_equipment_lost;
   const countEquip   = obj => obj && typeof obj === 'object' ? Object.values(obj).reduce((s, v) => s + (v || 0), 0) : 0;
   const myEquipTotal  = countEquip(myEquipLost);
-  const oppEquipTotal = countEquip(oppEquipLost);
+  const oppEquipTotal = revealEnemyLosses ? countEquip(oppEquipLost) : 0;
   const myTotalLosses  = mySoldiers + myEquipTotal;
-  const oppTotalLosses = oppSoldiers + oppEquipTotal;
+  const oppTotalLosses = revealEnemyLosses ? (oppSoldiers + oppEquipTotal) : 0;
 
   const date    = new Date(a.attacked_at);
   const dateStr = date.toLocaleDateString(i18n.language === 'he' ? 'he-IL' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -126,14 +127,14 @@ function showPopup(a, myNationId, myUnits) {
             myTotalLosses > 0 ? LOSS_COLOR : WIN_COLOR)}
 
         ${outcomeStat('💀', t('battleReport.enemyLosses'),
-            oppTotalLosses > 0
+            revealEnemyLosses && oppTotalLosses > 0
               ? (oppSoldiers > 0 && oppEquipTotal > 0
                   ? t('battleReport.soldiersCount', { count: oppSoldiers.toLocaleString() }) + ' + ' + oppEquipTotal + ' ' + t('battleReport.equipUnit')
                   : oppSoldiers > 0
                     ? t('battleReport.soldiersCount', { count: oppSoldiers.toLocaleString() })
                     : oppEquipTotal + ' ' + t('battleReport.equipUnit'))
               : t('battleReport.noLosses'),
-            oppTotalLosses > 0 ? WIN_COLOR : 'var(--text-muted)')}
+            revealEnemyLosses && oppTotalLosses > 0 ? WIN_COLOR : 'var(--text-muted)')}
 
         ${landGained > 0 && isAttacker && a.success
           ? outcomeStat('🗺️', t('battleReport.landCaptured'), `+${landGained} ${t('battleReport.units')}`, WIN_COLOR)
@@ -184,15 +185,14 @@ function showPopup(a, myNationId, myUnits) {
               ${isAttacker ? `🛡️ ${t('battleReport.enemyDefense')}` : `⚔️ ${t('battleReport.enemyAttack')}`}
             </div>
             ${(() => {
-              const showEnemyDetail = isAttacker ? a.success : !a.success;
+              const showEnemyDetail = revealEnemyLosses;
               const enemyEquip = isAttacker ? a.defender_equipment_lost : a.attacker_equipment_lost;
-              if (!showEnemyDetail && oppSoldiers === 0) {
+              if (!showEnemyDetail) {
                 return `<div style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim);margin-top:4px;font-style:italic;">
                   ${t('battleReport.intelClassified')}
                 </div>`;
               }
-              const equip = showEnemyDetail ? enemyEquip : null;
-              return buildLossesTableWithSoldiers(equip, oppSoldiers, '#e05252');
+              return buildLossesTableWithSoldiers(enemyEquip, oppSoldiers, '#e05252');
             })()}
           </div>
         </div>
