@@ -5,6 +5,7 @@ import { sb } from '../supabase.js';
 import { openBattleReport, translateBattleResultSummary } from '../battleReport.js';
 
 // ─── Scenario definitions ─────────────────────────────────────────────────────
+// 10 canonical scenarios matching the design doc
 
 function getScenarios() {
   return {
@@ -16,7 +17,7 @@ function getScenarios() {
         unit: 'ballistic',
         unitLabel: t('attacks.unitBallisticMissiles'),
         desc: t('attacks.descMissileStrike'),
-        cost: t('attacks.costMissilesConsumed'),
+        turns: 10,
         requiresMissileQty: true,
         color: '#e05252',
         risk: 'HIGH',
@@ -26,129 +27,107 @@ function getScenarios() {
         name: t('attacks.scenarioSead'),
         icon: '🎯',
         unit: 'cruise',
-        unitLabel: t('attacks.unitCruiseMissiles'),
+        unitLabel: t('attacks.unitCruiseJets'),
         desc: t('attacks.descSead'),
-        cost: t('attacks.costMissilesConsumed'),
+        turns: 10,
         requiresMissileQty: true,
         color: '#f59e0b',
         risk: 'MEDIUM',
       },
-      {
-        id: 'demoralization',
-        name: t('attacks.scenarioDemoralization'),
-        icon: '☢️',
-        unit: 'ballistic',
-        unitLabel: t('attacks.unitBallisticMissiles'),
-        desc: t('attacks.descDemoralization'),
-        cost: t('attacks.costMissilesConsumed'),
-        requiresMissileQty: true,
-        color: '#8b5cf6',
-        risk: 'HIGH',
-      },
     ],
     air: [
       {
-        id: 'air_superiority',
-        name: t('attacks.scenarioAirSuperiority'),
+        id: 'air_clash',
+        name: t('attacks.scenarioAirClash'),
         icon: '✈️',
         unit: 'fighter_jet',
         unitLabel: t('attacks.unitFighterJets'),
-        desc: t('attacks.descAirSuperiority'),
-        cost: t('attacks.costRiskJetLosses'),
+        desc: t('attacks.descAirClash'),
+        turns: 12,
         color: '#3b82f6',
         risk: 'HIGH',
       },
       {
-        id: 'carpet_bombing',
-        name: t('attacks.scenarioCarpetBombing'),
+        id: 'factory_bombing',
+        name: t('attacks.scenarioFactoryBombing'),
         icon: '💣',
         unit: 'bomber',
         unitLabel: t('attacks.unitBombers'),
-        desc: t('attacks.descCarpetBombing'),
-        cost: t('attacks.costHeavyBomberLosses'),
+        desc: t('attacks.descFactoryBombing'),
+        turns: 15,
         color: '#e05252',
         risk: 'VERY HIGH',
       },
       {
-        id: 'tank_hunter',
-        name: t('attacks.scenarioTankHunter'),
+        id: 'tank_hunt',
+        name: t('attacks.scenarioTankHunt'),
         icon: '🚁',
-        unit: 'helicopter',
-        unitLabel: t('attacks.unitHelicopters'),
-        desc: t('attacks.descTankHunter'),
-        cost: t('attacks.costRiskHeliLosses'),
+        unit: 'bomber',
+        unitLabel: t('attacks.unitBombers'),
+        desc: t('attacks.descTankHunt'),
+        turns: 15,
         color: '#16a34a',
+        risk: 'HIGH',
+      },
+    ],
+    naval: [
+      {
+        id: 'naval_raid',
+        name: t('attacks.scenarioNavalRaid'),
+        icon: '⚓',
+        unit: 'destroyer',
+        unitLabel: t('attacks.unitDestroyersSubs'),
+        desc: t('attacks.descNavalRaid'),
+        turns: 25,
+        color: '#3b82f6',
         risk: 'MEDIUM',
       },
     ],
     ground: [
       {
-        id: 'blitz_raid',
-        name: t('attacks.scenarioBlitzRaid'),
-        icon: '💰',
-        unit: 'tank',
-        unitLabel: t('attacks.unitTanksApcs'),
-        desc: t('attacks.descBlitzRaid'),
-        cost: t('attacks.costRiskTankApcLosses'),
+        id: 'commando_raid',
+        name: t('attacks.scenarioCommandoRaid'),
+        icon: '🎖️',
+        unit: 'helicopter',
+        unitLabel: t('attacks.unitHeliInfantry'),
+        desc: t('attacks.descCommandoRaid'),
+        turns: 20,
         color: '#f59e0b',
         risk: 'HIGH',
       },
       {
-        id: 'attrition',
-        name: t('attacks.scenarioAttrition'),
-        icon: '🔥',
+        id: 'mine_clearing',
+        name: t('attacks.scenarioMineClearing'),
+        icon: '💨',
         unit: 'artillery',
         unitLabel: t('attacks.unitArtillery'),
-        desc: t('attacks.descAttrition'),
-        cost: t('attacks.costMinimalLosses'),
+        desc: t('attacks.descMineClearing'),
+        turns: 8,
         color: '#16a34a',
         risk: 'LOW',
       },
       {
-        id: 'industrial_occupation',
-        name: t('attacks.scenarioFullAssault'),
+        id: 'total_invasion',
+        name: t('attacks.scenarioTotalInvasion'),
         icon: '⚔️',
         unit: 'tank',
-        unitLabel: t('attacks.unitAllGround'),
-        desc: t('attacks.descFullAssault'),
-        cost: t('attacks.costFullAssault'),
+        unitLabel: t('attacks.unitAllArmy'),
+        desc: t('attacks.descTotalInvasion'),
+        turns: 30,
         color: '#dc2626',
         risk: 'VERY HIGH',
       },
-    ],
-    naval: [
       {
-        id: 'naval_blockade',
-        name: t('attacks.scenarioNavalBlockade'),
-        icon: '⚓',
-        unit: 'destroyer',
-        unitLabel: t('attacks.unitDestroyersSubs'),
-        desc: t('attacks.descNavalBlockade'),
-        cost: t('attacks.costOngoing'),
-        color: '#3b82f6',
-        risk: 'MEDIUM',
-      },
-      {
-        id: 'submarine_hunt',
-        name: t('attacks.scenarioSubmarineHunt'),
-        icon: '🔱',
-        unit: 'destroyer',
-        unitLabel: t('attacks.unitDestroyers'),
-        desc: t('attacks.descSubmarineHunt'),
-        cost: t('attacks.costRiskDestroyerLosses'),
-        color: '#f59e0b',
-        risk: 'MEDIUM',
-      },
-      {
-        id: 'break_blockade',
-        name: t('attacks.scenarioBreakBlockade'),
-        icon: '⛵',
-        unit: 'bomber',
-        unitLabel: t('attacks.unitBombersDestroyers'),
-        desc: t('attacks.descBreakBlockade'),
-        cost: t('attacks.costRiskLosses'),
-        color: '#16a34a',
-        risk: 'MEDIUM',
+        id: 'scorched_earth',
+        name: t('attacks.scenarioScorchedEarth'),
+        icon: '🔥',
+        unit: 'cruise',
+        unitLabel: t('attacks.unitCruiseBombers'),
+        desc: t('attacks.descScorchedEarth'),
+        turns: 20,
+        requiresMissileQty: true,
+        color: '#8b5cf6',
+        risk: 'HIGH',
       },
     ],
   };
@@ -158,8 +137,8 @@ function categoryLabels() {
   return {
     missile: t('attacks.missile'),
     air:     t('attacks.air'),
-    ground:  t('attacks.ground'),
     naval:   t('attacks.naval'),
+    ground:  t('attacks.ground'),
   };
 }
 
@@ -343,10 +322,8 @@ function scenarioCard(s, unitMap, isBlockaded) {
   const inv = unitMap[s.unit] || { qty: 0, level: 1 };
   const hasUnits = inv.qty > 0;
   const riskColor = RISK_COLORS[s.risk] || 'var(--text-muted)';
-  const isBreakBlockade = s.id === 'break_blockade';
 
-  // Special case: break blockade only shows when blockaded
-  const dimmed = !hasUnits || (isBreakBlockade && !isBlockaded);
+  const dimmed = !hasUnits;
 
   return `
     <div class="scenario-card" data-scenario="${s.id}"
@@ -361,9 +338,14 @@ function scenarioCard(s, unitMap, isBlockaded) {
           <span style="font-size:20px;">${s.icon}</span>
           <div style="font-family:var(--font-title);font-size:14px;letter-spacing:1px;color:var(--text);margin-top:3px;">${s.name}</div>
         </div>
-        <span style="font-family:var(--font-mono);font-size:9px;font-weight:700;color:${riskColor};
-          background:${riskColor}18;border:1px solid ${riskColor}44;padding:2px 6px;border-radius:4px;
-          flex-shrink:0;white-space:nowrap;">${i18n.t('attacks.' + {'LOW':'low','MEDIUM':'medium','HIGH':'high','VERY HIGH':'veryHigh'}[s.risk] || s.risk)}</span>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;">
+          <span style="font-family:var(--font-mono);font-size:9px;font-weight:700;color:${riskColor};
+            background:${riskColor}18;border:1px solid ${riskColor}44;padding:2px 6px;border-radius:4px;
+            white-space:nowrap;">${i18n.t('attacks.' + {'LOW':'low','MEDIUM':'medium','HIGH':'high','VERY HIGH':'veryHigh'}[s.risk] || s.risk)}</span>
+          <span style="font-family:var(--font-mono);font-size:9px;font-weight:700;color:var(--accent);
+            background:var(--accent)18;border:1px solid var(--accent)44;padding:2px 6px;border-radius:4px;
+            white-space:nowrap;">⏱️ ${s.turns} ${t('attacks.turns')}</span>
+        </div>
       </div>
 
       <div style="font-size:12px;color:var(--text-muted);font-weight:500;margin-bottom:10px;line-height:1.5;">
@@ -566,7 +548,11 @@ function bindAttackEvents(user, profile, nation, recentAttacks, unitMap, targets
       if (mqInput) {
         missileQty = parseInt(mqInput.value) || 0;
         if (missileQty < 1) { showResult('error', t('attacks.errEnterMissiles'), null, null, null); return; }
-        const inv = unitMap[mqInput.closest('.scenario-card')?.getAttribute('data-scenario') === 'sead' ? 'cruise' : 'ballistic'];
+        // Find the scenario to know which unit type to check
+        const allScenarios = Object.values(getScenarios()).flat();
+        const sc = allScenarios.find(s => s.id === scenario);
+        const unitKey = sc?.unit || 'ballistic';
+        const inv = unitMap[unitKey];
         if (inv && missileQty > inv.qty) {
           showResult('error', t('attacks.onlyHaveMissiles', {count: inv.qty}), null, null, null); return;
         }
@@ -743,24 +729,25 @@ function timeUntil(ts) {
 
 function errorMessage(code) {
   const msgs = {
-    not_enough_missiles: t('attacks.errNotEnoughMissiles'),
-    no_missiles_selected:      t('attacks.errEnterMissiles'),
-    no_fighter_jets: t('attacks.errNoFighters'),
-    no_bombers: t('attacks.errNoBombers'),
-    no_helicopters: t('attacks.errNoHelis'),
-    no_tanks: t('attacks.errNoTanks'),
-    no_artillery: t('attacks.errNoArtillery'),
-    no_naval_units: t('attacks.errNoNaval'),
-    no_destroyers: t('attacks.errNoDestroyers'),
-    no_enemy_submarines: t('attacks.noEnemySubs'),
+    not_enough_missiles:          t('attacks.errNotEnoughMissiles'),
+    no_missiles_selected:         t('attacks.errEnterMissiles'),
+    no_fighter_jets:              t('attacks.errNoFighters'),
+    no_bombers:                   t('attacks.errNoBombers'),
+    no_helicopters:               t('attacks.errNoHelis'),
+    no_tanks:                     t('attacks.errNoTanks'),
+    no_artillery:                 t('attacks.errNoArtillery'),
+    no_naval_units:               t('attacks.errNoNaval'),
+    no_destroyers:                t('attacks.errNoDestroyers'),
+    no_enemy_submarines:          t('attacks.noEnemySubs'),
     requires_tanks_and_artillery: t('attacks.errRequiresTanksArtillery'),
-    blockade_already_active: t('attacks.errBlockadeActive'),
-    not_under_blockade: t('attacks.errNotBlockaded'),
-    need_bombers_or_destroyers: t('attacks.errNeedBombersDestroyers'),
-    not_enough_turns: t('attacks.errNotEnoughTurnsCode'),
-    cannot_attack_self: t('attacks.errCannotAttackSelf'),
-    attacker_not_found: t('attacks.errAttackerNotFound'),
-    defender_not_found: t('attacks.errDefenderNotFound'),
+    requires_ground_units:        t('attacks.errRequiresGroundUnits'),
+    blockade_already_active:      t('attacks.errBlockadeActive'),
+    not_under_blockade:           t('attacks.errNotBlockaded'),
+    need_bombers_or_destroyers:   t('attacks.errNeedBombersDestroyers'),
+    not_enough_turns:             t('attacks.errNotEnoughTurnsCode'),
+    cannot_attack_self:           t('attacks.errCannotAttackSelf'),
+    attacker_not_found:           t('attacks.errAttackerNotFound'),
+    defender_not_found:           t('attacks.errDefenderNotFound'),
   };
   return msgs[code] || code || 'Attack failed.';
 }
