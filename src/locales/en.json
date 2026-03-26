@@ -52,7 +52,7 @@
     "adminBadge": "Administrator"
   },
   "ticker": {
-    "nationsActive": "Nations Active",
+    "nationsActive": "Active Nations",
     "timeToReset": "Round Ends In"
   },
   "nation": {

@@ -400,7 +400,11 @@ function bindEvents(user, profile, nation, invMap, equipTypes) {
     let failed = false;
     for (const order of orders) {
       const cur = invMap[order.id] || { quantity: 0, level: 1 };
-      const { error } = await sb.from('military_units').upsert({ nation_id: nation.id, equipment_id: order.id, quantity: cur.quantity + order.qty, level: cur.level }, { onConflict: 'nation_id,equipment_id' });
+      // Always preserve the existing level — never overwrite it on purchase
+      const { error } = await sb.from('military_units').upsert(
+        { nation_id: nation.id, equipment_id: order.id, quantity: cur.quantity + order.qty, level: cur.level },
+        { onConflict: 'nation_id,equipment_id', ignoreDuplicates: false }
+      );
       if (error) { showMsg('purchase-msg', 'error', error.message); failed = true; break; }
       invMap[order.id] = { ...cur, quantity: cur.quantity + order.qty };
     }
@@ -456,9 +460,11 @@ function bindEvents(user, profile, nation, invMap, equipTypes) {
     const refund = Math.floor(qty * eq.cost_each * 0.5);
     if (!confirm(t('military.sellConfirm', { qty, name: localName(eq), refund: refund.toLocaleString() }))) return;
     const newQty = inv.quantity - qty;
-    const { error } = newQty > 0
-      ? await sb.from('military_units').update({ quantity: newQty }).eq('nation_id', nation.id).eq('equipment_id', typeId)
-      : await sb.from('military_units').delete().eq('nation_id', nation.id).eq('equipment_id', typeId);
+    // Always UPDATE (never delete) so that the level is preserved even when qty reaches 0
+    const { error } = await sb.from('military_units')
+      .update({ quantity: newQty })
+      .eq('nation_id', nation.id)
+      .eq('equipment_id', typeId);
     if (!error) {
       await sb.from('nations').update({ money: nation.money + refund }).eq('id', nation.id);
       await logActivity(user.id, nation.id, 'sell_equipment', { equipment: typeId, qty, refund });
