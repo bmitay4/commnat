@@ -73,12 +73,12 @@ function showPopup(a, myNationId, myUnits) {
   overlay.innerHTML = `
     <div id="battle-report-modal" style="
       background:var(--surface);
-      border:1.5px solid ${outcomeBorder};
-      border-top:4px solid ${outcomeColor};
+      border:0.5px solid ${outcomeBorder};
+      border-top:3px solid ${outcomeColor};
       border-radius:12px;
       width:100%;max-width:680px;
       max-height:90vh;overflow-y:auto;
-      box-shadow:0 24px 60px rgba(0,0,0,0.35);
+      box-shadow:0 20px 50px rgba(0,0,0,0.3);
       position:relative;
     ">
 
@@ -91,148 +91,110 @@ function showPopup(a, myNationId, myUnits) {
       " title="${t('close')}">✕</button>
 
       <!-- Header -->
-      <div style="padding:20px 24px 16px;border-bottom:1px solid var(--border);">
-        <div style="font-family:var(--font-title);font-size:22px;letter-spacing:3px;color:${outcomeColor};margin-bottom:6px;">
-          ${outcomeLabel}
+      <div style="padding:20px 24px;border-bottom:0.5px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+          <span style="font-size:28px;">${isWin ? '🏆' : '💀'}</span>
+          <div style="flex:1;">
+            <div style="font-size:20px;font-weight:500;color:${outcomeColor};margin-bottom:2px;">
+              ${isWin ? (isAttacker ? t('battleReport.victory') : t('battleReport.defended')) : (isAttacker ? t('battleReport.defeat') : t('battleReport.overrun'))}
+            </div>
+            <div style="font-size:13px;color:var(--text-muted);">
+              ${isAttacker ? t('attacks.attackOn') : t('attacks.attackedBy')}
+              <span style="color:var(--text);">${opponent?.name || t('battleReport.unknownNation')}</span>
+              <span style="margin-inline-start:6px;">•</span>
+              <span style="margin-inline-start:6px;">${dateStr}</span>
+            </div>
+          </div>
         </div>
-        <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;">
-          ${isAttacker ? t('attacks.attackOn') : t('attacks.attackedBy')}
-          <span style="color:var(--accent);">${opponent?.name || t('battleReport.unknownNation')}</span>
-          <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);margin-inline-start:8px;
-            background:var(--surface2);border:1px solid var(--border);padding:2px 7px;border-radius:4px;">
-            ${typeLabel(a.attack_type, a.scenario_type)}
-          </span>
-        </div>
-        <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);">
-          ${dateStr} · ${timeStr}
+        ${landGained > 0 && isAttacker && a.success 
+          ? `<div style="background:${outcomeBg};border:0.5px solid ${outcomeBorder};border-inline-start:3px solid ${outcomeColor};padding:10px 14px;border-radius:6px;">
+              <div style="font-size:14px;font-weight:500;color:${outcomeColor};margin-bottom:2px;">
+                +${landGained} ${t('battleReport.units')} ${t('battleReport.landCaptured')}
+              </div>
+              <div style="font-size:12px;color:var(--text-muted);">
+                ${typeLabel(a.attack_type, a.scenario_type)}
+              </div>
+            </div>`
+          : moneyLooted > 0
+          ? `<div style="background:${outcomeBg};border:0.5px solid ${outcomeBorder};border-inline-start:3px solid ${outcomeColor};padding:10px 14px;border-radius:6px;">
+              <div style="font-size:14px;font-weight:500;color:${outcomeColor};margin-bottom:2px;">
+                +$${moneyLooted.toLocaleString()} ${t('battleReport.looted')}
+              </div>
+              <div style="font-size:12px;color:var(--text-muted);">
+                ${typeLabel(a.attack_type, a.scenario_type)}
+              </div>
+            </div>`
+          : `<div style="font-size:12px;color:var(--text-muted);font-family:var(--font-mono);">
+              ${typeLabel(a.attack_type, a.scenario_type)}
+            </div>`
+        }
+      </div>
+
+      <!-- Battle Log (The Story) -->
+      <div style="padding:16px 24px;border-bottom:0.5px solid var(--border);">
+        <div style="background:${outcomeBg};border:0.5px solid ${outcomeBorder};border-inline-start:3px solid ${outcomeColor};padding:12px 14px;border-radius:6px;">
+          <div style="font-size:13px;line-height:1.7;color:var(--text);">
+            ${generateSummary(a, isAttacker, opponent)}
+          </div>
         </div>
       </div>
 
-      <!-- Outcome summary bar -->
-      <div style="
-        background:${outcomeBg};
-        border-bottom:1px solid ${outcomeBorder};
-        padding:14px 24px;
-        display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px;
-      ">
-        ${outcomeStat(isAttacker ? '⚔️' : '🛡️',
-            isAttacker ? t('battleReport.yourLosses') : t('battleReport.soldiersLost'),
-            myTotalLosses > 0
-              ? (mySoldiers > 0 && myEquipTotal > 0
-                  ? t('battleReport.soldiersCount', { count: mySoldiers.toLocaleString() }) + ' + ' + myEquipTotal + ' ' + t('battleReport.equipUnit')
-                  : mySoldiers > 0
-                    ? t('battleReport.soldiersCount', { count: mySoldiers.toLocaleString() })
-                    : myEquipTotal + ' ' + t('battleReport.equipUnit'))
-              : t('battleReport.noLosses'),
-            myTotalLosses > 0 ? LOSS_COLOR : WIN_COLOR)}
-
-        ${outcomeStat('💀', t('battleReport.enemyLosses'),
-            revealEnemyLosses && oppTotalLosses > 0
-              ? (oppSoldiers > 0 && oppEquipTotal > 0
-                  ? t('battleReport.soldiersCount', { count: oppSoldiers.toLocaleString() }) + ' + ' + oppEquipTotal + ' ' + t('battleReport.equipUnit')
-                  : oppSoldiers > 0
-                    ? t('battleReport.soldiersCount', { count: oppSoldiers.toLocaleString() })
-                    : oppEquipTotal + ' ' + t('battleReport.equipUnit'))
-              : t('battleReport.noLosses'),
-            revealEnemyLosses && oppTotalLosses > 0 ? WIN_COLOR : 'var(--text-muted)')}
-
-        ${landGained > 0 && isAttacker && a.success
-          ? outcomeStat('🗺️', t('battleReport.landCaptured'), `+${landGained} ${t('battleReport.units')}`, WIN_COLOR)
-          : landGained > 0 && !isAttacker && a.success
-          ? outcomeStat('🗺️', t('battleReport.landLost'), `-${landGained} ${t('battleReport.units')}`, LOSS_COLOR)
-          : ''}
-
-        ${moneyLooted > 0
-          ? outcomeStat('💰', t('battleReport.looted'), `+$${moneyLooted.toLocaleString()}`, WIN_COLOR)
-          : ''}
-
-        ${mySecChange !== null
-          ? outcomeStat('🛡️', t('battleReport.yourSecurity'),
-              mySecChange < 0 ? `${mySecChange}%` : t('battleReport.unchanged'),
-              mySecChange < 0 ? LOSS_COLOR : WIN_COLOR)
-          : isAttacker && secLoss > 0 && a.success
-          ? outcomeStat('🛡️', t('battleReport.enemySecurity'), `-${secLoss}%`, WIN_COLOR)
-          : ''}
-      </div>
-
-      <!-- Battle summary text -->
-      <div style="padding:14px 24px;border-bottom:1px solid var(--border);">
-        <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);
-          line-height:1.7;background:var(--surface2);padding:10px 14px;border-radius:6px;
-          border-inline-start:3px solid ${outcomeColor};">
-          ${generateSummary(a, isAttacker, opponent)}
-        </div>
-      </div>
-
-      <!-- Casualty breakdown -->
-      <div style="padding:16px 24px;border-bottom:1px solid var(--border);">
-        <div style="font-family:var(--font-mono);font-size:10px;font-weight:700;
-          color:var(--text-muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px;">
-          ⚔️ ${t('battleReport.casualtyReport')}
-        </div>
+      <!-- Casualties Report -->
+      <div style="padding:16px 24px;border-bottom:0.5px solid var(--border);">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-          <!-- My side -->
-          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
-            <div style="font-size:12px;font-weight:700;margin-bottom:8px;color:var(--text);">
-              ${isAttacker ? `⚔️ ${t('battleReport.yourAttack')}` : `🛡️ ${t('battleReport.yourDefense')}`}
+          <!-- Our Forces -->
+          <div>
+            <div style="font-size:12px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">
+              ${isAttacker ? t('battleReport.ourForces') : t('battleReport.ourDefense')}
             </div>
-            ${buildLossesTableWithSoldiers(isAttacker ? a.attacker_equipment_lost : a.defender_equipment_lost, mySoldiers, '#f59e0b')}
+            <div style="background:var(--surface2);border-radius:6px;padding:10px;">
+              ${buildLossesTableClean(isAttacker ? a.attacker_equipment_lost : a.defender_equipment_lost, mySoldiers, LOSS_COLOR)}
+            </div>
           </div>
 
-          <!-- Enemy side -->
-          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
-            <div style="font-size:12px;font-weight:700;margin-bottom:8px;color:var(--text);">
-              ${isAttacker ? `🛡️ ${t('battleReport.enemyDefense')}` : `⚔️ ${t('battleReport.enemyAttack')}`}
+          <!-- Enemy -->
+          <div>
+            <div style="font-size:12px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">
+              ${t('battleReport.enemy')}
             </div>
-            ${(() => {
-              const showEnemyDetail = revealEnemyLosses;
-              const enemyEquip = isAttacker ? a.defender_equipment_lost : a.attacker_equipment_lost;
-              if (!showEnemyDetail) {
-                return `<div style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim);margin-top:4px;font-style:italic;">
-                  ${t('battleReport.intelClassified')}
-                </div>`;
-              }
-              return buildLossesTableWithSoldiers(enemyEquip, oppSoldiers, '#e05252');
-            })()}
+            <div style="background:var(--surface2);border-radius:6px;padding:10px;">
+              ${(() => {
+                const showEnemyDetail = revealEnemyLosses;
+                const enemyEquip = isAttacker ? a.defender_equipment_lost : a.attacker_equipment_lost;
+                if (!showEnemyDetail) {
+                  return `<div style="font-size:12px;color:var(--text-muted);font-style:italic;padding:8px 0;">
+                    ${t('battleReport.intelClassified')}
+                  </div>`;
+                }
+                return buildLossesTableClean(enemyEquip, oppSoldiers, WIN_COLOR);
+              })()}
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Gains / losses detailed breakdown -->
-      ${(landGained > 0 || moneyLooted > 0 || secLoss > 0) ? `
-        <div style="padding:14px 24px;border-bottom:1px solid var(--border);">
-          <div style="font-family:var(--font-mono);font-size:10px;font-weight:700;
-            color:var(--text-muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px;">
-            📊 ${t('battleReport.gainsEffects')}
+      <!-- Strategic Impact -->
+      ${(secLoss > 0 && isAttacker && a.success) || (a.defender_facilities_destroyed && a.defender_facilities_destroyed > 0) ? `
+        <div style="padding:16px 24px;">
+          <div style="font-size:12px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">
+            ${t('battleReport.strategicImpact')}
           </div>
           <div style="display:flex;flex-direction:column;gap:8px;">
-            ${landGained > 0 ? gainRow(
-                '🗺️',
-                isAttacker && a.success ? t('battleReport.territoryCaptured') : t('battleReport.territoryLost'),
-                isAttacker && a.success
-                  ? t('battleReport.landAnnexed', { count: landGained })
-                  : t('battleReport.landSeized', { count: landGained }),
-                isAttacker && a.success ? WIN_COLOR : LOSS_COLOR
-              ) : ''}
-            ${moneyLooted > 0 ? gainRow('💰', t('battleReport.treasuryRaid'),
-                t('battleReport.looted') + ` $${moneyLooted.toLocaleString()}`, WIN_COLOR) : ''}
-            ${isAttacker && secLoss > 0 && a.success ? gainRow('🛡️', t('battleReport.destabilization'),
-                t('battleReport.secApplied', { pct: secLoss, name: opponent?.name || t('battleReport.enemy') }), WIN_COLOR) : ''}
-            ${!isAttacker && a.success && secLoss > 0 ? gainRow('🛡️', t('battleReport.securityDamage'),
-                t('battleReport.secDropped', { pct: secLoss }), LOSS_COLOR) : ''}
+            ${secLoss > 0 && isAttacker && a.success ? `
+              <div style="display:flex;align-items:center;gap:10px;background:var(--surface2);padding:10px 12px;border-radius:6px;">
+                <span style="font-size:18px;">📉</span>
+                <span style="font-size:13px;color:var(--text);">${t('battleReport.enemySecurityDropped', { pct: secLoss })}</span>
+              </div>
+            ` : ''}
+            ${a.defender_facilities_destroyed && a.defender_facilities_destroyed > 0 ? `
+              <div style="display:flex;align-items:center;gap:10px;background:var(--surface2);padding:10px 12px;border-radius:6px;">
+                <span style="font-size:18px;">🏭</span>
+                <span style="font-size:13px;color:var(--text);">${t('battleReport.factoriesDestroyed', { count: a.defender_facilities_destroyed })}</span>
+              </div>
+            ` : ''}
           </div>
         </div>
       ` : ''}
-
-      <!-- Footer -->
-      <div style="padding:12px 24px;display:flex;justify-content:flex-end;">
-        <button id="close-battle-report-btn" style="
-          background:var(--surface2);border:1.5px solid var(--border);
-          border-radius:6px;color:var(--text-muted);
-          font-family:var(--font-body);font-size:13px;font-weight:600;
-          padding:8px 20px;cursor:pointer;transition:all 0.15s;
-        ">${t('battleReport.closeReport')}</button>
-      </div>
 
     </div>
   `;
@@ -307,6 +269,41 @@ function buildLossesTableWithSoldiers(equipmentLost, soldiers, accentColor) {
   return `<div style="margin-top:6px;">${rows.join('')}</div>`;
 }
 
+function buildLossesTableClean(equipmentLost, soldiers, accentColor) {
+  const rows = [];
+  if (soldiers > 0) {
+    rows.push(`
+      <div style="display:flex;justify-content:space-between;align-items:center;
+        padding:6px 0;border-bottom:0.5px solid var(--border);">
+        <span style="font-size:12px;color:var(--text-muted);">
+          ${i18n.t('dashboard.soldiers')}
+        </span>
+        <span style="font-size:13px;font-weight:500;color:${accentColor};">
+          ${soldiers.toLocaleString()}
+        </span>
+      </div>`);
+  }
+  if (equipmentLost && typeof equipmentLost === 'object') {
+    const entries = Object.entries(equipmentLost).filter(([, v]) => v > 0);
+    entries.forEach(([key, qty]) => {
+      rows.push(`
+        <div style="display:flex;justify-content:space-between;align-items:center;
+          padding:6px 0;border-bottom:0.5px solid var(--border);">
+          <span style="font-size:12px;color:var(--text-muted);">
+            ${i18n.t('equipment.' + key, { defaultValue: key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) })}
+          </span>
+          <span style="font-size:13px;font-weight:500;color:${accentColor};">
+            ${Number(qty).toLocaleString()}
+          </span>
+        </div>`);
+    });
+  }
+  if (!rows.length) {
+    return `<div style="font-size:12px;color:var(--text-muted);padding:8px 0;">${i18n.t('battleReport.noLosses')}</div>`;
+  }
+  return `<div>${rows.join('')}</div>`;
+}
+
 function buildLossesTable(equipmentLost, accentColor) {
   if (!equipmentLost || typeof equipmentLost !== 'object') return '';
   const entries = Object.entries(equipmentLost).filter(([, v]) => v > 0);
@@ -341,6 +338,10 @@ function generateSummary(a, isAttacker, opponent) {
   const defLost = a.defender_soldiers_lost || a.def_soldiers_lost || 0;
   const opponentName = opponent?.name || t('battleReport.enemy');
 
+  // New battle log system based on attack type and scenario
+  const battleLog = generateBattleLog(a, isAttacker);
+  if (battleLog) return battleLog;
+
   if (a.attack_type === 'conquest') {
     if (a.success) return isAttacker
       ? t('battleReport.summaryConquestWin', { land: a.land_loss || 0, defLost: defLost.toLocaleString(), attLost: attLost.toLocaleString() })
@@ -360,6 +361,88 @@ function generateSummary(a, isAttacker, opponent) {
   // Generic / missile / air / naval — use result_summary from DB or generic fallback
   if (a.result_summary) return translateBattleResultSummary(a.result_summary, a, isAttacker, opponentName);
   return t('battleReport.battleConcluded');
+}
+
+function generateBattleLog(a, isAttacker) {
+  const scenario = a.scenario_type || a.attack_type;
+  const success = a.success;
+  
+  // Only generate battle logs for attacker
+  if (!isAttacker) return null;
+
+  // Missile Strike
+  if (scenario === 'missile_strike' || a.attack_type === 'missile') {
+    return success 
+      ? t('battleReport.logMissileSuccess')
+      : t('battleReport.logMissileIntercepted');
+  }
+
+  // SEAD (Suppression of Enemy Air Defenses)
+  if (scenario === 'sead' || 
+      scenario === 'suppress_air_defense' || 
+      scenario === 'suppress_air_defenses' ||
+      scenario === 'suppression_of_enemy_air_defenses' ||
+      a.attack_type === 'sead') {
+    return success
+      ? t('battleReport.logSeadSuccess')
+      : t('battleReport.logSeadFailure');
+  }
+
+  // Air Clash
+  if (scenario === 'air_clash' || scenario === 'air_superiority') {
+    return success
+      ? t('battleReport.logAirSuccess')
+      : t('battleReport.logAirFailure');
+  }
+
+  // Factory Bombing
+  if (scenario === 'factory_bombing' || scenario === 'bomb_factories') {
+    return success
+      ? t('battleReport.logFactorySuccess')
+      : t('battleReport.logFactoryFailure');
+  }
+
+  // Tank Hunt
+  if (scenario === 'tank_hunt' || scenario === 'hunt_armor') {
+    return success ? t('battleReport.logTankHuntSuccess') : null;
+  }
+
+  // Naval Raid
+  if (scenario === 'naval_raid' || scenario === 'blockade') {
+    return success
+      ? t('battleReport.logNavalSuccess')
+      : t('battleReport.logNavalFailure');
+  }
+
+  // Commando Raid
+  if (scenario === 'commando_raid' || scenario === 'spec_ops') {
+    return success ? t('battleReport.logCommandoSuccess') : null;
+  }
+
+  // Mine Clearing
+  if (scenario === 'mine_clearing' || scenario === 'clear_mines') {
+    const counterBattery = a.counter_battery_fire || false;
+    return counterBattery
+      ? t('battleReport.logMineClearingCounter')
+      : t('battleReport.logMineClearingSuccess');
+  }
+
+  // Total Invasion / Full Assault
+  if (scenario === 'total_invasion' || scenario === 'full_assault' || a.attack_type === 'conquest') {
+    if (success) {
+      const hitMines = a.hit_mines || a.mine_casualties || false;
+      return hitMines
+        ? t('battleReport.logInvasionMines')
+        : t('battleReport.logInvasionSuccess');
+    }
+  }
+
+  // Scorched Earth
+  if (scenario === 'scorched_earth' || a.attack_type === 'destruction') {
+    return success ? t('battleReport.logScorchedEarth') : null;
+  }
+
+  return null;
 }
 
 // Best-effort translation of stored English result_summary strings
@@ -382,7 +465,8 @@ export function translateBattleResultSummary(summary, a = {}, isAttacker = true,
       ? t('battleReport.summaryAirWin')
       : t('battleReport.summaryAirFail');
   }
-  if (clean.includes('SAM') || clean.includes('SEAD') || clean.includes('air defense')) {
+  if (clean.includes('SAM') || clean.includes('SEAD') || clean.includes('air defense') || 
+      clean.includes('air defence') || clean.includes('suppress') || clean.includes('SAM battery')) {
     return a.success ? t('battleReport.summarySEADWin') : t('battleReport.summarySEADFail');
   }
   if (clean.includes('blockade')) {

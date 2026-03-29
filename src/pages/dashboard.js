@@ -6,6 +6,99 @@ import { openBattleReport, translateBattleResultSummary } from '../battleReport.
 
 const t = (key, p) => i18n.t(key, p);
 
+function generateDashboardBattleLog(attack, isAttacker) {
+  const scenario = attack.scenario_type || attack.attack_type;
+  const success = attack.success;
+  
+  // For attacker
+  if (isAttacker) {
+    // Missile Strike
+    if (scenario === 'missile_strike' || attack.attack_type === 'missile') {
+      return success ? t('battleReport.logMissileSuccess') : t('battleReport.logMissileIntercepted');
+    }
+    
+    // SEAD
+    if (scenario === 'sead' || scenario === 'suppress_air_defense') {
+      return success ? t('battleReport.logSeadSuccess') : t('battleReport.logSeadFailure');
+    }
+    
+    // Air Clash
+    if (scenario === 'air_clash' || scenario === 'air_superiority') {
+      return success ? t('battleReport.logAirSuccess') : t('battleReport.logAirFailure');
+    }
+    
+    // Factory Bombing
+    if (scenario === 'factory_bombing' || scenario === 'bomb_factories') {
+      return success ? t('battleReport.logFactorySuccess') : t('battleReport.logFactoryFailure');
+    }
+    
+    // Tank Hunt
+    if (scenario === 'tank_hunt' || scenario === 'hunt_armor') {
+      return success ? t('battleReport.logTankHuntSuccess') : t('battleReport.logGenericHit');
+    }
+    
+    // Naval Raid
+    if (scenario === 'naval_raid' || scenario === 'blockade') {
+      return success ? t('battleReport.logNavalSuccess') : t('battleReport.logNavalFailure');
+    }
+    
+    // Commando Raid
+    if (scenario === 'commando_raid' || scenario === 'spec_ops') {
+      return success ? t('battleReport.logCommandoSuccess') : t('battleReport.logGenericHit');
+    }
+    
+    // Mine Clearing
+    if (scenario === 'mine_clearing' || scenario === 'clear_mines') {
+      const counterBattery = attack.counter_battery_fire || false;
+      return counterBattery ? t('battleReport.logMineClearingCounter') : t('battleReport.logMineClearingSuccess');
+    }
+    
+    // Total Invasion
+    if (scenario === 'total_invasion' || scenario === 'full_assault' || attack.attack_type === 'conquest') {
+      if (success) {
+        const hitMines = attack.hit_mines || attack.mine_casualties || false;
+        return hitMines ? t('battleReport.logInvasionMines') : t('battleReport.logInvasionSuccess');
+      }
+      return t('battleReport.logGenericHit');
+    }
+    
+    // Scorched Earth
+    if (scenario === 'scorched_earth' || attack.attack_type === 'destruction') {
+      return success ? t('battleReport.logScorchedEarth') : t('battleReport.logGenericHit');
+    }
+    
+    // Generic fallback
+    return success ? t('battleReport.summaryConquestWin', { land: attack.land_loss || 0, defLost: (attack.def_soldiers_lost || 0).toLocaleString(), attLost: (attack.att_soldiers_lost || 0).toLocaleString() }) : t('battleReport.summaryConquestFail', { attLost: (attack.att_soldiers_lost || 0).toLocaleString() });
+  }
+  
+  // For defender
+  const wasRepelled = !success;
+  
+  if (wasRepelled) {
+    if (scenario === 'missile_strike') return t('battleLog.defMissileRepelled');
+    if (scenario === 'sead' || scenario === 'suppress_air_defense') return t('battleLog.defSeadRepelled');
+    if (scenario === 'air_clash' || scenario === 'air_superiority') return t('battleLog.defAirRepelled');
+    if (scenario === 'factory_bombing' || scenario === 'bomb_factories') return t('battleLog.defFactoryRepelled');
+    if (scenario === 'naval_raid' || scenario === 'blockade') return t('battleLog.defNavalRepelled');
+    if (scenario === 'total_invasion' || scenario === 'full_assault') return t('battleLog.defInvasionRepelled');
+    return t('battleLog.defGenericRepelled');
+  }
+  
+  // Defender was successfully attacked
+  if (scenario === 'missile_strike') return t('battleLog.defMissileHit');
+  if (scenario === 'sead' || scenario === 'suppress_air_defense') return t('battleLog.defSeadHit');
+  if (scenario === 'air_clash' || scenario === 'air_superiority') return t('battleLog.defAirHit');
+  if (scenario === 'factory_bombing' || scenario === 'bomb_factories') return t('battleLog.defFactoryHit');
+  if (scenario === 'tank_hunt' || scenario === 'hunt_armor') return t('battleLog.defTankHuntHit');
+  if (scenario === 'naval_raid' || scenario === 'blockade') return t('battleLog.defNavalHit');
+  if (scenario === 'commando_raid' || scenario === 'spec_ops') return t('battleLog.defCommandoHit');
+  if (scenario === 'mine_clearing' || scenario === 'clear_mines') return t('battleLog.defMineCleared');
+  if (scenario === 'total_invasion' || scenario === 'full_assault') return t('battleLog.defInvasionHit');
+  if (scenario === 'scorched_earth') return t('battleLog.defScorchedEarth');
+  
+  return t('battleLog.defGenericHit');
+}
+
 export async function renderDashboard(user, profile) {
   const app = document.getElementById('app');
   app.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-size:13px;color:var(--text-muted);font-family:var(--font-body);font-weight:500;">${t('dashboard.loading')}</div>`;
@@ -119,7 +212,7 @@ export async function renderDashboard(user, profile) {
 
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;">
         ${statCard('💰', '$'+fmt(nation.money),         t('dashboard.money'),       netHr>=0?`+$${fmt(netHr)}${t('dashboard.perHourUnit')}`:`-$${fmt(Math.abs(netHr))}${t('dashboard.perHourUnit')}`, netHr>=0?'up':'down')}
-        ${statCard('👥', fmt(nation.population),         t('dashboard.population'),  `+10,000/${t('dashboard.perDay')}`,  'up')}
+        ${statCard('👥', fmt(nation.population),         t('dashboard.population'),  `+10,000/${t('dashboard.per20Min')}`,  'up')}
         ${statCard('🗺️', nation.land+' '+t('dashboard.landUnits'),           t('dashboard.land'),        `${totalFacilities} ${t('dashboard.facilities')}`, 'neutral')}
         ${statCard('⚔️', myAtk.toLocaleString(),         t('dashboard.attackPower'), '🛡️ '+myDef.toLocaleString()+' '+t('dashboard.defenseAbbr'), 'neutral')}
       </div>
@@ -166,18 +259,10 @@ export async function renderDashboard(user, profile) {
                 const isAtt = a.attacker_nation_id === nation.id;
                 const opp   = isAtt ? a.defender : a.attacker;
                 const win   = a.success ? isAtt : !isAtt;
-                const attLost = a.att_soldiers_lost || 0;
-                const defLost = a.def_soldiers_lost || 0;
-                const mySol   = isAtt ? attLost : defLost;
-                const oppSol  = isAtt ? defLost : attLost;
-                const land    = a.land_loss || 0;
-                const money   = a.money_loss ? Math.floor(a.money_loss / 2) : 0;
-                const chips   = [];
-                if (mySol > 0)                        chips.push(`<span style="color:#f59e0b;font-size:10px;">💀 ${mySol.toLocaleString()}</span>`);
-                if (oppSol > 0)                       chips.push(`<span style="color:#e05252;font-size:10px;">⚔️ ${oppSol.toLocaleString()} ${t('attacks.enemy')}</span>`);
-                if (land > 0 && isAtt && a.success)   chips.push(`<span style="color:var(--accent);font-size:10px;">🗺️ +${land}</span>`);
-                if (land > 0 && !isAtt && a.success)  chips.push(`<span style="color:#e05252;font-size:10px;">🗺️ -${land}</span>`);
-                if (money > 0 && isAtt && a.success)  chips.push(`<span style="color:#16a34a;font-size:10px;">💰 +$${money.toLocaleString()}</span>`);
+                
+                // Generate battle log summary
+                const battleLog = generateDashboardBattleLog(a, isAtt);
+                
                 return `
                   <div class="event-item dash-battle-row" data-attack-id="${a.id}"
                     style="cursor:pointer;transition:background 0.15s;"
@@ -189,8 +274,8 @@ export async function renderDashboard(user, profile) {
                         <span style="font-size:9px;color:var(--text-muted);background:var(--surface2);border:1px solid var(--border);
                           padding:1px 5px;border-radius:4px;margin-inline-start:4px;text-transform:uppercase;">${translateAttackType(a.attack_type, a.scenario_type)}</span>
                       </div>
-                      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:3px;">
-                        ${chips.length ? chips.join('') : `<span class="event-desc">${translateBattleResultSummary(a.result_summary, a, isAtt, opp?.name) || translateAttackType(a.attack_type, a.scenario_type)}</span>`}
+                      <div style="font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.5;">
+                        ${battleLog}
                       </div>
                     </div>
                     <div style="text-align:end;flex-shrink:0;">

@@ -233,16 +233,14 @@ function equipRow(eq, inv, money) {
       <td style="padding:8px;text-align:center;font-family:var(--font-mono);font-size:12px;color:var(--accent);">$${eq.cost_each.toLocaleString()}</td>
       <td style="padding:8px;text-align:center;font-family:var(--font-title);font-size:16px;color:${hasUnits ? '#16a34a' : 'var(--text-muted)'};">${qty.toLocaleString()}</td>
       <td style="padding:8px;text-align:center;">
-        ${hasUnits ? `
-          <div style="font-family:var(--font-mono);font-size:13px;font-weight:800;color:${level >= MAX_LEVEL ? '#f59e0b' : 'var(--accent)'};margin-bottom:4px;">
-            ${level >= MAX_LEVEL ? t('military.maxLevel') : t('military.levelLabel',{level})}
-          </div>
-          <div style="display:flex;gap:2px;justify-content:center;">${levelBar}</div>
-          <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-dim);margin-top:3px;">+${(level-1)*10}% power</div>
-        ` : `<span style="color:var(--text-dim);font-size:11px;">—</span>`}
+        <div style="font-family:var(--font-mono);font-size:13px;font-weight:800;color:${level >= MAX_LEVEL ? '#f59e0b' : (hasUnits ? 'var(--accent)' : 'var(--text-muted)')};margin-bottom:4px;">
+          ${level >= MAX_LEVEL ? t('military.maxLevel') : t('military.levelLabel',{level})}
+        </div>
+        <div style="display:flex;gap:2px;justify-content:center;">${levelBar}</div>
+        <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-dim);margin-top:3px;">+${(level-1)*10}% power</div>
       </td>
       <td style="padding:8px;text-align:center;">
-        ${hasUnits && !atMax ? `
+        ${!atMax ? `
           <button class="btn-upgrade" data-id="${eq.id}" data-cost="${upCost}" ${!canAfford ? 'disabled' : ''}
             style="font-family:var(--font-mono);font-size:10px;font-weight:700;padding:5px 10px;border-radius:5px;white-space:nowrap;cursor:pointer;
             border:1.5px solid ${canAfford ? 'var(--accent)' : 'var(--border)'};
@@ -250,9 +248,9 @@ function equipRow(eq, inv, money) {
             color:${canAfford ? 'var(--accent)' : 'var(--text-muted)'};opacity:${canAfford ? 1 : 0.6};">
             ${t('military.upgradeToLv',{level:level+1})}<br><span style="font-size:9px;">$${upCost.toLocaleString()}</span>
           </button>
-        ` : hasUnits && atMax ? `
+        ` : `
           <span style="font-family:var(--font-mono);font-size:10px;color:#f59e0b;font-weight:700;">${t('military.maxLevel')}</span>
-        ` : `<span style="color:var(--text-dim);font-size:11px;">—</span>`}
+        `}
       </td>
       <td style="padding:8px;text-align:center;">
         <input type="number" class="equip-qty" data-id="${eq.id}" data-cost="${eq.cost_each}" data-name="${eq.name}"
@@ -434,8 +432,19 @@ function bindEvents(user, profile, nation, invMap, equipTypes) {
       const eqId  = btn.getAttribute('data-id');
       const cost  = parseInt(btn.getAttribute('data-cost'));
       const eq    = equipTypes.find(e => e.id === eqId);
-      const inv   = invMap[eqId];
-      if (!eq || !inv) return;
+      if (!eq) return;
+      
+      let inv = invMap[eqId];
+      
+      // If no inventory record exists, create one with quantity 0 and level 1
+      if (!inv) {
+        const { error: createErr } = await sb.from('military_units')
+          .insert({ nation_id: nation.id, equipment_id: eqId, quantity: 0, level: 1 });
+        if (createErr) { showMsg('purchase-msg', 'error', createErr.message); return; }
+        inv = { quantity: 0, level: 1 };
+        invMap[eqId] = inv;
+      }
+      
       if (nation.money < cost) { showMsg('purchase-msg', 'error', t('military.errNotEnoughMoney', { cost: cost.toLocaleString(), balance: nation.money.toLocaleString() })); return; }
       btn.disabled = true; btn.innerHTML = t('military.processing');
       const newLevel = inv.level + 1;

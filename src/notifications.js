@@ -30,7 +30,43 @@ function _translateNotif(notif) {
     message = translatedMsg;
   }
 
-  return { ...notif, title, message };
+  // Add battle log detail for attack notifications
+  let battleDetail = '';
+  if (notif.title === 'danger_under_attack_success' || notif.title === 'danger_under_attack_repelled') {
+    battleDetail = _getBattleLogSummary(scenarioRaw, notif.title === 'danger_under_attack_repelled');
+  }
+
+  return { ...notif, title, message, battleDetail };
+}
+
+// Get a single-line battle log summary for notifications
+function _getBattleLogSummary(scenario, wasRepelled) {
+  if (!scenario) return '';
+  
+  // For defender who repelled attack
+  if (wasRepelled) {
+    if (scenario === 'missile_strike') return i18n.t('battleLog.defMissileRepelled');
+    if (scenario === 'sead' || scenario === 'suppress_air_defense') return i18n.t('battleLog.defSeadRepelled');
+    if (scenario === 'air_clash' || scenario === 'air_superiority') return i18n.t('battleLog.defAirRepelled');
+    if (scenario === 'factory_bombing' || scenario === 'bomb_factories') return i18n.t('battleLog.defFactoryRepelled');
+    if (scenario === 'naval_raid' || scenario === 'blockade') return i18n.t('battleLog.defNavalRepelled');
+    if (scenario === 'total_invasion' || scenario === 'full_assault') return i18n.t('battleLog.defInvasionRepelled');
+    return i18n.t('battleLog.defGenericRepelled');
+  }
+  
+  // For defender who was successfully attacked
+  if (scenario === 'missile_strike') return i18n.t('battleLog.defMissileHit');
+  if (scenario === 'sead' || scenario === 'suppress_air_defense') return i18n.t('battleLog.defSeadHit');
+  if (scenario === 'air_clash' || scenario === 'air_superiority') return i18n.t('battleLog.defAirHit');
+  if (scenario === 'factory_bombing' || scenario === 'bomb_factories') return i18n.t('battleLog.defFactoryHit');
+  if (scenario === 'tank_hunt' || scenario === 'hunt_armor') return i18n.t('battleLog.defTankHuntHit');
+  if (scenario === 'naval_raid' || scenario === 'blockade') return i18n.t('battleLog.defNavalHit');
+  if (scenario === 'commando_raid' || scenario === 'spec_ops') return i18n.t('battleLog.defCommandoHit');
+  if (scenario === 'mine_clearing' || scenario === 'clear_mines') return i18n.t('battleLog.defMineCleared');
+  if (scenario === 'total_invasion' || scenario === 'full_assault') return i18n.t('battleLog.defInvasionHit');
+  if (scenario === 'scorched_earth') return i18n.t('battleLog.defScorchedEarth');
+  
+  return i18n.t('battleLog.defGenericHit');
 }
 
 let _nation = null;
@@ -223,6 +259,11 @@ function _renderPanel(notifs) {
             <div style="font-size:12px;color:var(--text-muted);margin-top:6px;line-height:1.5;">
               ${n.message}
             </div>
+            ${n.battleDetail ? `
+              <div style="font-size:11px;color:var(--text-dim);margin-top:6px;padding-top:6px;border-top:1px solid var(--border);font-style:italic;line-height:1.4;">
+                ${n.battleDetail}
+              </div>
+            ` : ''}
           </div>
         `;
       }).join('')}
@@ -266,6 +307,11 @@ function _showToast(rawNotif) {
     <div style="font-size:12px;color:var(--text-muted);line-height:1.5;">
       ${notif.message}
     </div>
+    ${notif.battleDetail ? `
+      <div style="font-size:11px;color:var(--text-dim);margin-top:6px;padding-top:6px;border-top:1px solid var(--border);font-style:italic;line-height:1.4;">
+        ${notif.battleDetail}
+      </div>
+    ` : ''}
     <div style="font-size:11px;color:var(--text-dim);margin-top:6px;">
       ${i18n.t('notifications.clickToView')}
     </div>
