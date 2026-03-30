@@ -110,6 +110,7 @@
     "spies": "Spies",
     "satellites": "Satellites",
     "technology": "Technology",
+    "spySatLevel": "Spy / Sat Level",
     "antiSpySat": "Spy / Sat Defense",
     "techLevel": "Tech Lv {{level}}",
     "perDay": "day",

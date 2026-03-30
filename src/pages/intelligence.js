@@ -90,7 +90,7 @@ export async function renderIntelligence(user, profile, nation) {
           <span style="font-size:24px;">🔍</span>
           <div>
             <div class="inner-title">${t('intelligence.title')}</div>
-            <div class="inner-sub">${nation.name} · ${t('intelligence.techLvSub', {lv: intel.tech_level, maint: totalMaint2h.toLocaleString()})}</div>
+            <div class="inner-sub">${nation.name} · $${totalMaint2h.toLocaleString()}/2h</div>
           </div>
         </div>
         <!-- Status badges -->
@@ -114,12 +114,11 @@ export async function renderIntelligence(user, profile, nation) {
       <div class="msg" id="intel-msg" style="margin-bottom:12px;"></div>
 
       <!-- Stats row -->
-      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px;">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;">
         ${iStat('🕵️', intel.spies, t('intelligence.spiesTitle'), t('intelligence.levelNum',{level:intel.spy_level}))}
         ${iStat('🛰️', intel.satellites, t('intelligence.satellitesTitle'), t('intelligence.levelNum',{level:intel.sat_level}))}
         ${iStat('🛡️', t('intelligence.levelNum',{level:intel.anti_spy_level}), t('intelligence.counterIntelTitle'), `-${intel.anti_spy_level * 12}%`)}
         ${iStat('📡', t('intelligence.levelNum',{level:intel.anti_sat_level}), t('intelligence.antiSatTitle'), `-${intel.anti_sat_level * 12}%`)}
-        ${iStat('⚗️', t('intelligence.levelNum',{level:intel.tech_level}), t('intelligence.techTitle'), t('intelligence.techSuccessBonus', {pct: intel.tech_level * 5}))}
       </div>
 
       <!-- Two-column layout: Assets left, Missions right -->

@@ -110,6 +110,7 @@
     "spies": "מרגלים",
     "satellites": "לוויינים",
     "technology": "טכנולוגיה",
+    "spySatLevel": "דרגת מרגל/לוויין",
     "antiSpySat": "הגנת ריגול/לוויין",
     "techLevel": "רמת טכנולוגיה {{level}}",
     "perDay": "ביום",

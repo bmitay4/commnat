@@ -148,7 +148,7 @@ export async function renderDashboard(user, profile) {
     nation.alliance_id
       ? sb.from('alliance_members').select('role').eq('nation_id', nation.id).maybeSingle()
       : Promise.resolve({ data: null }),
-    sb.from('intelligence').select('spies, satellites, spy_level, sat_level, anti_spy_level, anti_sat_level').eq('nation_id', nation.id).maybeSingle(),
+    sb.from('intelligence').select('spies, satellites, spy_level, sat_level, tech_level, anti_spy_level, anti_sat_level').eq('nation_id', nation.id).maybeSingle(),
   ]);
 
   const facMap = Object.fromEntries((facilities || []).map(f => [f.facility_type_id, f.quantity]));
@@ -158,16 +158,6 @@ export async function renderDashboard(user, profile) {
     totalFacilities += qty;
     if (ftMap[id]) { incomeHr += qty * ftMap[id].income_per_hour; upkeepHr += qty * ftMap[id].maintenance_per_hour; }
   });
-  
-  // Apply security penalty to income
-  // Income is reduced based on security, but cannot drop below 40%
-  // Formula: income * (0.4 + (security / 100) * 0.6)
-  // At 100% security: income * (0.4 + 1.0 * 0.6) = income * 1.0 = 100% income
-  // At 0% security: income * (0.4 + 0 * 0.6) = income * 0.4 = 40% income
-  const securityMultiplier = 0.4 + (nation.security_index / 100) * 0.6;
-  const baseIncomeHr = incomeHr;
-  incomeHr = Math.floor(incomeHr * securityMultiplier);
-  
   const netHr = incomeHr - upkeepHr;
 
   let myAtk = 0, myDef = 0, myMaint2h = 0;
@@ -252,9 +242,9 @@ export async function renderDashboard(user, profile) {
         ${sectionCard('🔍', t('nav.intelligence'),
           (intelData?.spies||0)+' '+t('dashboard.spiesLabel'), t('dashboard.spies'),
           (intelData?.satellites||0)+' '+t('dashboard.satsLabel'), t('dashboard.satellites'),
-          (intelData?.spy_level||0)+' / '+(intelData?.sat_level||0), t('dashboard.spySatLevel'),
+          t('dashboard.techLevel', { level: intelData?.tech_level||0 }), t('dashboard.technology'),
           t('dashboard.antiLabel')+': '+(intelData?.anti_spy_level||0)+' / '+(intelData?.anti_sat_level||0), t('dashboard.antiSpySat'),
-          '#f59e0b', Math.min((((intelData?.spy_level||0) + (intelData?.sat_level||0)) / 2 / 10)*100, 100), 'intelligence')}
+          '#f59e0b', Math.min(((intelData?.tech_level||0)/5)*100, 100), 'intelligence')}
       </div>
 
       <div class="bottom-row">
@@ -525,28 +515,22 @@ function securityGauge(idx) {
     const filled = idx >= (i + 1) * 10;
     return `<div style="flex:1;height:100%;border-radius:2px;margin:0 1px;background:${filled ? c.fill : 'var(--border)'};opacity:${filled ? 1 : 0.35};"></div>`;
   }).join('');
-  const effects = (() => {
-    // Calculate actual income percentage: 40% floor + (security * 60% variable)
-    const incomePct = Math.floor(40 + (idx * 0.6));
-    if (idx <= 30) return t('dashboard.incomeLocked'); // "Income locked at 40%"
-    if (idx >= 100) return t('dashboard.fullIncome'); // "Full income"
-    return t('dashboard.incomeAt', { pct: incomePct }); // "Income at X%"
-  })();
+  const effects = idx <= 30 ? t('dashboard.incomeLocked') : idx > 80 ? t('dashboard.fullIncome') : t('dashboard.incomeAt', { pct: idx });
 
   return `
     <div style="background:var(--surface);border:1px solid ${c.fill}35;border-radius:var(--radius-lg);
-      padding:10px 14px;box-shadow:var(--shadow-sm);height:100%;
+      padding:14px 16px;box-shadow:var(--shadow-sm);height:100%;
       background:linear-gradient(135deg,var(--surface) 0%,${c.track} 100%);
       display:flex;flex-direction:column;justify-content:space-between;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
         <span style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">🛡️ ${t('dashboard.secLabel')}</span>
         <span style="font-size:10px;background:${c.fill}18;border:1px solid ${c.fill}45;border-radius:20px;
           padding:2px 8px;font-weight:800;color:${c.textColor};">${c.label}</span>
       </div>
-      <div style="font-size:22px;font-weight:800;color:${c.textColor};font-family:var(--font-mono);line-height:1;margin-bottom:6px;">
-        ${idx}<span style="font-size:14px;font-weight:600;">%</span>
+      <div style="font-size:32px;font-weight:800;color:${c.textColor};font-family:var(--font-mono);line-height:1;margin-bottom:8px;">
+        ${idx}<span style="font-size:18px;font-weight:600;">%</span>
       </div>
-      <div style="display:flex;height:4px;align-items:stretch;margin-bottom:4px;">${ticks}</div>
+      <div style="display:flex;height:7px;align-items:stretch;margin-bottom:6px;">${ticks}</div>
       <div style="font-size:11px;color:var(--text-muted);font-weight:500;">${effects}</div>
     </div>
   `;
