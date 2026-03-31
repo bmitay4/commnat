@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(head -20 grep -n \"phone\\\\|טלפון\" \"c:/Users/bmita/nation-commander/src/pages/auth.js\")"
+    ]
+  }
+}

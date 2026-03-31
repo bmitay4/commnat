@@ -101,13 +101,6 @@ export function renderAuth() {
                 <input type="password" id="reg-confirm" data-i18n-placeholder="auth.passwordPlaceholder" autocomplete="new-password" />
               </div>
             </div>
-            <div class="field">
-              <label>
-                <span data-i18n="auth.phoneLabel"></span>
-                <span class="optional-tag" data-i18n="auth.optional"></span>
-              </label>
-              <input type="tel" id="reg-phone" data-i18n-placeholder="auth.phonePlaceholder" autocomplete="tel" />
-            </div>
             <button class="btn-submit" id="btn-register" data-i18n="auth.registerBtn"></button>
             <div class="msg" id="register-msg"></div>
             
@@ -291,8 +284,6 @@ async function doRegister() {
   const email = document.getElementById('reg-email').value.trim();
   const password = document.getElementById('reg-password').value;
   const confirm = document.getElementById('reg-confirm').value;
-  const phone = document.getElementById('reg-phone').value.trim();
-
   if (!username || !email || !password || !confirm) { showMsg('register-msg', 'error', i18n.t('auth.errFillAll')); return; }
   if (username.length < 3) { showMsg('register-msg', 'error', i18n.t('auth.errUsername')); return; }
   if (password.length < 8) { showMsg('register-msg', 'error', i18n.t('auth.errPassLen')); return; }
@@ -301,17 +292,13 @@ async function doRegister() {
   setLoading('btn-register', true, 'auth.registerBtn');
   const { data, error } = await sb.auth.signUp({
     email, password,
-    options: { data: { username, phone: phone || null } },
+    options: { data: { username } },
   });
 
   if (error) {
     showMsg('register-msg', 'error', error.message.toUpperCase());
     setLoading('btn-register', false, 'auth.registerBtn');
     return;
-  }
-
-  if (phone && data.user) {
-    await sb.from('profiles').update({ phone }).eq('id', data.user.id);
   }
 
   showMsg('register-msg', 'success', i18n.t('auth.registerSuccess'));

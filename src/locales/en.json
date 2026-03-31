@@ -42,6 +42,9 @@
     "registerBtn": "Deploy Nation",
     "logoutBtn": "Stand Down",
     "loginSuccess": "Access granted. Loading command center...",
+    "googleSignIn": "Sign in with Google",
+"googleSignUp": "Sign up with Google",
+"orContinueWith": "Or continue with",
     "registerSuccess": "Nation deployed. Check your email to verify, then login.",
     "errFillAll": "All fields are required.",
     "errPassMatch": "Passwords do not match.",
@@ -57,7 +60,7 @@
   },
   "nation": {
     "foundTitle": "Found Your Nation",
-    "foundSubtitle": "Round {{round}} · Choose your nation's name",
+    "foundSubtitle": "Choose your nation's name",
     "nameLabel": "Nation Name",
     "namePlaceholder": "e.g. Republic of Nordavia",
     "startingStats": "Starting stats",

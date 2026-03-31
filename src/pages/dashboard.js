@@ -363,9 +363,9 @@ function renderCreateNation(app, user, profile, round) {
             <input type="text" id="nation-name" data-i18n-placeholder="nation.namePlaceholder" maxlength="40"/>
           </div>
           <div style="background:var(--surface2);border-radius:var(--radius-md);padding:12px 14px;margin-bottom:16px;font-size:12px;color:var(--text-muted);font-weight:500;line-height:1.9;">
-            <strong style="color:var(--text);" data-i18n="nation.startingStats"></strong><br>
-            1,000,000 population &nbsp;·&nbsp; 100 land units<br>
-            $50,000 treasury &nbsp;·&nbsp; 100% security &nbsp;·&nbsp; 100 turns
+            <strong style="color:var(--text);">${t('nation.startingStats')}</strong><br>
+            1,000,000 ${t('dashboard.population')} &nbsp;·&nbsp; 100 ${t('dashboard.land')} ${t('dashboard.landUnits')}<br>
+            $50,000 ${t('dashboard.treasury')} &nbsp;·&nbsp; 100% ${t('dashboard.security')} &nbsp;·&nbsp; 100 ${t('dashboard.turns')}
           </div>
           <button class="btn-submit" id="btn-found" data-i18n="nation.deployBtn"></button>
           <div class="msg" id="found-msg"></div>

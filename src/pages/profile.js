@@ -2,6 +2,7 @@ import i18n from '../i18n.js';
 import { THEMES, saveTheme } from '../theme.js';
 import { sb } from '../supabase.js';
 import { renderPageTopbar, bindPageNav } from '../nav.js';
+import { updateNotifPrefs } from '../notifications.js';
 
 const t = (key, p) => i18n.t(key, p);
 
@@ -69,10 +70,9 @@ export async function renderProfile(user, profile, nation) {
         box-shadow:var(--shadow-sm);
       ">
         <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:16px;">${t('profile.identity')}</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
           ${identityRow('👤', t('profile.username'), profileData?.username || profile?.username || '—')}
           ${identityRow('✉️', t('profile.email'), user.email || '—')}
-          ${identityRow('📱', t('profile.phone'), profileData?.phone || user.phone || t('profile.notSet'))}
           ${identityRow('🌍', t('profile.nation'), nationData?.name || t('profile.noNation'))}
         </div>
       </div>
@@ -290,6 +290,7 @@ export async function renderProfile(user, profile, nation) {
       notif_fiscal: document.getElementById('notif-fiscal').checked,
     };
     await sb.from('profiles').update(prefs).eq('id', user.id);
+    updateNotifPrefs(prefs);
     const msg = document.getElementById('notif-saved');
     msg.style.display = 'inline';
     setTimeout(() => { msg.style.display = 'none'; }, 2000);
@@ -340,9 +341,9 @@ function identityRow(icon, label, value) {
   return `
     <div style="
       background:var(--surface2);border:1px solid var(--border-dim);
-      border-radius:var(--radius-sm);padding:12px 14px;
+      border-radius:var(--radius-sm);padding:8px 12px;
     ">
-      <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">${icon} ${label}</div>
+      <div style="font-size:10px;color:var(--text-muted);margin-bottom:2px;">${icon} ${label}</div>
       <div style="font-size:13px;font-weight:600;color:var(--text);">${value}</div>
     </div>
   `;

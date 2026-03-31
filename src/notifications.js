@@ -72,15 +72,36 @@ function _getBattleLogSummary(scenario, wasRepelled) {
 let _nation = null;
 let _unreadCount = 0;
 let _realtimeSub = null;
+let _prefs = { notif_attacks: true, notif_alliance: true, notif_fiscal: true };
+
+// Map a notification title prefix to its preference key
+function _prefKeyFor(title) {
+  if (title.includes('attack') || title.includes('danger')) return 'notif_attacks';
+  if (title.includes('alliance') || title.includes('ally'))  return 'notif_alliance';
+  if (title.includes('fiscal') || title.includes('income') || title.includes('treasury')) return 'notif_fiscal';
+  return null; // no pref restriction — always show
+}
 
 // ── Public API ────────────────────────────────────────────
 
-export async function initNotifications(nation) {
+export async function initNotifications(nation, profile) {
   _nation = nation;
   if (!nation) return;
 
+  if (profile) {
+    _prefs = {
+      notif_attacks:  profile.notif_attacks  !== false,
+      notif_alliance: profile.notif_alliance !== false,
+      notif_fiscal:   profile.notif_fiscal   !== false,
+    };
+  }
+
   await _refreshUnread();
   _subscribeRealtime();
+}
+
+export function updateNotifPrefs(prefs) {
+  _prefs = { ..._prefs, ...prefs };
 }
 
 export function destroyNotifications() {
@@ -139,7 +160,10 @@ function _subscribeRealtime() {
     }, (payload) => {
       _unreadCount++;
       _updateBadge(_unreadCount);
-      _showToast(payload.new);
+      const prefKey = _prefKeyFor(payload.new.title || '');
+      if (prefKey === null || _prefs[prefKey] !== false) {
+        _showToast(payload.new);
+      }
     })
     .subscribe();
 }

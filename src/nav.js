@@ -84,7 +84,7 @@ export function renderPageTopbar(user, profile, nation, activePage) {
         border-inline-start:1px solid var(--border);
         height:100%;
       ">
-        <!-- Profile shield icon -->
+        <!-- Profile icon -->
         <button id="btn-profile" data-page="profile" style="
           background:none;border:1.5px solid var(--border);
           border-radius:var(--radius-sm);
@@ -95,7 +95,7 @@ export function renderPageTopbar(user, profile, nation, activePage) {
           cursor:pointer;flex-shrink:0;
           transition:all 0.15s;
           ${activePage === 'profile' ? 'border-color:var(--accent);color:var(--accent);background:var(--accent-bg);' : ''}
-        " title="${i18n.t('profile.title')}">🛡️</button>
+        " title="${i18n.t('profile.title')}">👤</button>
 
         ${nation ? `
           <button id="btn-notif-bell" style="
@@ -157,7 +157,7 @@ export function bindPageNav(user, profile, nation) {
   // Init notifications (fetch unread count + subscribe realtime)
   if (nation) {
     destroyNotifications(); // clean up any previous subscription
-    initNotifications(nation);
+    initNotifications(nation, profile);
   }
 }
 
